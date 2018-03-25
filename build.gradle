@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+
+version = "0.4"
+group = "kr.pe.ecmaxp.umpoc"
+archivesBaseName = "umpoc"
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+    options.encoding = 'UTF-8'
+}
+
+minecraft {
+    version = "1.12.2-14.23.2.2635"
+    runDir = "run"
+    
+    mappings = "snapshot_20171003"
+    makeObfSourceJar = true
+}
+
+repositories {
+    maven {
+        name = "cil.li"
+        url = "http://maven.cil.li/"
+    }
+}
+
+dependencies {
+    compile "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}

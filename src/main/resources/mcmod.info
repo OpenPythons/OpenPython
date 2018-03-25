@@ -1,0 +1,16 @@
+[
+{
+  "modid": "umpoc",
+  "name": "UMP-OC",
+  "description": "Unicorn + Micropython for OpenComputer ",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["EcmaXp"],
+  "credits": "OpenComputers, micropython, unicorn, ...",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
