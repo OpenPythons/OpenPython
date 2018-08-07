@@ -21,8 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package unicorn;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.*;
 
 public class Unicorn implements UnicornConst, ArmConst, Arm64Const, M68kConst, SparcConst, MipsConst, X86Const {
 
@@ -327,7 +326,7 @@ public class Unicorn implements UnicornConst, ArmConst, Arm64Const, M68kConst, S
  *
  * @param  arch  Architecture type (UC_ARCH_*)
  * @param  mode  Hardware mode. This is combined of UC_MODE_*
- * @see    UnicornConst
+ * @see    unicorn.UnicornConst
  *
  */
    public Unicorn(int arch, int mode) throws UnicornException {
@@ -369,7 +368,7 @@ public class Unicorn implements UnicornConst, ArmConst, Arm64Const, M68kConst, S
  *
  *  @param   arch   Architecture type (UC_ARCH_*)
  *  @return  true if this library supports the given arch.
- *  @see     UnicornConst
+ *  @see     unicorn.UnicornConst
  */
    public native static boolean arch_supported(int arch);
 
@@ -386,7 +385,7 @@ public class Unicorn implements UnicornConst, ArmConst, Arm64Const, M68kConst, S
  * @param   result   save the internal status queried
  *
  * @return: error code. see UC_ERR_*
- * @see     UnicornConst
+ * @see     unicorn.UnicornConst
  */
    public native int query(int type) throws UnicornException;
 
@@ -395,7 +394,7 @@ public class Unicorn implements UnicornConst, ArmConst, Arm64Const, M68kConst, S
  * Like glibc's errno, uc_errno might not retain its old value once accessed.
  *
  * @return Error code of uc_err enum type (UC_ERR_*, see above)
- * @see UnicornConst
+ * @see unicorn.UnicornConst
  */
    public native int errno();
 
@@ -404,7 +403,7 @@ public class Unicorn implements UnicornConst, ArmConst, Arm64Const, M68kConst, S
  *
  * @param  code   Error code (see UC_ERR_* above)
  * @return Returns a String that describes the error code
- * @see UnicornConst
+ * @see unicorn.UnicornConst
  */
    public native static String strerror(int code);
 
