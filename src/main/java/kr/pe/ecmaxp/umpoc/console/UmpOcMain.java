@@ -22,7 +22,7 @@ public class UmpOcMain
     {
         try
         {
-            System.loadLibrary("unicorn_x64");
+            System.loadLibrary("unicorn");
             uc = new Unicorn(UC_ARCH_ARM, UC_MODE_THUMB);
 
             File file = new File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\UMP-OC\\umport\\build\\firmware.bin");
@@ -39,15 +39,6 @@ public class UmpOcMain
 
             byte[] line = "print(1, 2, 3)\r\n".getBytes();
 
-            /*
-            BUG 1: begin, end is not working
-               - how to fix?
-                 1. check every memory assign (in user code)
-                 2. add multi hook to native uc (get hook id?)
-                 3. java Unicorn class always check boundary
-            BUG 2: assign in reading memory (address = pc?) => crash
-            */
-
             uc.hook_add(new MemHook()
             {
                 @Override
@@ -56,42 +47,37 @@ public class UmpOcMain
                     // if invaild page then error
                     // uc.mem_write(address, new byte[]{1, 2, 3, 4});
 
-                    if (0x40000000 <= address && address < 0x40000000 + 0x10000) {
-                        int value = 0;
-                        if (address == 0x4000010c) {
-                            value = 0x80000;
-                        } else if (address == 0x40000110) {
-                            value = 0x10000;
-                        } else if (address == 0x40000004) {
-                            if (pos < line.length) {
-                                byte ch = line[pos];
-                                value = ch;
-                                pos++;
-                            }
-                        } else {
-                            System.out.printf("read: %x, %d\r\n", address, size);
+                    int value = 0;
+                    if (address == 0x4000010c) {
+                        value = 0x80000;
+                    } else if (address == 0x40000110) {
+                        value = 0x10000;
+                    } else if (address == 0x40000004) {
+                        if (pos < line.length) {
+                            byte ch = line[pos];
+                            value = ch;
+                            pos++;
                         }
-
-                        ByteBuffer buffer = ByteBuffer.allocate(4);
-                        buffer.order(ByteOrder.LITTLE_ENDIAN);
-                        buffer.putInt(value);
-
-                        byte[] buf = buffer.array();
-                        u.mem_write(address, buf);
+                    } else {
+                        System.out.printf("read: %x, %d\r\n", address, size);
                     }
+
+                    ByteBuffer buffer = ByteBuffer.allocate(4);
+                    buffer.order(ByteOrder.LITTLE_ENDIAN);
+                    buffer.putInt(value);
+
+                    byte[] buf = buffer.array();
+                    u.mem_write(address, buf);
                 }
 
                 @Override
                 public void hook(Unicorn uc, long address, int size, long value, Object user)
                 {
-                    if (0x40000000 <= address && address < 0x40000000 + 0x10000)
-                    {
-                        if (address == 0x40000000) {
-                            System.out.append((char)value);
-                        }
-
-                        // System.out.printf("write: %x, %d, %d\n", address, size, value);
+                    if (address == 0x40000000) {
+                        System.out.append((char)value);
                     }
+
+                    // System.out.printf("write: %x, %d, %d\n", address, size, value);
                 }
             }, 0x40000000, 0x40000000 + 0x10000, null);
 
