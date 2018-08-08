@@ -12,7 +12,7 @@ public class OpenPie
 {
     public static final String MODID = "openpie";
     public static final String NAME = "OpenPie";
-    public static final String VERSION = "0.1";
+    public static final String VERSION = "0.4";
 
     private static Logger logger;
 
