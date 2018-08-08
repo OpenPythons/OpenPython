@@ -1,7 +1,7 @@
 [
 {
-  "modid": "umpoc",
-  "name": "UMP-OC",
+  "modid": "openpie",
+  "name": "OpenPie",
   "description": "Unicorn + Micropython for OpenComputer ",
   "version": "${version}",
   "mcversion": "${mcversion}",

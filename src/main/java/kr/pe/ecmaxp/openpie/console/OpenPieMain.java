@@ -22,7 +22,7 @@ public class OpenPieMain
             System.loadLibrary("unicorn_x64");
             uc = new Unicorn(UC_ARCH_ARM, UC_MODE_THUMB);
 
-            File file = new File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\UMP-OC\\umport\\build\\firmware.bin");
+            File file = new File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\openpie\\oprom\\build\\firmware.bin");
             byte[] firmware = Files.readAllBytes(file.toPath());
             uc.mem_map(0x08000000, 0x100000, UC_PROT_READ | UC_PROT_EXEC); // flash
             uc.mem_map(0x20000000, 0x80000, UC_PROT_READ | UC_PROT_WRITE); // sram
