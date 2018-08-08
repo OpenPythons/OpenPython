@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.umpoc;
+package kr.pe.ecmaxp.openpie;
 
 import net.minecraft.init.Blocks;
 import net.minecraftforge.fml.common.Mod;
@@ -7,12 +7,12 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = UmpOcMod.MODID, name = UmpOcMod.NAME, version = UmpOcMod.VERSION)
-public class UmpOcMod
+@Mod(modid = OpenPie.MODID, name = OpenPie.NAME, version = OpenPie.VERSION)
+public class OpenPie
 {
-    public static final String MODID = "umpoc";
-    public static final String NAME = "UMP-OC";
-    public static final String VERSION = "0.4";
+    public static final String MODID = "openpie";
+    public static final String NAME = "OpenPie";
+    public static final String VERSION = "0.1";
 
     private static Logger logger;
 
