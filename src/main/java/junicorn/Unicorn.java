@@ -14,6 +14,7 @@ public class Unicorn implements JavaUnicornConst, UnicornConst, ArmConst, Arm64C
     private HashMap<Hook, Long> HookIdMap = new HashMap<>();
     private int hook_id_counter = 1;
 
+    private Exception pendingException;
     private int arch;
     private int mode;
 
@@ -64,9 +65,25 @@ public class Unicorn implements JavaUnicornConst, UnicornConst, ArmConst, Arm64C
         return uc_errno(engine);
     }
 
-    public void emu_start(long begin, long until, long timeout, long count) throws UnicornException
+    public void emu_start(long begin, long until, long timeout, long count) throws Exception
     {
         uc_emu_start(engine, begin, until, timeout, count);
+
+        Exception exc = getPendingException();
+        clearPendingException();
+        if (exc != null) {
+            throw exc;
+        }
+    }
+
+    public Exception getPendingException()
+    {
+        return pendingException;
+    }
+
+    public void clearPendingException()
+    {
+        pendingException = null;
     }
 
     public void emu_stop() throws UnicornException
@@ -271,5 +288,20 @@ public class Unicorn implements JavaUnicornConst, UnicornConst, ArmConst, Arm64C
     public MemoryRegion[] mem_regions() throws UnicornException
     {
         return uc_mem_regions(engine);
+    }
+
+    public boolean HandleException(Exception e)
+    {
+        pendingException = e;
+
+        try
+        {
+            emu_stop();
+        }
+        catch (UnicornException ignored)
+        {
+        }
+
+        return false;
     }
 }
