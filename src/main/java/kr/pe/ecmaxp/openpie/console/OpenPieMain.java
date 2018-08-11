@@ -23,7 +23,7 @@ public class OpenPieMain
 
     public static void main(String[] args) throws UnicornException, IOException, InterruptedException
     {
-        System.loadLibrary("unicorn_x64");
+        System.loadLibrary("unicorn");
         Unicorn uc = new Unicorn(UC_ARCH_ARM, UC_MODE_THUMB);
 
         File file = new File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\openpie\\oprom\\build\\firmware.bin");

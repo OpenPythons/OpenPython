@@ -26,7 +26,7 @@ public class UnicornNative
 
     native static void uc_reg_write(long engine, int regid, long value) throws UnicornException;
 
-    native static void uc_mem_read(long engine, long address, byte[] data, long size) throws UnicornException;
+    native static byte[] uc_mem_read(long engine, long address, long size) throws UnicornException;
 
     native static void uc_mem_write(long engine, long address, byte[] data, long size) throws UnicornException;
 

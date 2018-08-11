@@ -6,6 +6,11 @@ public class UnicornException extends Exception
 {
     private int errno;
 
+    public UnicornException(String message)
+    {
+        super(message);
+    }
+
     public UnicornException(int errno)
     {
         super(uc_strerror(errno));

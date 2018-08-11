@@ -138,10 +138,7 @@ public class Unicorn implements JavaUnicornConst, UnicornConst, ArmConst, Arm64C
 
     public byte[] mem_read(long address, long size) throws UnicornException
     {
-        assert (int)size == size;
-        byte[] data = new byte[(int)size];
-        uc_mem_read(engine, address, data, size);
-        return data;
+        return uc_mem_read(engine, address, size);
     }
 
     public void mem_write(long address, byte[] data) throws UnicornException
