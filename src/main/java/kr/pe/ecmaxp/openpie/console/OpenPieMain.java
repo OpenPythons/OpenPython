@@ -3,6 +3,7 @@ package kr.pe.ecmaxp.openpie.console;
 import junicorn.MemoryAccessHook;
 import junicorn.Unicorn;
 import junicorn.UnicornException;
+import kr.pe.ecmaxp.openpie.PeripheralAddress;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class OpenPieMain
 {
     static int pos = 0;
 
-    public static void main(String[] args) throws UnicornException, IOException, InterruptedException
+    public static void main(String[] args) throws Exception
     {
         System.loadLibrary("unicorn");
         Unicorn uc = new Unicorn(UC_ARCH_ARM, UC_MODE_THUMB);
@@ -42,65 +43,6 @@ public class OpenPieMain
 
         uc_version();
 
-        uc.hook_add(
-                UC_HOOK_MEM_READ,
-                (MemoryAccessHook)(uc2, type, address, size, value, user) ->
-                {
-                    try{
-                        // if invaild page then error
-                        // uc.mem_write(address, new byte[]{1, 2, 3, 4});
-                        if (address == 0x4000010c)
-                        {
-                            value = 0x80000;
-                        }
-                        else if (address == 0x40000110)
-                        {
-                            value = 0x10000;
-                        }
-                        else if (address == 0x40000004)
-                        {
-                            if (pos < line.length)
-                            {
-                                byte ch = line[pos];
-                                value = ch;
-                                pos++;
-                            }
-                        }
-                        else
-                        {
-                            System.out.printf("read: %x, %d\r\n", address, size);
-                        }
-
-                        ByteBuffer buffer = ByteBuffer.allocate(4);
-                        buffer.order(ByteOrder.LITTLE_ENDIAN);
-                        buffer.putInt((int) value);
-
-                        byte[] buf = buffer.array();
-                        uc2.mem_write(address, buf);
-                    } catch (UnicornException ignored)
-                    {
-                    }
-                },
-                0x40000000,
-                0x40000000 + 0x10000,
-                null
-        );
-
-        uc.hook_add(
-                UC_HOOK_MEM_WRITE,
-                (MemoryAccessHook) (uc2, type, address, size, value, user) ->
-                {
-                    if (address == 0x40000000)
-                    {
-                        System.out.append((char) value);
-                    }
-                    // System.out.printf("write: %x, %d, %d\n", address, size, value);
-                },
-                0x40000000,
-                0x40000000 + 0x10000,
-                null
-        );
-
         //noinspection InfiniteLoopStatement
         do
         {
@@ -111,4 +53,13 @@ public class OpenPieMain
 
         // uc.close();
     }
+
+    public MemoryAccessHook WriteAccessHook = (uc2, type, address, size, value, user) ->
+    {
+        if (address == 0x40000000)
+        {
+            System.out.append((char) value);
+        }
+        // System.out.printf("write: %x, %d, %d\n", address, size, value);
+    };
 }

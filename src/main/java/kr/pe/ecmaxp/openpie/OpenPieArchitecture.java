@@ -4,6 +4,7 @@ import junicorn.UnicornException;
 import li.cil.oc.api.machine.Architecture;
 import li.cil.oc.api.machine.ExecutionResult;
 import li.cil.oc.api.machine.Machine;
+import li.cil.oc.api.machine.Signal;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -43,6 +44,9 @@ public class OpenPieArchitecture implements Architecture
         System.out.println(toString() + ": initialize()");
         try
         {
+            if (vm != null)
+                vm.close();
+
             vm = new OpenPieVirtualMachine();
             initialized = vm.init();
         }
@@ -69,46 +73,64 @@ public class OpenPieArchitecture implements Architecture
     @Override
     public void runSynchronized()
     {
-        synchronized (this)
-        {
-            try
-            {
-                vm.step();
-            }
-            catch (UnicornException e)
-            {
-                e.printStackTrace();
-                machine.stop();
-                close();
-            }
+        while (vm.hasCalls()) {
+            Call call = vm.popCalls();
+            Result result = call.invoke(machine);
+            vm.pushResult(result);
         }
+
+        step(true);
     }
 
     @Override
     public ExecutionResult runThreaded(boolean isSynchronizedReturn)
     {
-        if (!isSynchronizedReturn)
-            synchronized (this)
-            {
-                try
-                {
-                    vm.step();
-                }
-                catch (UnicornException e)
-                {
-                    e.printStackTrace();
-                    machine.stop();
-                    close();
-                }
+        if (!isSynchronizedReturn) {
+            // calling
+            if (!step(false)) {
+                return new ExecutionResult.Shutdown(false);
             }
 
+            if (vm.hasCalls()) {
+                return new ExecutionResult.SynchronizedCall();
+            }
+        }
+
         return new ExecutionResult.Sleep(0);
+    }
+
+    private synchronized boolean step(boolean isSynchronized) {
+        try
+        {
+            vm.step(isSynchronized);
+            return true;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            machine.stop();
+            close();
+            return false;
+        }
     }
 
     @Override
     public void onSignal()
     {
-        System.out.println(toString() + ": onSignal()");
+        Signal signal = machine.popSignal();
+        StringBuilder builder = new StringBuilder();
+        builder.append(signal.name());
+        builder.append('(');
+        for (Object arg: signal.args()) {
+            builder.append(arg);
+            builder.append(", ");
+        }
+        builder.deleteCharAt(builder.length() - 1);
+        builder.deleteCharAt(builder.length() - 1);
+        builder.append(')');
+
+        System.out.println(toString() + ": onSignal(" + builder.toString() + ")");
+        vm.onSignal(signal);
     }
 
     @Override
@@ -132,6 +154,6 @@ public class OpenPieArchitecture implements Architecture
     @Override
     public String toString()
     {
-        return "OpenPieArchitecture{id=" + id + ", vm=" + vm + '}';
+        return "OpenPieArchitecture{id=" + id + ", vm=" + (vm == null? "(null)": vm.hashCode()) + '}';
     }
 }
