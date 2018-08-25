@@ -23,12 +23,6 @@ public class OpenPieVirtualMachine
     private ArrayDeque<Call> calls;
     private Monitor monitor;
 
-    static
-    {
-        // TODO: drop dll when starting mod
-        System.loadLibrary("unicorn");
-    }
-
     OpenPieVirtualMachine()
     {
     }
