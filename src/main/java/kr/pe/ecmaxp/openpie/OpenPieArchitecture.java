@@ -1,6 +1,5 @@
 package kr.pe.ecmaxp.openpie;
 
-import junicorn.UnicornException;
 import li.cil.oc.api.machine.Architecture;
 import li.cil.oc.api.machine.ExecutionResult;
 import li.cil.oc.api.machine.Machine;
@@ -50,7 +49,7 @@ public class OpenPieArchitecture implements Architecture
             vm = new OpenPieVirtualMachine();
             initialized = vm.init();
         }
-        catch (UnicornException e)
+        catch (Exception e)
         {
             e.printStackTrace();
             return false;

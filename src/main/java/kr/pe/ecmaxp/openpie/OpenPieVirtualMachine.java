@@ -1,9 +1,8 @@
 package kr.pe.ecmaxp.openpie;
 
-import junicorn.MemoryAccessHook;
-import junicorn.MemoryInvaildHook;
-import junicorn.Unicorn;
-import junicorn.UnicornException;
+import kr.pe.ecmaxp.thumbsj.CPU;
+import kr.pe.ecmaxp.thumbsj.Memory;
+import kr.pe.ecmaxp.thumbsj.exc.InvalidMemoryException;
 import li.cil.oc.api.machine.Signal;
 
 import java.io.File;
@@ -13,14 +12,13 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static junicorn.ArmConst.UC_ARM_REG_PC;
-import static junicorn.UnicornConst.*;
 import static kr.pe.ecmaxp.openpie.PeripheralAddress.*;
+import static kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.PC;
 
 
 public class OpenPieVirtualMachine
 {
-    private Unicorn uc;
+    private CPU cpu;
     private ArrayDeque<Character> charBuffer;
     private ArrayDeque<Call> calls;
     private Monitor monitor;
@@ -35,12 +33,9 @@ public class OpenPieVirtualMachine
     {
     }
 
-    boolean init() throws UnicornException
+    boolean init() throws InvalidMemoryException
     {
-        if (uc != null)
-            uc.close();
-
-        uc = new Unicorn(UC_ARCH_ARM, UC_MODE_THUMB);
+        cpu = new CPU();
         byte[] firmware = loadFirmware();
 
         if (firmware == null)
@@ -59,34 +54,99 @@ public class OpenPieVirtualMachine
         return true;
     }
 
-    private void memoryMapping(byte[] firmware) throws UnicornException
+    private void memoryMapping(byte[] firmware) throws InvalidMemoryException
     {
-        uc.mem_map(0x08000000, 0x100000, UC_PROT_READ | UC_PROT_EXEC); // flash
-        uc.mem_map(0x20000000, 0x80000, UC_PROT_READ | UC_PROT_WRITE); // sram
-        uc.mem_map(0x3FFF0000, 0x10000, UC_PROT_READ | UC_PROT_WRITE); // stack
-        uc.mem_map(0x40000000, 0x10000, UC_PROT_READ | UC_PROT_WRITE); // peripheral
-        uc.mem_map(0xE0100000, 0x10000, UC_PROT_READ | UC_PROT_WRITE); // syscall
-        uc.mem_write(0x08000000, firmware);
+        Memory memory = cpu.memory;
+        memory.map(0x08000000, 0x100000, false); // flash
+        memory.map(0x20000000, 0x80000, false); // sram
+        memory.map(0x3FFF0000, 0x10000, false); // stack
+        memory.map(0x40000000, 0x10000, true); // peripheral
+        memory.map(0xE0100000, 0x10000, true); // syscall
+        memory.writeBuffer(0x08000000, firmware);
     }
 
-    private void initReady() throws UnicornException
+    private void initReady() throws InvalidMemoryException
     {
-        uc.reg_write(UC_ARM_REG_PC, fromNumberBuffer(uc.mem_read(0x08000000 + 4, 4)));
+        cpu.regs.set(PC, cpu.memory.readInt(0x08000000 + 4));
     }
 
-    private void readyHook() throws UnicornException
+    private void readyHook()
     {
-        uc.hook_add(UC_HOOK_MEM_READ, memoryReadAccessHook, 0x40000000, 0x40000000 + 0x10000, null);
-        uc.hook_add(UC_HOOK_MEM_WRITE, memoryWriteAccessHook, 0x40000000, 0x40000000 + 0x10000, null);
-        uc.hook_add(UC_HOOK_MEM_READ_UNMAPPED, memoryInvaildHook, 1, 0, null);
+        cpu.memory.Hook = (addr, is_read, size, value) ->
+        {
+            if (is_read)
+            {
+                switch ((int) addr)
+                {
+                    case UART0_TXR:
+                        break;
+                    case UART0_RXR:
+                        value = getChar();
+                        break;
+                    case OPENPIE_CONTROLLER_PENDING:
+                    case OPENPIE_CONTROLLER_EXCEPTION:
+                    case OPENPIE_CONTROLLER_INTR_CHAR:
+                        break;
+                    case OPENPIE_CONTROLLER_RAM_SIZE:
+                        value = 0x80000;
+                        break;
+                    case OPENPIE_CONTROLLER_STACK_SIZE:
+                        value = 0x10000;
+                        break;
+                    case OPENPIE_CONTROLLER_IDLE:
+                    case OPENPIE_CONTROLLER_INSNS:
+                    case RTC_TICKS_MS:
+                        break;
+                    default:
+                        System.out.printf("failure: %x, %d, %d\n", addr, size, value);
+                        break;
+                }
+            }
+            else
+            {
+                switch ((int) addr)
+                {
+                    case UART0_TXR:
+                        if (monitor != null)
+                        {
+                            monitor.putChar((char) value);
+
+                            for (Call call : monitor.getAndClearCalls())
+                            {
+                                calls.add(call);
+                            }
+                        }
+                        break;
+                    case UART0_RXR:
+                    case OPENPIE_CONTROLLER_PENDING:
+                    case OPENPIE_CONTROLLER_EXCEPTION:
+                    case OPENPIE_CONTROLLER_INTR_CHAR:
+                    case OPENPIE_CONTROLLER_RAM_SIZE:
+                    case OPENPIE_CONTROLLER_STACK_SIZE:
+                    case OPENPIE_CONTROLLER_IDLE:
+                    case OPENPIE_CONTROLLER_INSNS:
+                    case RTC_TICKS_MS:
+                        break;
+                    default:
+                        System.out.printf("failure: %x, %d, %d\n", addr, size, value);
+                        break;
+                }
+            }
+
+
+            return value;
+        };
+
+        // MEM_READ, memoryReadAccessHook (0
+        // MEM_WRITE, memoryWriteAccessHook
+        // MEM_READ_UNMAPPED, memoryInvaildHook
     }
 
     private boolean isSynchronized;
 
     void step(boolean isSynchronized) throws Exception
     {
-        long addr = uc.reg_read(UC_ARM_REG_PC);
-        uc.emu_start(addr | 1, 0x08000000 + 0x100000, 0, 10000);
+        cpu.run(10000);
     }
 
     int getTotalMemorySize()
@@ -96,18 +156,9 @@ public class OpenPieVirtualMachine
 
     void close()
     {
-        if (uc != null)
+        if (cpu != null)
         {
-            try
-            {
-                uc.close();
-            }
-            catch (UnicornException e)
-            {
-                e.printStackTrace();
-            }
-
-            uc = null;
+            cpu = null;
         }
     }
 
@@ -124,33 +175,6 @@ public class OpenPieVirtualMachine
 
         return value;
     }
-
-    private MemoryAccessHook memoryReadAccessHook = (uc, type, address, size, value, user) ->
-    {
-        switch ((int) address)
-        {
-            // case UART0_TXR:
-            case UART0_RXR:
-                value = (long) getChar();
-                break;
-            // case OPENPIE_CONTROLLER_PENDING:
-            // case OPENPIE_CONTROLLER_EXCEPTION:
-            // case OPENPIE_CONTROLLER_INTR_CHAR:
-            case OPENPIE_CONTROLLER_RAM_SIZE:
-                value = 0x80000;
-                break;
-            case OPENPIE_CONTROLLER_STACK_SIZE:
-                value = 0x10000;
-                break;
-            // case OPENPIE_CONTROLLER_IDLE:
-            // case OPENPIE_CONTROLLER_INSNS:
-            // case RTC_TICKS_MS:
-            default:
-                return;
-        }
-
-        uc.mem_write(address, getNumberBuffer(value));
-    };
 
     class Monitor
     {
@@ -241,40 +265,6 @@ public class OpenPieVirtualMachine
         }
     }
 
-    private MemoryAccessHook memoryWriteAccessHook = (uc, type, address, size, value, user) ->
-    {
-        switch ((int) address)
-        {
-            case UART0_TXR:
-                if (monitor != null)
-                {
-                    monitor.putChar((char) value);
-
-                    for (Call call : monitor.getAndClearCalls())
-                    {
-                        calls.add(call);
-                    }
-                }
-                break;
-            case UART0_RXR:
-            case OPENPIE_CONTROLLER_PENDING:
-            case OPENPIE_CONTROLLER_EXCEPTION:
-            case OPENPIE_CONTROLLER_INTR_CHAR:
-            case OPENPIE_CONTROLLER_RAM_SIZE:
-            case OPENPIE_CONTROLLER_STACK_SIZE:
-            case OPENPIE_CONTROLLER_IDLE:
-            case OPENPIE_CONTROLLER_INSNS:
-            case RTC_TICKS_MS:
-            default:
-        }
-    };
-
-    private MemoryInvaildHook memoryInvaildHook = (uc, type, address, size, value, user_data) ->
-    {
-        System.out.printf("failure: %x, %d, %d\n", address, size, value);
-        return false;
-    };
-
 
     private byte[] loadFirmware()
     {
@@ -326,7 +316,7 @@ public class OpenPieVirtualMachine
         {
             if (args.length >= 2 && args[1].equals("gpu"))
             {
-                monitor.setGpu((String)args[0]);
+                monitor.setGpu((String) args[0]);
             }
         }
     }
@@ -348,7 +338,8 @@ public class OpenPieVirtualMachine
 
         System.out.println(result.getCall().toString() + "=>" + Arrays.toString(result.getResult()));
         Exception exception = result.getException();
-        if (exception != null) {
+        if (exception != null)
+        {
             exception.printStackTrace();
         }
     }
