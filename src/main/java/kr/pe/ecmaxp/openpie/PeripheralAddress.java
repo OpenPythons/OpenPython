@@ -12,5 +12,4 @@ public class PeripheralAddress
     public static final int OPENPIE_CONTROLLER_IDLE = 0x40000114;
     public static final int OPENPIE_CONTROLLER_INSNS = 0x40000118;
     public static final int RTC_TICKS_MS = 0x40000300;
-    public static final int RTC_TICKS_US = 0x40000304;
 }

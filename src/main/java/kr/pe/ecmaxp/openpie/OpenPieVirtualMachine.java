@@ -145,7 +145,6 @@ public class OpenPieVirtualMachine
             // case OPENPIE_CONTROLLER_IDLE:
             // case OPENPIE_CONTROLLER_INSNS:
             // case RTC_TICKS_MS:
-            // case RTC_TICKS_US:
             default:
                 return;
         }
@@ -266,7 +265,6 @@ public class OpenPieVirtualMachine
             case OPENPIE_CONTROLLER_IDLE:
             case OPENPIE_CONTROLLER_INSNS:
             case RTC_TICKS_MS:
-            case RTC_TICKS_US:
             default:
         }
     };
