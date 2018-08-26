@@ -17,13 +17,16 @@ public class CPU
     public Memory memory = new Memory();
 
     @SuppressWarnings("WeakerAccess")
-    public void Interrupt(byte soffset)
+    public InterruptHandler interruptHandler;
+
+    public int executedCount = 0;
+
+    @SuppressWarnings("WeakerAccess")
+    public boolean Interrupt(byte soffset)
     {
-        // interrupt for testj
         throw new UnsupportedOperationException();
     }
 
-    // ReSharper disable once UnusedMember.Global
     public void run(int count) throws InvalidMemoryException, UnknownInstructionException, InvalidAddressArmException, UnsupportedInstructionException
     {
         Memory memory = this.memory;
@@ -38,11 +41,13 @@ public class CPU
         assert (REGS[PC] & I0) == 0;
         REGS[PC] &= ~I0;
 
+        int totalCount = count;
+
         try
         {
             while (count-- > 0)
             {
-                boolean incr_pc = true;
+                boolean increase_pc = true;
                 int Rs, Rd, Rb;
                 int left, right, value, addr;
                 long lvalue;
@@ -440,7 +445,7 @@ public class CPU
                                             REGS[LR] = (REGS[PC] + 2) | I0;
 
                                         REGS[PC] = value & ~I0;
-                                        incr_pc = false;
+                                        increase_pc = false;
                                         break;
                                     default:
                                         throw new UnexceptedLogicError();
@@ -557,7 +562,6 @@ public class CPU
 
                         if (L)
                         {
-                            // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                             if (!B) // :01111
                                 // LDR Rd, [Rb, #Imm]
                                 value = memory.readInt(addr);
@@ -781,7 +785,7 @@ public class CPU
 
                                         REGS[PC] = value & ~I0;
                                         addr += 4;
-                                        incr_pc = false;
+                                        increase_pc = false;
                                     }
                                 }
                                 finally
@@ -906,7 +910,27 @@ public class CPU
                             case 0b1111: // :11011111
                                 // Format 17: software interrupt
                                 // SWI Value8
-                                Interrupt(soffset);
+
+                                REGS[CPSR] = (q ? FQ : 0) |
+                                        (v ? FV : 0) |
+                                        (c ? FC : 0) |
+                                        (z ? FZ : 0) |
+                                        (n ? FN : 0);
+
+                                regs.store(REGS);
+                                boolean stop = interruptHandler.invoke(soffset & 0xFF);
+                                REGS = regs.load();
+                                q = (REGS[CPSR] & FQ) != 0;
+                                v = (REGS[CPSR] & FV) != 0;
+                                c = (REGS[CPSR] & FC) != 0;
+                                z = (REGS[CPSR] & FZ) != 0;
+                                n = (REGS[CPSR] & FN) != 0;
+
+                                if (stop) {
+                                    REGS[PC] += 2;
+                                    return;
+                                }
+
                                 break;
                         }
 
@@ -919,7 +943,7 @@ public class CPU
                             }
 
                             REGS[PC] += 4 + value;
-                            incr_pc = false;
+                            increase_pc = false;
                         }
 
                         break;
@@ -935,7 +959,7 @@ public class CPU
                         }
 
                         REGS[PC] += 4 + value;
-                        incr_pc = false;
+                        increase_pc = false;
                         break;
                     case 0b1111: // :1111
                         // Format 19: long branch with link
@@ -956,7 +980,7 @@ public class CPU
                             int lr = REGS[PC];
                             REGS[PC] = lr + addr + 2;
                             REGS[LR] = lr + 3;
-                            incr_pc = false;
+                            increase_pc = false;
                         }
 
                         break;
@@ -964,7 +988,7 @@ public class CPU
                         throw new UnknownInstructionException();
                 }
 
-                if (incr_pc)
+                if (increase_pc)
                     REGS[PC] += 2;
             }
         }
@@ -977,6 +1001,7 @@ public class CPU
                     (n ? FN : 0);
 
             regs.store(REGS);
+            executedCount += totalCount - count;
         }
     }
 }

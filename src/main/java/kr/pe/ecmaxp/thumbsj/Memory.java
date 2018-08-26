@@ -7,8 +7,6 @@ import java.util.ArrayList;
 public class Memory
 {
     private ArrayList<MemoryRegion> _list = new ArrayList<>();
-    public HookMemory GlobalHook = null;
-    public HookMemory Hook = null;
 
     // cached
     private long _beginCode;
@@ -17,37 +15,76 @@ public class Memory
     private long _begin;
     private long _end;
     private byte[] _buffer;
-
-    public Memory(HookMemory hook)
-    {
-        Hook = hook;
-    }
+    private MemoryFlag _flag;
+    private MemoryRegion _page;
 
     public Memory()
     {
     }
 
-    // ReSharper disable once UnusedMember.Global
-    public void map(long address, int size, boolean isSpecial)
+    public void map(long address, int size, MemoryHook hook) throws InvalidMemoryException
     {
-        if (isSpecial) return;
-        byte[] chunk = new byte[size];
+        long addr = (address & 0XFFFFFFFFL);
+        MemoryRegion region = new MemoryRegion(addr, size, hook);
+        _list.add(region);
+    }
 
-        MemoryRegion region = new MemoryRegion(address, address + size, chunk);
+    public void map(long address, int size, MemoryFlag flag) throws InvalidMemoryException
+    {
+        long addr = (address & 0XFFFFFFFFL);
+        MemoryRegion region = new MemoryRegion(addr, size, flag);
         _list.add(region);
 
-        if (_bufferCode == null) {
+        if (region.getFlag() == MemoryFlag.RX)
+        {
+            if (_bufferCode != null)
+            {
+                throw new InvalidMemoryException(region.getBegin());
+            }
+
             _beginCode = region.getBegin();
             _endCode = region.getEnd();
             _bufferCode = region.getBuffer();
         }
     }
 
-    // ReSharper disable once UnusedMember.Global
+    public byte[] readBuffer(int address, int size) throws InvalidMemoryException
+    {
+        if (!isValidCache(address, size))
+            UpdateCache(address, size);
+
+        if (_flag != MemoryFlag.RX && _flag != MemoryFlag.RW)
+            throw new InvalidMemoryException(address);
+
+        byte[] buffer = new byte[size];
+        System.arraycopy(_buffer, (int) (address - _begin), buffer, 0, size);
+        return buffer;
+    }
+
     public void writeBuffer(int address, byte[] buffer) throws InvalidMemoryException
     {
-        for (int i = 0; i < buffer.length; i++)
-            writeByte(address + i, buffer[i]);
+        long addr = (address & 0XFFFFFFFFL);
+        if (!isValidCache(addr, buffer.length))
+            UpdateCache(addr, buffer.length);
+
+        if (_flag != MemoryFlag.RX && _flag != MemoryFlag.RW)
+            throw new InvalidMemoryException(addr);
+
+        System.arraycopy(buffer, 0, _buffer, (int) (addr - _begin), buffer.length);
+    }
+
+    public int fetchCode(int address) throws InvalidMemoryException
+    {
+        final int size = 2;
+        long addr = (address & 0XFFFFFFFFL);
+
+        if (!(_beginCode <= addr && addr + 2 < _endCode))
+            throw new InvalidMemoryException(addr);
+
+        int pos = (int) (addr - _beginCode);
+
+        return (_bufferCode[pos++] & 0xFF) |
+                ((_bufferCode[pos] & 0xFF) << 8);
     }
 
     public int readInt(int address) throws InvalidMemoryException
@@ -55,32 +92,50 @@ public class Memory
         int size = 4;
         long addr = (address & 0XFFFFFFFFL);
 
-        if (isValidCache(addr, size))
-        {
-            if (!UpdateAndCheck(addr))
-            {
-                if (Hook != null)
-                {
-                    return Hook.Invoke(addr, true, size, 0);
-                }
-                else
-                {
-                    throw new InvalidMemoryException(addr);
-                }
-            }
-        }
+        if (!isValidCache(addr, size))
+            UpdateCache(addr, size);
+
+        if (_flag == MemoryFlag.HOOK)
+            return _page.hook(address, size);
 
         int pos = (int) (addr - _begin);
 
-        int value = (_buffer[pos++] & 0xFF) |
+        return (_buffer[pos++] & 0xFF) |
                 ((_buffer[pos++] & 0xFF) << 8) |
                 ((_buffer[pos++] & 0xFF) << 16) |
                 ((_buffer[pos] & 0xFF) << 24);
+    }
 
-        if (GlobalHook != null)
-            GlobalHook.Invoke(addr, true, size, value);
+    public short readShort(int address) throws InvalidMemoryException
+    {
+        final int size = 2;
+        long addr = (address & 0XFFFFFFFFL);
 
-        return value;
+        if (!isValidCache(addr, size))
+            UpdateCache(addr, size);
+
+        if (_flag == MemoryFlag.HOOK)
+            return (short) _page.hook(address, size);
+
+        int pos = (int) (addr - _begin);
+
+        return (short) ((_buffer[pos++] & 0xFF) |
+                ((_buffer[pos] & 0xFF) << 8));
+    }
+
+    public byte readByte(int address) throws InvalidMemoryException
+    {
+        final int size = 1;
+        long addr = (address & 0XFFFFFFFFL);
+
+        if (!isValidCache(addr, size))
+            UpdateCache(addr, size);
+
+        if (_flag == MemoryFlag.HOOK)
+            return (byte) _page.hook(address, size);
+
+        int pos = (int) (addr - _begin);
+        return _buffer[pos];
     }
 
     public void writeInt(int address, int value) throws InvalidMemoryException
@@ -88,24 +143,14 @@ public class Memory
         final int size = 4;
         long addr = (address & 0XFFFFFFFFL);
 
-        if (isValidCache(addr, size))
-        {
-            if (!UpdateAndCheck(addr))
-            {
-                if (Hook != null)
-                {
-                    Hook.Invoke(addr, false, size, value);
-                    return;
-                }
-                else
-                {
-                    throw new InvalidMemoryException(addr);
-                }
-            }
-        }
+        if (!isValidCache(addr, size))
+            UpdateCache(addr, size);
 
-        if (GlobalHook != null)
-            GlobalHook.Invoke(addr, false, size, value);
+        if (_flag == MemoryFlag.HOOK)
+        {
+            _page.hook(addr, size, value);
+            return;
+        }
 
         int pos = (int) (addr - _begin);
         _buffer[pos++] = (byte) value;
@@ -120,148 +165,58 @@ public class Memory
         long addr = (address & 0XFFFFFFFFL);
         int value = shortValue & 0xFFFF;
 
-        if (UpdateCacheOrWriteHook(value, size, addr)) return;
+        if (!isValidCache(addr, size))
+            UpdateCache(addr, size);
 
-        if (GlobalHook != null)
-            GlobalHook.Invoke(addr, false, size, value);
+        if (_flag == MemoryFlag.HOOK)
+        {
+            _page.hook(addr, size, value);
+            return;
+        }
 
         int pos = (int) (addr - _begin);
         _buffer[pos++] = (byte) value;
         _buffer[pos] = (byte) (value >> 8);
     }
 
-    public int fetchCode(int address) throws InvalidMemoryException
-    {
-        final int size = 2;
-        long addr = (address & 0XFFFFFFFFL);
-
-        if (!(_beginCode <= addr && addr < _endCode))
-            throw new InvalidMemoryException(addr);
-
-        int pos = (int) (addr - _beginCode);
-        int value = (_bufferCode[pos++] & 0xFF) |
-                ((_bufferCode[pos] & 0xFF) << 8);
-
-        return value;
-    }
-
-    public short readShort(int address) throws InvalidMemoryException
-    {
-        final int size = 2;
-        long addr = (address & 0XFFFFFFFFL);
-
-        if (isValidCache(addr, size))
-        {
-            if (!UpdateAndCheck(addr))
-            {
-                if (Hook != null)
-                {
-                    return (short) Hook.Invoke(addr, true, size, 0);
-                }
-                else
-                {
-                    throw new InvalidMemoryException(addr);
-                }
-            }
-        }
-
-        int pos = (int) (addr - _begin);
-        int value = (_buffer[pos++] & 0xFF) |
-                ((_buffer[pos] & 0xFF) << 8);
-        short shortValue = (short) value;
-
-        if (GlobalHook != null)
-            GlobalHook.Invoke(addr, true, size, value);
-
-        return shortValue;
-    }
-
     public void writeByte(int address, byte byteValue) throws InvalidMemoryException
     {
         final int size = 1;
         long addr = (address & 0XFFFFFFFFL);
-        int value = byteValue & 0xFF;
 
-        if (UpdateCacheOrWriteHook(value, size, addr)) return;
+        if (!isValidCache(addr, size))
+            UpdateCache(addr, size);
 
-        if (GlobalHook != null)
-            GlobalHook.Invoke(addr, false, size, value);
+        if (_flag == MemoryFlag.HOOK)
+        {
+            _page.hook(addr, size, byteValue & 0xFF);
+            return;
+        }
 
         int pos = (int) (address - _begin);
         _buffer[pos] = byteValue;
     }
 
-    public byte readByte(int address) throws InvalidMemoryException
-    {
-        final int size = 1;
-        long addr = (address & 0XFFFFFFFFL);
-
-        if (isValidCache(addr, size))
-        {
-            if (!UpdateAndCheck(addr))
-            {
-                if (Hook != null)
-                {
-                    return (byte) (Hook.Invoke(addr, true, size, 0) & 0XFF);
-                }
-                else
-                {
-                    throw new InvalidMemoryException(addr);
-                }
-            }
-        }
-
-        int pos = (int) (addr - _begin);
-        byte byteValue = _buffer[pos];
-        int value = byteValue & 0xFF;
-
-        if (GlobalHook != null)
-            GlobalHook.Invoke(addr, true, size, value);
-
-        return byteValue;
-    }
-
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isValidCache(long address, long size)
     {
-        return _begin > address || address + size >= _end;
+        return (_begin <= address && address + size <= _end);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean UpdateAndCheck(long address)
+    private void UpdateCache(long address, long size) throws InvalidMemoryException
     {
         for (MemoryRegion page : _list)
         {
-            if (!(page.getBegin() <= address && address < page.getEnd())) continue;
+            if (!(page.getBegin() <= address && address + size <= page.getEnd())) continue;
+            _page = page;
             _begin = page.getBegin();
             _end = page.getEnd();
             _buffer = page.getBuffer();
-            return true;
+            _flag = page.getFlag();
+            return;
         }
 
-        _begin = 0;
-        _end = 0;
-        _buffer = null;
-        return false;
-    }
-
-    private boolean UpdateCacheOrWriteHook(int value, int size, long addr) throws InvalidMemoryException
-    {
-        if (isValidCache(addr, size))
-        {
-            if (!UpdateAndCheck(addr))
-            {
-                if (Hook != null)
-                {
-                    Hook.Invoke(addr, false, size, value);
-                    return true;
-                }
-                else
-                {
-                    throw new InvalidMemoryException(addr);
-                }
-            }
-        }
-        return false;
+        throw new InvalidMemoryException(address);
     }
 }
