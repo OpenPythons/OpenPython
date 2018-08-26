@@ -1,9 +1,6 @@
 package kr.pe.ecmaxp.openpie;
 
-import li.cil.oc.api.machine.Architecture;
-import li.cil.oc.api.machine.ExecutionResult;
-import li.cil.oc.api.machine.Machine;
-import li.cil.oc.api.machine.Signal;
+import li.cil.oc.api.machine.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -46,7 +43,7 @@ public class OpenPieArchitecture implements Architecture
             if (vm != null)
                 vm.close();
 
-            vm = new OpenPieVirtualMachine();
+            vm = new OpenPieVirtualMachine(machine);
             initialized = vm.init();
         }
         catch (Exception e)
@@ -72,12 +69,6 @@ public class OpenPieArchitecture implements Architecture
     @Override
     public void runSynchronized()
     {
-        while (vm.hasCalls()) {
-            Call call = vm.popCalls();
-            Result result = call.invoke(machine);
-            vm.pushResult(result);
-        }
-
         step(true);
     }
 
@@ -90,7 +81,7 @@ public class OpenPieArchitecture implements Architecture
                 return new ExecutionResult.Shutdown(false);
             }
 
-            if (vm.hasCalls()) {
+            if (vm.lastInterrupt != null) {
                 return new ExecutionResult.SynchronizedCall();
             }
         }
@@ -117,6 +108,7 @@ public class OpenPieArchitecture implements Architecture
     public void onSignal()
     {
         Signal signal = machine.popSignal();
+        /*
         StringBuilder builder = new StringBuilder();
         builder.append(signal.name());
         builder.append('(');
@@ -129,6 +121,7 @@ public class OpenPieArchitecture implements Architecture
         builder.append(')');
 
         System.out.println(toString() + ": onSignal(" + builder.toString() + ")");
+        */
         vm.onSignal(signal);
     }
 
@@ -141,13 +134,13 @@ public class OpenPieArchitecture implements Architecture
     @Override
     public void load(NBTTagCompound nbtTagCompound)
     {
-        System.out.println(toString() + ": loadNBT()");
+        // System.out.println(toString() + ": loadNBT()");
     }
 
     @Override
     public void save(NBTTagCompound nbtTagCompound)
     {
-        System.out.println(toString() + ": saveNBT()");
+        // System.out.println(toString() + ": saveNBT()");
     }
 
     @Override

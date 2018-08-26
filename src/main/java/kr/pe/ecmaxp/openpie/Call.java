@@ -1,5 +1,6 @@
 package kr.pe.ecmaxp.openpie;
 
+import li.cil.oc.api.machine.LimitReachedException;
 import li.cil.oc.api.machine.Machine;
 
 import java.util.Arrays;
@@ -12,7 +13,7 @@ public class Call
     private Object[] result;
     private Exception exception;
 
-    public Call(String component, String function, Object ... args)
+    public Call(String component, String function, Object... args)
     {
         this.component = component;
         this.function = function;
@@ -44,12 +45,20 @@ public class Call
                 '}';
     }
 
-    public Result invoke(Machine machine)
+    public Result invoke(Machine machine) throws LimitReachedException
     {
         try
         {
             Object[] result = machine.invoke(getComponent(), getFunction(), getArguments());
             return new Result(this, result);
+        }
+        catch (LimitReachedException e)
+        {
+            throw e;
+        }
+        catch (Error e)
+        {
+            return new Result(this, e);
         }
         catch (Exception e)
         {

@@ -6,20 +6,20 @@ public class Result
 {
     private final Call call;
     private final Object[] result;
-    private final Exception exception;
+    private final Throwable error;
 
     public Result(Call call, Object[] result)
     {
         this.call = call;
         this.result = result;
-        this.exception = null;
+        this.error = null;
     }
 
-    public Result(Call call, Exception exception)
+    public Result(Call call, Throwable throwable)
     {
         this.call = call;
         this.result = null;
-        this.exception = exception;
+        this.error = throwable;
     }
 
     public Call getCall()
@@ -32,9 +32,9 @@ public class Result
         return this.result;
     }
 
-    public Exception getException()
+    public Throwable getError()
     {
-        return this.exception;
+        return this.error;
     }
 
 }
