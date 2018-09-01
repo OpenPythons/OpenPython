@@ -8,10 +8,11 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
-
+apply plugin: 'com.github.johnrengelman.shadow'
 
 version = "0.4"
 group = "kr.pe.ecmaxp.openpie"
@@ -36,6 +37,17 @@ repositories {
         name = "cil.li"
         url = "http://maven.cil.li/"
     }
+}
+
+shadowJar {
+    exclude 'dummyThing'
+
+    dependencies {
+        //noinspection GroovyAssignabilityCheck
+        exclude(dependency("li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"))
+    }
+
+    relocate 'org.msgpack', 'kr.pe.ecmaxp.relocated.org.msgpack'
 }
 
 dependencies {
