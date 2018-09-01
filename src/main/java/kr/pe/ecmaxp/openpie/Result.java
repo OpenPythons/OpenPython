@@ -1,40 +1,22 @@
 package kr.pe.ecmaxp.openpie;
 
-import java.rmi.server.ExportException;
-
 public class Result
 {
-    private final Call call;
-    private final Object[] result;
-    private final Throwable error;
+    public final Call call;
+    public final Object[] args;
+    public final Throwable error;
 
-    public Result(Call call, Object[] result)
+    public Result(Call call, Object[] args)
     {
         this.call = call;
-        this.result = result;
+        this.args = args;
         this.error = null;
     }
 
     public Result(Call call, Throwable throwable)
     {
         this.call = call;
-        this.result = null;
+        this.args = null;
         this.error = throwable;
     }
-
-    public Call getCall()
-    {
-        return this.call;
-    }
-
-    public Object[] getResult()
-    {
-        return this.result;
-    }
-
-    public Throwable getError()
-    {
-        return this.error;
-    }
-
 }

@@ -7,11 +7,9 @@ import java.util.Arrays;
 
 public class Call
 {
-    private final String component;
-    private final String function;
-    private final Object[] args;
-    private Object[] result;
-    private Exception exception;
+    public final String component;
+    public final String function;
+    public final Object[] args;
 
     public Call(String component, String function, Object... args)
     {
@@ -20,19 +18,15 @@ public class Call
         this.args = args;
     }
 
-    public String getComponent()
+    public static Call FromObjectArray(Object[] array)
     {
-        return component;
-    }
+        if (array.length < 2)
+            return null;
 
-    public String getFunction()
-    {
-        return function;
-    }
+        Object[] args = new Object[array.length - 2];
+        System.arraycopy(array, 2, args, 0, args.length);
 
-    public Object[] getArguments()
-    {
-        return args;
+        return new Call((String) array[0], (String) array[1], args);
     }
 
     @Override
@@ -49,7 +43,7 @@ public class Call
     {
         try
         {
-            Object[] result = machine.invoke(getComponent(), getFunction(), getArguments());
+            Object[] result = machine.invoke(component, function, args);
             return new Result(this, result);
         }
         catch (LimitReachedException e)
