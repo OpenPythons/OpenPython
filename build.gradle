@@ -40,6 +40,7 @@ repositories {
 
 dependencies {
     compile "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
+    compile 'org.msgpack:msgpack-core:0.8.16'
 }
 
 processResources {
