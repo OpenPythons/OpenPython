@@ -30,7 +30,7 @@ public class OpenPieArchitecture implements Architecture
     public boolean recomputeMemory(Iterable<ItemStack> iterable)
     {
         // vm.getTotalMemorySize();
-        System.out.println(toString() + ": recomputeMemory()");
+        // System.out.println(toString() + ": recomputeMemory()");
         return true;
     }
 
@@ -81,7 +81,7 @@ public class OpenPieArchitecture implements Architecture
                 return new ExecutionResult.Shutdown(false);
             }
 
-            if (vm.lastInterrupt != null) {
+            if (vm.state.lastInterrupt != null) {
                 return new ExecutionResult.SynchronizedCall();
             }
         }
