@@ -2,14 +2,14 @@ package kr.pe.ecmaxp.openpie;
 
 import com.google.gson.Gson;
 import com.mojang.realmsclient.util.Pair;
-import kr.pe.ecmaxp.thumbsj.CPU;
-import kr.pe.ecmaxp.thumbsj.InterruptHandler;
-import kr.pe.ecmaxp.thumbsj.MemoryFlag;
-import kr.pe.ecmaxp.thumbsj.Registers;
+import kr.pe.ecmaxp.thumbsj.*;
 import kr.pe.ecmaxp.thumbsj.exc.InvalidMemoryException;
-import li.cil.oc.api.machine.LimitReachedException;
-import li.cil.oc.api.machine.Machine;
-import li.cil.oc.api.machine.Signal;
+import kr.pe.ecmaxp.thumbsj.signal.ControlPauseSignal;
+import kr.pe.ecmaxp.thumbsj.signal.ControlSignal;
+import kr.pe.ecmaxp.thumbsj.signal.ControlStopSignal;
+import li.cil.oc.api.machine.*;
+import li.cil.oc.api.network.Component;
+import li.cil.oc.api.network.Node;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import static kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.*;
 import static kr.pe.ecmaxp.openpie.PeripheralAddress.*;
 import static kr.pe.ecmaxp.openpie.micropython.MicroPyInternalError.*;
 import static kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.*;
@@ -37,7 +38,7 @@ public class OpenPieVirtualMachine
         this.machine = machine;
     }
 
-    boolean init() throws InvalidMemoryException
+    boolean init() throws Exception
     {
         final int KB = 1024;
         final byte[] firmware = loadFirmware();
@@ -47,11 +48,11 @@ public class OpenPieVirtualMachine
         close();
 
         cpu = new CPU();
-        cpu.memory.map(0x08000000, 256 * KB, MemoryFlag.RX); // flash
-        cpu.memory.map(0x20000000, 64 * KB, MemoryFlag.RW); // sram
-        cpu.memory.map(0x40000000, 4 * KB, this::PeripheralHook); // peripheral
-        cpu.memory.map(0x60000000, 192 * KB, MemoryFlag.RW); // ram
-        cpu.memory.map(0xE0000000, 16 * KB, MemoryFlag.RW); // syscall
+        cpu.memory.map(0x08000000L, 256 * KB, MemoryFlag.RX); // flash
+        cpu.memory.map(0x20000000L, 64 * KB, MemoryFlag.RW); // sram
+        cpu.memory.map(0x40000000L, 4 * KB, this::PeripheralHook); // peripheral
+        cpu.memory.map(0x60000000L, 192 * KB, MemoryFlag.RW); // ram
+        cpu.memory.map(0xE0000000L, 16 * KB, MemoryFlag.RW); // syscall
         cpu.memory.writeBuffer(0x08000000, firmware);
         cpu.regs.set(PC, cpu.memory.readInt(0x08000000 + 4));
         cpu.interruptHandler = interruptHandler;
@@ -95,6 +96,8 @@ public class OpenPieVirtualMachine
 
     public class VMState
     {
+        public ControlSignal lastControlSignal;
+        public boolean redirectKeyEvent = true;
         private LinkedList<Signal> signals;
         private LinkedList<Signal> pendingSignals;
         private LinkedList<Character> inputBuffer;
@@ -107,6 +110,7 @@ public class OpenPieVirtualMachine
 
         private VMState()
         {
+            redirectKeyEvent = true;
             signals = new LinkedList<>();
             fdMap = new HashMap<>();
             pendingSignals = new LinkedList<>();
@@ -136,155 +140,251 @@ public class OpenPieVirtualMachine
             this.args = result.args;
             this.error = result.error != null ? result.error.toString() : null;
         }
-
-        @Override
-        public String toString()
-        {
-            return new Gson().toJson(new Object[]{this.args, this.error});
-        }
     }
 
     private InterruptHandler interruptHandler = imm ->
     {
         Interrupt intr = new Interrupt(cpu, imm);
+
         try
         {
-            return InterruptHandler(intr, false);
-        }
-        catch (LimitReachedException e)
-        {
-            assert state.lastInterrupt == null;
-            state.lastInterrupt = intr;
-            return false;
+            InterruptHandler(intr);
         }
         catch (Exception e)
         {
             state.lastException = e;
-            return false;
+            Crash(e.toString());
         }
     };
 
-    private final int KB = 1024;
-    private final int bufAddress = 0xE0000000;
-    private final int bufMaxSize = 16 * KB;
+    private static final int KB = 1024;
+    private static final int bufAddress = 0xE0000000;
+    private static final int bufMaxSize = 16 * KB;
 
-    private boolean InterruptHandler(Interrupt intr, boolean isSynchronized) throws LimitReachedException
+    private void SysCallHandler_Control(Interrupt intr) throws InvalidMemoryException, ControlStopSignal
     {
-        byte[] buf;
-        int size;
-        String str;
-        Result ret;
-        ResultJson retJson;
-        Gson gson = new Gson();
-
-        try
+        switch (intr.r0)
         {
-            switch (intr.imm)
-            {
-                case 0: // STOP MACHINE
-                    // stop
-                    return true;
-                case 1: // SYSCALL
-                {
-                    buf = cpu.memory.readBuffer(intr.r0, intr.r1);
-                    str = new String(buf, StandardCharsets.UTF_8);
-
-                    Object[] req = gson.fromJson(str, Object[].class);
-                    Call call = Call.FromObjectArray(req);
-                    if (call == null)
-                    {
-                        retJson = new ResultJson(new Exception("Invaild call"));
-                    }
-                    else
-                    {
-                        ret = invoke(call); // LimitReachedException
-                        if (ret.error == null)
-                            retJson = new ResultJson(ret.args);
-                        else
-                        {
-                            retJson = new ResultJson(ret.error);
-                            ret.error.printStackTrace();
-                        }
-                    }
-
-                    byte[] rawJson = retJson.toString().getBytes();
-                    interruptResponseBufferOrEmpty(rawJson);
-                }
+            case SYS_CONTROL_SHUTDOWN:
+                throw new ControlStopSignal(new ExecutionResult.Shutdown(false));
+            case SYS_CONTROL_REBOOT:
+                throw new ControlStopSignal(new ExecutionResult.Shutdown(true));
+            case SYS_CONTROL_CRASH:
+                String str = readString(intr.r1, 256);
+                Crash(str);
                 break;
-                case 2: // SIGNAL
+            case SYS_CONTROL_RETURN:
+                throw new ControlStopSignal(null);
+        }
+
+        Crash("Unknown Interrupt");
+    }
+
+    private void Crash(String message) throws ControlStopSignal
+    {
+        machine.crash(message);
+        throw new ControlStopSignal(new ExecutionResult.Shutdown(false));
+    }
+
+    private void SysCallHandler_Invoke(Interrupt intr) throws InvalidMemoryException, LimitReachedException
+    {
+        byte[] buf = cpu.memory.readBuffer(intr.r0, intr.r1);
+        String str = new String(buf, StandardCharsets.UTF_8);
+
+        Object[] req = new Gson().fromJson(str, Object[].class);
+        Call call = Call.FromObjectArray(req);
+
+        Result ret;
+        if (call == null)
+        {
+            ret = new Result(null, new Exception("Invaild call"));
+        }
+        else
+        {
+            ret = invoke(call); // LimitReachedException
+            if (ret.error != null)
+                ret.error.printStackTrace();
+        }
+
+        interruptResponseJson(new Object[]{ret.args, ret.error});
+    }
+
+    private void SysCallHandler_Request(Interrupt intr) throws InvalidMemoryException, ControlStopSignal
+    {
+        switch (intr.r0)
+        {
+            case 0:
+            {
+                if (!state.pendingSignals.isEmpty())
                 {
-                    if (!state.pendingSignals.isEmpty())
+                    Signal signal = state.pendingSignals.pop();
+                    interruptResponseJson(signal);
+                }
+                else
+                {
+                    interruptResponseEmpty();
+                }
+            }
+            return;
+            case SYS_REQUEST_COMPONENTS:
+            {
+                interruptResponseJson(machine.components());
+            }
+            return;
+            case SYS_REQUEST_METHODS:
+            {
+                byte[] buf = cpu.memory.readBuffer(intr.r1, intr.r2);
+                String str = new String(buf, StandardCharsets.UTF_8);
+
+                Node node = machine.node().network().node(str);
+                if (node instanceof Component)
+                {
+                    Component component = (Component) node;
+                    interruptResponseJson(component.methods());
+                }
+                else
+                {
+                    interruptResponseEmpty();
+                }
+            }
+            return;
+            case SYS_REQUEST_ANNOTATIONS:
+            {
+                byte[] buf = cpu.memory.readBuffer(intr.r1, intr.r2);
+                String str = new String(buf, StandardCharsets.UTF_8);
+
+                String[] req = new Gson().fromJson(str, String[].class);
+                if (req.length != 2)
+                {
+                    interruptResponseEmpty();
+                    break;
+                }
+
+                Node node = machine.node().network().node(req[0]);
+                if (node instanceof Component)
+                {
+                    Component component = (Component) node;
+                    try
                     {
-                        Signal signal = state.pendingSignals.pop();
-                        String json = gson.toJson(signal);
-                        byte[] rawJson = json.getBytes();
-                        interruptResponseBufferOrEmpty(rawJson);
+                        Callback callback = component.annotation(req[1]);
+                        interruptResponseJson(callback.doc());
                     }
-                    else
+                    catch (Exception exc)
                     {
+                        // how to handle?
+                        exc.printStackTrace();
                         interruptResponseEmpty();
                     }
+                }
+                else
+                {
+                    interruptResponseEmpty();
+                }
+            }
+            return;
+            default:
+                break;
+        }
+    }
 
-                }
-                break;
-                case 3: // COMPONENTS
+    private void SysCallHandler_VirtualFileSystem(Interrupt intr) throws InvalidMemoryException, LimitReachedException
+    {
+        Result ret;
+        int command = intr.r0;
+        if (command == 1)
+        {
+            String address = readString(intr.r1, 64);
+            String path = readString(intr.r2, 256);
+            String mode = readString(intr.r3, 16);
+
+            ret = invoke(new Call(address, "open", path, mode));
+            if (ret.error instanceof FileNotFoundException)
+            {
+                interruptResponseCode(MP_ENOENT);
+            }
+            else if (ret.args != null)
+            {
+                if (ret.args.length != 1)
                 {
-                    String json = gson.toJson(machine.components());
-                    byte[] rawJson = json.getBytes();
-                    interruptResponseBufferOrEmpty(rawJson);
+                    interruptResponseCode(MP_EPERM);
+                    return;
                 }
-                break;
-                case 31: // usystem_get_stdout_str
-                {
-                    buf = state.outputBuffer.toString().getBytes(StandardCharsets.UTF_8);
-                    state.outputBuffer = new StringBuilder();
-                    interruptResponseBufferOrEmpty(buf);
-                }
-                break;
-                case 32: // DEBUG
-                {
-                    buf = cpu.memory.readBuffer(intr.r0, intr.r1);
-                    str = new String(buf, StandardCharsets.UTF_8);
-                    // System.out.println(str);
-                }
-                break;
-                case 33: // DEBUG FOR NUMBER
-                {
-                    System.out.println(intr.r0);
-                }
-                break;
-                case 16:
-                {
-                    int command = intr.r0;
-                    if (command == 1)
+
+                int fdPtr = intr.r4;
+                int fd = state.fdCount++;
+                int handle = Integer.parseInt(ret.args[0].toString()); // handle
+
+                state.fdMap.put(
+                        fd,
+                        new FileHandle(address, handle)
+                );
+
+                cpu.memory.writeInt(fdPtr, fd);
+                interruptResponseCode(0);
+            }
+            else
+            {
+                interruptResponseCode(MP_EPERM);
+            }
+        }
+        else
+        {
+            int fd = intr.r1;
+            FileHandle fh = state.fdMap.getOrDefault(fd, null);
+            if (fh == null)
+            {
+                interruptResponseCode(MP_EBADF);
+                return;
+            }
+
+            switch (command)
+            {
+                case 2: // VFS_VALID
+                    ret = invoke(fh.call("seek", fh.pos));
+                    interruptResponseCode(ret.error == null ? 0 : MP_EIO);
+                    break;
+                case 3: // VFS_REPR
+                    interruptResponseCode(MP_EPERM);
+                    break;
+                case 4: // VFS_CLOSE
+                    ret = invoke(fh.call("close"));
+                    if (ret.error != null)
                     {
-                        String address = readString(intr.r1, 64);
-                        String path = readString(intr.r2, 256);
-                        String mode = readString(intr.r3, 16);
-
-                        ret = invoke(address, "open", path, mode);
-                        if (ret.error instanceof FileNotFoundException)
+                        ret.error.printStackTrace();
+                        interruptResponseCode(1);
+                    }
+                    else
+                    {
+                        state.fdMap.remove(fd);
+                        interruptResponseCode(0);
+                    }
+                    break;
+                case 5: // VFS_READ
+                    ret = invoke(fh.call("read", intr.r2));
+                    byte[] buf;
+                    if (ret.error != null)
+                    {
+                        ret.error.printStackTrace();
+                        interruptResponseCode(1);
+                    }
+                    else if (ret.args != null)
+                    {
+                        if (ret.args.length != 1)
                         {
-                            interruptResponseCode(MP_ENOENT);
+                            interruptResponseCode(MP_EPERM);
+                            break;
                         }
-                        else if (ret.args != null)
+
+                        Object arg = ret.args[0];
+                        if (arg instanceof byte[])
                         {
-                            if (ret.args.length != 1)
-                            {
-                                interruptResponseCode(MP_EPERM);
-                                break;
-                            }
-
-                            int fdPtr = intr.r4;
-                            int fd = state.fdCount++;
-                            int handle = Integer.parseInt(ret.args[0].toString()); // handle
-
-                            state.fdMap.put(
-                                    fd,
-                                    new FileHandle(address, handle)
-                            );
-
-                            cpu.memory.writeInt(fdPtr, fd);
+                            buf = (byte[]) arg;
+                            cpu.memory.writeBuffer(intr.r3, buf);
+                            cpu.memory.writeInt(intr.r4, buf.length);
+                        }
+                        else if (arg == null)
+                        {
+                            // EOF
                             interruptResponseCode(0);
                         }
                         else
@@ -294,215 +394,206 @@ public class OpenPieVirtualMachine
                     }
                     else
                     {
-                        int fd = intr.r1;
-                        FileHandle fh = state.fdMap.getOrDefault(fd, null);
-                        if (fh == null)
+                        interruptResponseCode(MP_EPERM);
+                    }
+                    interruptResponseCode(0);
+                    break;
+                case 6: // VFS_WRITE
+                    buf = cpu.memory.readBuffer(intr.r2, intr.r3);
+                    ret = invoke(fh.call("write", new Object[]{buf}));
+                    if (ret.error != null)
+                    {
+                        ret.error.printStackTrace();
+                        interruptResponseCode(1);
+                    }
+                    else if (ret.args != null)
+                    {
+                        if (ret.args.length != 1)
                         {
-                            interruptResponseCode(MP_EBADF);
+                            interruptResponseCode(MP_EPERM);
                             break;
                         }
 
-                        switch (command)
+                        Object arg = ret.args[0];
+                        if (arg instanceof Boolean)
                         {
-                            case 2: // VFS_VALID
-                                ret = invoke(fh.call("seek", fh.pos));
-                                interruptResponseCode(ret.error == null ? 0 : MP_EIO);
-                                break;
-                            case 3: // VFS_REPR
-                                interruptResponseCode(MP_EPERM);
-                                break;
-                            case 4: // VFS_CLOSE
-                                ret = invoke(fh.call("close"));
-                                if (ret.error != null)
-                                {
-                                    ret.error.printStackTrace();
-                                    interruptResponseCode(1);
-                                }
-                                else
-                                {
-                                    state.fdMap.remove(fd);
-                                    interruptResponseCode(0);
-                                }
-                                break;
-                            case 5: // VFS_READ
-                                ret = invoke(fh.call("read", intr.r2));
-                                if (ret.error != null)
-                                {
-                                    ret.error.printStackTrace();
-                                    interruptResponseCode(1);
-                                }
-                                else if (ret.args != null)
-                                {
-                                    if (ret.args.length != 1)
-                                    {
-                                        interruptResponseCode(MP_EPERM);
-                                        break;
-                                    }
-
-                                    Object arg = ret.args[0];
-                                    if (arg instanceof byte[])
-                                    {
-                                        buf = (byte[]) arg;
-                                        cpu.memory.writeBuffer(intr.r3, buf);
-                                        cpu.memory.writeInt(intr.r4, buf.length);
-                                    }
-                                    else if (arg == null)
-                                    {
-                                        // EOF
-                                        interruptResponseCode(0);
-                                    }
-                                    else
-                                    {
-                                        interruptResponseCode(MP_EPERM);
-                                    }
-                                }
-                                else
-                                {
-                                    interruptResponseCode(MP_EPERM);
-                                }
-                                interruptResponseCode(0);
-                                break;
-                            case 6: // VFS_WRITE
-                                buf = cpu.memory.readBuffer(intr.r2, intr.r3);
-                                ret = invoke(fh.call("write", new Object[]{buf}));
-                                if (ret.error != null)
-                                {
-                                    ret.error.printStackTrace();
-                                    interruptResponseCode(1);
-                                }
-                                else if (ret.args != null)
-                                {
-                                    if (ret.args.length != 1)
-                                    {
-                                        interruptResponseCode(MP_EPERM);
-                                        break;
-                                    }
-
-                                    Object arg = ret.args[0];
-                                    if (arg instanceof Boolean)
-                                    {
-                                        boolean success = (boolean) arg;
-                                        if (success)
-                                        {
-                                            fh.pos += buf.length;
-                                            cpu.memory.writeInt(intr.r4, buf.length);
-                                        }
-                                    }
-                                    else if (arg == null)
-                                    {
-                                        // EOF
-                                        interruptResponseCode(0);
-                                    }
-                                    else
-                                    {
-                                        interruptResponseCode(MP_EPERM);
-                                    }
-                                }
-                                else
-                                {
-                                    interruptResponseCode(MP_EPERM);
-                                }
-                                interruptResponseCode(0);
-                                break;
-                            case 7: // VFS_SEEK
-                                int offset = intr.r2;
-                                int whence = intr.r3;
-                                int offsetPtr = intr.r4;
-                                String whenceStr = null;
-
-                                switch (whence)
-                                {
-                                    case 0: // MP_SEEK_SET
-                                        whenceStr = "set";
-                                        break;
-                                    case 1: // MP_SEEK_CUR
-                                        whenceStr = "cur";
-                                        break;
-                                    case 2: // MP_SEEK_END
-                                        whenceStr = "end";
-                                        break;
-                                    default:
-                                        break;
-                                }
-
-                                if (whenceStr == null) {
-                                    interruptResponseCode(MP_EPERM);
-                                    break;
-                                }
-
-                                ret = invoke(fh.call("seek", whenceStr, offset));
-                                if (ret.error != null)
-                                {
-                                    ret.error.printStackTrace();
-                                    interruptResponseCode(1);
-                                }
-                                else if (ret.args != null)
-                                {
-                                    if (ret.args.length != 1)
-                                    {
-                                        interruptResponseCode(MP_EPERM);
-                                        break;
-                                    }
-
-                                    Object arg = ret.args[0];
-                                    if (arg instanceof Integer)
-                                        fh.pos = (int) arg;
-                                    else
-                                        interruptResponseCode(MP_EPERM);
-                                }
-                                else
-                                {
-                                    interruptResponseCode(MP_EPERM);
-                                }
-                                interruptResponseCode(0);
-                                break;
-                            case 8: // VFS_FLUSH
-                                interruptResponseCode(0); // always flushed?
-                                break;
-                            default:
-                                interruptResponseCode(MP_EPERM);
-                                break;
+                            boolean success = (boolean) arg;
+                            if (success)
+                            {
+                                fh.pos += buf.length;
+                                cpu.memory.writeInt(intr.r4, buf.length);
+                            }
+                        }
+                        else if (arg == null)
+                        {
+                            // EOF
+                            interruptResponseCode(0);
+                        }
+                        else
+                        {
+                            interruptResponseCode(MP_EPERM);
                         }
                     }
-                }
-                break;
+                    else
+                    {
+                        interruptResponseCode(MP_EPERM);
+                    }
+                    interruptResponseCode(0);
+                    break;
+                case 7: // VFS_SEEK
+                    int offset = intr.r2;
+                    int whence = intr.r3;
+                    int offsetPtr = intr.r4;
+                    String whenceStr = null;
+
+                    switch (whence)
+                    {
+                        case 0: // MP_SEEK_SET
+                            whenceStr = "set";
+                            break;
+                        case 1: // MP_SEEK_CUR
+                            whenceStr = "cur";
+                            break;
+                        case 2: // MP_SEEK_END
+                            whenceStr = "end";
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (whenceStr == null)
+                    {
+                        interruptResponseCode(MP_EPERM);
+                        break;
+                    }
+
+                    ret = invoke(fh.call("seek", whenceStr, offset));
+                    if (ret.error != null)
+                    {
+                        ret.error.printStackTrace();
+                        interruptResponseCode(1);
+                    }
+                    else if (ret.args != null)
+                    {
+                        if (ret.args.length != 1)
+                        {
+                            interruptResponseCode(MP_EPERM);
+                            break;
+                        }
+
+                        Object arg = ret.args[0];
+                        if (arg instanceof Integer)
+                            fh.pos = (int) arg;
+                        else
+                            interruptResponseCode(MP_EPERM);
+                    }
+                    else
+                    {
+                        interruptResponseCode(MP_EPERM);
+                    }
+                    interruptResponseCode(0);
+                    break;
+                case 8: // VFS_FLUSH
+                    interruptResponseCode(0); // always flushed?
+                    break;
                 default:
-                    interruptResponseCode(-1);
+                    interruptResponseCode(MP_EPERM);
                     break;
             }
         }
+    }
+
+    private void SysCallHandler_Debug(Interrupt intr) throws InvalidMemoryException
+    {
+        if (true) return;
+        byte[] buf = cpu.memory.readBuffer(intr.r0, intr.r1);
+        String str = new String(buf, StandardCharsets.UTF_8);
+        System.out.println(str);
+    }
+
+    private void SysCallHandler_Legacy(Interrupt intr) throws InvalidMemoryException
+    {
+        switch (intr.r0)
+        {
+            case 0:
+            {
+                byte[] buf = state.outputBuffer.toString().getBytes(StandardCharsets.UTF_8);
+                state.outputBuffer = new StringBuilder();
+                interruptResponseBufferOrEmpty(buf);
+            }
+        }
+    }
+
+    private void InterruptHandler(Interrupt intr) throws InvalidMemoryException, ControlStopSignal, ControlPauseSignal
+    {
+        try
+        {
+            switch (intr.imm)
+            {
+                case SYS_CONTROL:
+                    SysCallHandler_Control(intr);
+                    break;
+                case SYS_INVOKE:
+                    SysCallHandler_Invoke(intr);
+                    break;
+                case SYS_REQUEST:
+                    SysCallHandler_Request(intr);
+                    break;
+                case SYS_VFS:
+                    SysCallHandler_VirtualFileSystem(intr);
+                    break;
+                case SYS_DEBUG:
+                    SysCallHandler_Debug(intr);
+                    break;
+                case SYS_LEGACY:
+                    SysCallHandler_Legacy(intr);
+                    break;
+                default:
+                    Crash("Unknown interrupt number");
+                    break;
+            }
+        }
+        catch (LimitReachedException e)
+        {
+            throw new ControlStopSignal(new ExecutionResult.SynchronizedCall());
+        }
+        catch (InvalidMemoryException e)
+        {
+            throw e;
+        }
         catch (Exception e)
         {
-            state.pendingException = e;
-            return true;
+            // error!
+            throw new ControlStopSignal(e);
         }
-
-        return false;
     }
 
     private String readString(int address, int maxSize) throws InvalidMemoryException
     {
-        int size;
-        byte[] buffer = new byte[maxSize];
-        for (size = 0; size < maxSize; size++)
+        long addr = Integer.toUnsignedLong(address);
+        MemoryRegion region = cpu.memory.FindRegion(addr, 0);
+        if (region.getFlag() == MemoryFlag.HOOK)
+            throw new InvalidMemoryException(address);
+
+        byte[] buffer = region.getBuffer();
+
+        int start = (int) (address - region.getBegin());
+        int size = (int) (Math.min(region.getEnd() - addr, maxSize));
+        int end = start + size;
+
+        int pos;
+        for (pos = start; pos < end; pos++)
         {
-            byte ch = buffer[size] = cpu.memory.readByte(address + size);
-            if (ch == 0)
+            if (buffer[pos] == 0)
                 break;
         }
 
-        return new String(buffer, 0, size, StandardCharsets.UTF_8);
+        return new String(buffer, start, pos - start, StandardCharsets.UTF_8);
     }
 
     private Result invoke(Call call) throws LimitReachedException
     {
         return call.invoke(machine);
-    }
-
-    private Result invoke(String address, String func, Object... args) throws LimitReachedException
-    {
-        Call call = new Call(address, func, args);
-        return invoke(call);
     }
 
     private int PeripheralHook(long addr, boolean is_read, int size, int value)
@@ -563,6 +654,9 @@ public class OpenPieVirtualMachine
                 case OP_CON_INSNS:
                 case OP_RTC_TICKS_MS:
                     break;
+                case OP_IO_RXR + 1:
+                    state.redirectKeyEvent = value != 0;
+                    break;
                 default:
                     System.out.printf("failure: %x, %d, %d\n", addr, size, value);
                     break;
@@ -573,22 +667,33 @@ public class OpenPieVirtualMachine
         return value;
     }
 
-    void step(boolean isSynchronized) throws Exception
+    synchronized ExecutionResult step(boolean isSynchronized) throws Exception
     {
-        synchronized (this)
+        if (isSynchronized)
         {
-            if (isSynchronized)
+            Interrupt intr = null;
+            synchronized (this)
             {
                 if (state.lastInterrupt != null)
                 {
-                    Interrupt intr = state.lastInterrupt;
+                    intr = state.lastInterrupt;
                     state.lastInterrupt = null;
-                    InterruptHandler(intr, true);
                 }
-
-                return;
             }
 
+            try
+            {
+                InterruptHandler(intr);
+            }
+            catch (ControlPauseSignal | ControlStopSignal controlSignal)
+            {
+                state.lastControlSignal = controlSignal;
+            }
+
+            return null;
+        }
+        else
+        {
             Signal signal = null;
             synchronized (this)
             {
@@ -603,20 +708,56 @@ public class OpenPieVirtualMachine
                 Registers regs = cpu.regs.copy();
                 cpu.regs.set(PC, cpu.memory.readInt(0x08000000 + 8));
                 cpu.regs.set(SP, cpu.regs.get(SP) - 32);
-                cpuStep();
+                // end if
+
+                //noinspection Duplicates
+                try
+                {
+                    cpuStep();
+                }
+                catch (ControlSignal controlSignal)
+                {
+                    Object object = controlSignal.getObject();
+                    if (object instanceof ExecutionResult)
+                        return (ExecutionResult) object;
+
+                    if (object != null)
+                        throw new Exception(controlSignal);
+                }
+
+                // if runing
                 cpu.regs = regs;
-                return;
+                return new ExecutionResult.Sleep(0);
             }
 
-            cpuStep();
+            //noinspection Duplicates
+            try
+            {
+                cpuStep();
+            }
+            catch (ControlSignal controlSignal)
+            {
+                Object object = controlSignal.getObject();
+                if (object instanceof ExecutionResult)
+                    return (ExecutionResult) object;
+
+                throw new Exception(controlSignal);
+            }
+
+            return new ExecutionResult.Sleep(0);
         }
     }
 
-    private void cpuStep() throws Exception
+    private void cpuStep() throws Exception, ControlPauseSignal, ControlStopSignal
     {
+        //noinspection CaughtExceptionImmediatelyRethrown
         try
         {
             cpu.run(1000000);
+        }
+        catch (ControlPauseSignal | ControlStopSignal controlSignal)
+        {
+            throw controlSignal;
         }
         catch (Exception e)
         {
@@ -685,26 +826,15 @@ public class OpenPieVirtualMachine
         state = null;
     }
 
-    private byte[] loadFirmware()
+    private byte[] loadFirmware() throws IOException
     {
-        File file = new File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\openpie\\oprom\\build\\firmware.bin");
-        byte[] firmware;
-
-        try
-        {
-            firmware = Files.readAllBytes(file.toPath());
-        }
-        catch (IOException e)
-        {
-            return null;
-        }
-
-        return firmware;
+        File file = new File(OpenPieFilePaths.FirmwareFile);
+        return Files.readAllBytes(file.toPath());
     }
 
     private List<Pair<Long, String>> loadMapping() throws IOException
     {
-        File file = new File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\openpie\\oprom\\build\\firmware.elf.map");
+        File file = new File(OpenPieFilePaths.MapFile);
         List<String> lines = Files.readAllLines(file.toPath());
         List<Pair<Long, String>> result = new ArrayList<>();
 
@@ -745,10 +875,31 @@ public class OpenPieVirtualMachine
 
     synchronized void onSignal(Signal signal)
     {
+        if (state.redirectKeyEvent)
+        {
+            if (signal.name().equals("key_down"))
+            {
+                Object[] args = signal.args();
+                if (args.length >= 4)
+                    state.inputBuffer.add((char) (int) (double) args[1]);
+
+                return;
+            }
+            else if (signal.name().equals("key_up"))
+            {
+                return;
+            }
+        }
+
         state.signals.add(signal);
     }
 
-    private void interruptResponseBufferOrEmpty(byte[] buffer) throws InvalidMemoryException, IOException
+    private void interruptResponseJson(Object object) throws InvalidMemoryException
+    {
+        interruptResponseBufferOrEmpty(new Gson().toJson(object).getBytes(StandardCharsets.UTF_8));
+    }
+
+    private void interruptResponseBufferOrEmpty(byte[] buffer) throws InvalidMemoryException
     {
         if (buffer != null && buffer.length > 0)
             interruptResponseBuffer(buffer);
@@ -756,7 +907,7 @@ public class OpenPieVirtualMachine
             interruptResponseEmpty();
     }
 
-    private void interruptResponseBuffer(byte[] buffer) throws InvalidMemoryException, IOException
+    private void interruptResponseBuffer(byte[] buffer) throws InvalidMemoryException
     {
         cpu.memory.writeInt(bufAddress, bufAddress + 8); // + 0
         cpu.memory.writeInt(bufAddress + 4, buffer.length); // + 4
@@ -765,12 +916,12 @@ public class OpenPieVirtualMachine
         cpu.regs.set(R0, bufAddress);
     }
 
-    private void interruptResponseEmpty() throws InvalidMemoryException, IOException
+    private void interruptResponseEmpty()
     {
         interruptResponseCode(0);
     }
 
-    private void interruptResponseCode(int code) throws InvalidMemoryException, IOException
+    private void interruptResponseCode(int code)
     {
         cpu.regs.set(R0, code);
     }

@@ -3,6 +3,8 @@ package kr.pe.ecmaxp.openpie.console;
 import kr.pe.ecmaxp.thumbsj.CPU;
 import kr.pe.ecmaxp.thumbsj.Memory;
 import kr.pe.ecmaxp.thumbsj.MemoryFlag;
+import kr.pe.ecmaxp.thumbsj.signal.ControlPauseSignal;
+import kr.pe.ecmaxp.thumbsj.signal.ControlStopSignal;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -13,7 +15,7 @@ public class OpenPieMain
 {
     static int pos = 0;
 
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args) throws Exception, ControlPauseSignal, ControlStopSignal
     {
         CPU cpu = new CPU();
 

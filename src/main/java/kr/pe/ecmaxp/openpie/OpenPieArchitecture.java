@@ -1,8 +1,19 @@
 package kr.pe.ecmaxp.openpie;
 
-import li.cil.oc.api.machine.*;
+import kr.pe.ecmaxp.thumbsj.signal.ControlPauseSignal;
+import kr.pe.ecmaxp.thumbsj.signal.ControlSignal;
+import kr.pe.ecmaxp.thumbsj.signal.ControlStopSignal;
+import li.cil.oc.api.machine.Architecture;
+import li.cil.oc.api.machine.ExecutionResult;
+import li.cil.oc.api.machine.Machine;
+import li.cil.oc.api.machine.Signal;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 
 @Architecture.Name("OpenPie (micropython 3)")
 public class OpenPieArchitecture implements Architecture
@@ -11,13 +22,11 @@ public class OpenPieArchitecture implements Architecture
     private boolean initialized;
 
     private OpenPieVirtualMachine vm;
-    private int id;
-    private static int global_id = 1;
+    private ExecutionResult lastSynchronizedResult;
 
     public OpenPieArchitecture(Machine machine)
     {
         this.machine = machine;
-        this.id = global_id++;
     }
 
     @Override
@@ -34,31 +43,30 @@ public class OpenPieArchitecture implements Architecture
         return true;
     }
 
+    // TODO: report exception handler?
+
     @Override
     public boolean initialize()
     {
-        System.out.println(toString() + ": initialize()");
+        close();
+
         try
         {
-            if (vm != null)
-                vm.close();
-
             vm = new OpenPieVirtualMachine(machine);
             initialized = vm.init();
+            return initialized;
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            return false;
+            initialized = false;
+            return initialized;
         }
-
-        return initialized;
     }
 
     @Override
     public void close()
     {
-        System.out.println(toString() + ": close()");
         if (vm != null)
         {
             vm.close();
@@ -67,61 +75,70 @@ public class OpenPieArchitecture implements Architecture
     }
 
     @Override
-    public void runSynchronized()
+    public synchronized void runSynchronized()
     {
-        step(true);
-    }
-
-    @Override
-    public ExecutionResult runThreaded(boolean isSynchronizedReturn)
-    {
-        if (!isSynchronizedReturn) {
-            // calling
-            if (!step(false)) {
-                return new ExecutionResult.Shutdown(false);
-            }
-
-            if (vm.state.lastInterrupt != null) {
-                return new ExecutionResult.SynchronizedCall();
-            }
-        }
-
-        return new ExecutionResult.Sleep(0);
-    }
-
-    private synchronized boolean step(boolean isSynchronized) {
         try
         {
-            vm.step(isSynchronized);
-            return true;
+            this.lastSynchronizedResult = vm.step(true);
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            machine.stop();
-            close();
-            return false;
+            this.lastSynchronizedResult = new ExecutionResult.Error(e.toString());
         }
+    }
+
+    @Override
+    public synchronized ExecutionResult runThreaded(boolean isSynchronizedReturn)
+    {
+        FileTime prev = DebugFirmwareGetLastModifiedTime();
+        ExecutionResult result;
+
+        if (!isSynchronizedReturn)
+        {
+            // calling
+            try
+            {
+                result = vm.step(false);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                return new ExecutionResult.Error(e.toString());
+            }
+
+            FileTime next = DebugFirmwareGetLastModifiedTime();
+            if (prev != null && !prev.equals(next))
+                return new ExecutionResult.Shutdown(true);
+
+            return result;
+        }
+        else
+        {
+            result = this.lastSynchronizedResult;
+            this.lastSynchronizedResult = null;
+            return result;
+        }
+    }
+
+    private FileTime DebugFirmwareGetLastModifiedTime()
+    {
+        File file = new File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\openpie\\oprom\\build\\firmware.bin");
+        try
+        {
+            return Files.getLastModifiedTime(file.toPath());
+        }
+        catch (IOException ignored)
+        {
+        }
+
+        return null;
     }
 
     @Override
     public void onSignal()
     {
         Signal signal = machine.popSignal();
-        /*
-        StringBuilder builder = new StringBuilder();
-        builder.append(signal.name());
-        builder.append('(');
-        for (Object arg: signal.args()) {
-            builder.append(arg);
-            builder.append(", ");
-        }
-        builder.deleteCharAt(builder.length() - 1);
-        builder.deleteCharAt(builder.length() - 1);
-        builder.append(')');
-
-        System.out.println(toString() + ": onSignal(" + builder.toString() + ")");
-        */
         vm.onSignal(signal);
     }
 
@@ -146,6 +163,8 @@ public class OpenPieArchitecture implements Architecture
     @Override
     public String toString()
     {
-        return "OpenPieArchitecture{id=" + id + ", vm=" + (vm == null? "(null)": vm.hashCode()) + '}';
+        return "OpenPieArchitecture{" +
+                "vm=" + vm +
+                '}';
     }
 }
