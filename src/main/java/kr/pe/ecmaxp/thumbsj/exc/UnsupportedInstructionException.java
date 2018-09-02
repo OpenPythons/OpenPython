@@ -1,5 +1,7 @@
 package kr.pe.ecmaxp.thumbsj.exc;
 
-public class UnsupportedInstructionException extends Exception
+import kr.pe.ecmaxp.thumbsj.UnknownInstructionException;
+
+public class UnsupportedInstructionException extends UnknownInstructionException
 {
 }

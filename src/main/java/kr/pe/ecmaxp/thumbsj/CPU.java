@@ -1,9 +1,8 @@
 package kr.pe.ecmaxp.thumbsj;
 
-import kr.pe.ecmaxp.thumbsj.exc.InvalidAddressArmException;
-import kr.pe.ecmaxp.thumbsj.exc.InvalidMemoryException;
-import kr.pe.ecmaxp.thumbsj.exc.UnexceptedLogicError;
-import kr.pe.ecmaxp.thumbsj.exc.UnsupportedInstructionException;
+import kr.pe.ecmaxp.thumbsj.exc.*;
+import kr.pe.ecmaxp.thumbsj.signal.ControlPauseSignal;
+import kr.pe.ecmaxp.thumbsj.signal.ControlStopSignal;
 
 import static kr.pe.ecmaxp.thumbsj.helper.BitConsts.*;
 import static kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.*;
@@ -27,7 +26,7 @@ public class CPU
         throw new UnsupportedOperationException();
     }
 
-    public void run(int count) throws InvalidMemoryException, UnknownInstructionException, InvalidAddressArmException, UnsupportedInstructionException
+    public void run(int count) throws InvalidMemoryException, UnknownInstructionException, InvalidAddressArmException, ControlPauseSignal, ControlStopSignal
     {
         Memory memory = this.memory;
         int[] REGS = regs.load();
@@ -918,17 +917,27 @@ public class CPU
                                         (n ? FN : 0);
 
                                 regs.store(REGS);
-                                boolean stop = interruptHandler.invoke(soffset & 0xFF);
-                                REGS = regs.load();
-                                q = (REGS[CPSR] & FQ) != 0;
-                                v = (REGS[CPSR] & FV) != 0;
-                                c = (REGS[CPSR] & FC) != 0;
-                                z = (REGS[CPSR] & FZ) != 0;
-                                n = (REGS[CPSR] & FN) != 0;
 
-                                if (stop) {
+                                //noinspection CaughtExceptionImmediatelyRethrown
+                                try{
+                                    interruptHandler.invoke(soffset & 0xFF);
+                                }
+                                catch (ControlPauseSignal e){
+                                    throw e;
+                                }
+                                catch (ControlStopSignal e)
+                                {
                                     REGS[PC] += 2;
-                                    return;
+                                    throw e;
+                                }
+                                finally
+                                {
+                                    REGS = regs.load();
+                                    q = (REGS[CPSR] & FQ) != 0;
+                                    v = (REGS[CPSR] & FV) != 0;
+                                    c = (REGS[CPSR] & FC) != 0;
+                                    z = (REGS[CPSR] & FZ) != 0;
+                                    n = (REGS[CPSR] & FN) != 0;
                                 }
 
                                 break;
