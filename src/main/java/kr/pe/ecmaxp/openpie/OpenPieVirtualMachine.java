@@ -618,8 +618,9 @@ public class OpenPieVirtualMachine
                     break;
                 case OP_CON_IDLE:
                 case OP_CON_INSNS:
-                case OP_RTC_TICKS_MS:
                     break;
+                case OP_RTC_TICKS_MS:
+                    return (int)System.currentTimeMillis();
                 default:
                     System.out.printf("failure: %x, %d, %d\n", addr, size, value);
                     break;
@@ -694,17 +695,17 @@ public class OpenPieVirtualMachine
         }
         else
         {
-            Signal signal = null;
+            boolean foundSignals;
+
             synchronized (this)
             {
-                if (!state.signals.isEmpty())
-                    signal = state.signals.pop();
+                foundSignals = !state.signals.isEmpty();
+                while (!state.signals.isEmpty())
+                    state.pendingSignals.add(state.signals.pop());
             }
 
-            if (signal != null)
+            if (foundSignals)
             {
-                state.pendingSignals.add(signal);
-
                 Registers regs = cpu.regs.copy();
                 cpu.regs.set(PC, cpu.memory.readInt(0x08000000 + 8));
                 cpu.regs.set(SP, cpu.regs.get(SP) - 32);
@@ -896,6 +897,7 @@ public class OpenPieVirtualMachine
 
     private void interruptResponseJson(Object object) throws InvalidMemoryException
     {
+        // TODO: msgpack
         interruptResponseBufferOrEmpty(new Gson().toJson(object).getBytes(StandardCharsets.UTF_8));
     }
 
