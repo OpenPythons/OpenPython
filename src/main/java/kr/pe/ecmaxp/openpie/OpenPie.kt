@@ -8,7 +8,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import org.apache.logging.log4j.Logger
 import li.cil.oc.api.Machine
 
-@Mod(modid = OpenPie.MODID, name = OpenPie.NAME, version = OpenPie.VERSION)
+@Suppress("UNUSED_PARAMETER")
+@Mod(modid = OpenPie.MODID, name = OpenPie.NAME, version = OpenPie.VERSION, dependencies = "required-after:forgelin;")
 class OpenPie {
 
     @EventHandler
@@ -25,9 +26,9 @@ class OpenPie {
     }
 
     companion object {
-        val MODID = "openpie"
-        val NAME = "OpenPie"
-        val VERSION = "0.4"
+        const val MODID = "openpie"
+        const val NAME = "OpenPie"
+        const val VERSION = "0.4"
 
         private var logger: Logger? = null
     }

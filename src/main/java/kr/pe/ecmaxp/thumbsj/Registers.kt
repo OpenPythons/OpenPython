@@ -4,11 +4,10 @@ import kr.pe.ecmaxp.thumbsj.helper.BitConsts
 import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex
 
 class Registers {
-    private var _regs: IntArray? = null
+    private var _regs: IntArray? = IntArray(RegisterIndex.CPSR + 1)
 
     init {
-        _regs = IntArray(RegisterIndex.CPSR + 1)
-        _regs[RegisterIndex.CPSR] = BitConsts.FT or // set Thumb
+        _regs!![RegisterIndex.CPSR] = BitConsts.FT or // set Thumb
                 BitConsts.FZ // set Zero
     }
 
@@ -28,7 +27,7 @@ class Registers {
     }
 
     operator fun set(index: Int, value: Int) {
-        _regs[index] = value
+        _regs!![index] = value
     }
 
     operator fun get(index: Int): Int {

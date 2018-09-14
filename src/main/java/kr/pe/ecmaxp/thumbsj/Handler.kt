@@ -1,5 +1,6 @@
 package kr.pe.ecmaxp.thumbsj
 
+/*
 class Handler : MemoryHook {
 
     override fun Invoke(address: Long, read: Boolean, size: Int, value: Int): Int {
@@ -44,3 +45,4 @@ class Handler : MemoryHook {
         val OP_RTC_TICKS_MS = 0x40000200
     }
 }
+*/

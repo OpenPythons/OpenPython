@@ -1,11 +1,37 @@
 package kr.pe.ecmaxp.thumbsj
 
-import kr.pe.ecmaxp.thumbsj.exc.*
+import kr.pe.ecmaxp.thumbsj.exc.InvalidAddressArmException
+import kr.pe.ecmaxp.thumbsj.exc.InvalidMemoryException
+import kr.pe.ecmaxp.thumbsj.exc.UnexceptedLogicError
+import kr.pe.ecmaxp.thumbsj.exc.UnsupportedInstructionException
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.FC
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.FN
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.FQ
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.FV
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.FZ
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.I0
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.I1
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.I10
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.I11
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.I12
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.I7
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.I8
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.I9
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.L1
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.L10
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.L11
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.L2
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.L3
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.L4
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.L5
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.L7
+import kr.pe.ecmaxp.thumbsj.helper.BitConsts.L8
+import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.CPSR
+import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.LR
+import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.PC
+import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.SP
 import kr.pe.ecmaxp.thumbsj.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsj.signal.ControlStopSignal
-
-import kr.pe.ecmaxp.thumbsj.helper.BitConsts.*
-import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.*
 
 class CPU {
     var regs = Registers()
@@ -462,7 +488,7 @@ class CPU {
                                 // :0101110
                                 {
                                     // LDRB Rd, [Rb, Ro]
-                                    REGS[Rd] = memory.readByte(addr) and 0xFF
+                                    REGS[Rd] = memory.readByte(addr).toInt() and 0xFF
                                 } else
                                 // :0101100
                                 {
@@ -545,7 +571,7 @@ class CPU {
                             else
                             // :01101
                             // LDRB Rd, [Rb, #Imm]
-                                value = memory.readByte(addr) and 0xFF
+                                value = memory.readByte(addr).toInt() and 0xFF
 
                             REGS[Rd] = value
                         } else {
@@ -573,7 +599,7 @@ class CPU {
                         if (L)
                         // :10001
                         // LDRH Rd, [Rb, #Imm]
-                            REGS[Rd] = memory.readShort(addr) and 0xFFFF
+                            REGS[Rd] = memory.readShort(addr).toInt() and 0xFFFF
                         else
                         // :10000
                         // STRH Rd, [Rb, #Imm]
@@ -891,7 +917,7 @@ class CPU {
 
 
                                 try {
-                                    interruptHandler!!.invoke(soffset and 0xFF)
+                                    interruptHandler!!.invoke(soffset.toInt() and 0xFF)
                                 } catch (e: ControlPauseSignal) {
                                     throw e
                                 } catch (e: ControlStopSignal) {
@@ -912,7 +938,7 @@ class CPU {
                         // = z || (n && !v) || (!n && v)
 
                         if (cond) {
-                            value = soffset and L8 shl 1
+                            value = soffset.toInt() and L8 shl 1
                             if (value and I8 != 0) {
                                 value = value or L8.inv()
                             }

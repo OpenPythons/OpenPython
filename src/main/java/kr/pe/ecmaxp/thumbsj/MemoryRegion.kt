@@ -7,7 +7,7 @@ import java.util.Arrays
 class MemoryRegion(val begin: Long, size: Int, val flag: MemoryFlag) {
     val end: Long
     val buffer: ByteArray
-    private var Hook: MemoryHook?
+    private var Hook: MemoryHook? = null
 
     init {
         end = begin + size
@@ -32,7 +32,7 @@ class MemoryRegion(val begin: Long, size: Int, val flag: MemoryFlag) {
         if (Hook == null)
             throw InvalidMemoryException(address)
 
-        return Hook!!.Invoke(address, read, size, value)
+        return Hook!!(address, read, size, value)
     }
 
     @Throws(InvalidMemoryException::class)

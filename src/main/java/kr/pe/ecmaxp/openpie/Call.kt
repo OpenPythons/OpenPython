@@ -5,12 +5,8 @@ import li.cil.oc.api.machine.Machine
 
 import java.util.Arrays
 
-class Call(val component: String, val function: String, vararg args: Any) {
-    val args: Array<Any>
-
-    init {
-        this.args = args
-    }
+class Call(val component: String, val function: String, vararg args: Any?) {
+    val args: Array<*> = args
 
     override fun toString(): String {
         return "Call{" +
@@ -32,11 +28,9 @@ class Call(val component: String, val function: String, vararg args: Any) {
         } catch (e: Exception) {
             return Result(this, e)
         }
-
     }
 
     companion object {
-
         fun FromObjectArray(array: Array<Any>): Call? {
             if (array.size < 2)
                 return null

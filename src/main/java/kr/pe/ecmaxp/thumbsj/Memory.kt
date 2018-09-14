@@ -1,8 +1,7 @@
 package kr.pe.ecmaxp.thumbsj
 
 import kr.pe.ecmaxp.thumbsj.exc.InvalidMemoryException
-
-import java.util.ArrayList
+import java.util.*
 
 class Memory {
     private val _list = ArrayList<MemoryRegion>()
@@ -13,7 +12,7 @@ class Memory {
     private var _writePage: MemoryRegion? = null
 
     @Throws(InvalidMemoryException::class)
-    fun map(address: Long, size: Int, hook: MemoryHook) {
+    fun map(address: Long, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int) {
         val region = MemoryRegion(address, size, hook)
         _list.add(region)
     }
@@ -35,8 +34,8 @@ class Memory {
     @Throws(InvalidMemoryException::class)
     fun readBuffer(address: Int, size: Int): ByteArray {
         val addr = Integer.toUnsignedLong(address)
-        _readPage = UpdateCache(_readPage, addr, size.toLong())
-        val page = _readPage
+        _readPage = updateCache(_readPage, addr, size.toLong())
+        val page = _readPage!!
 
         if (page.flag != MemoryFlag.RX && page.flag != MemoryFlag.RW)
             throw InvalidMemoryException(addr)
@@ -50,8 +49,8 @@ class Memory {
     fun writeBuffer(address: Int, buffer: ByteArray) {
         val size = buffer.size
         val addr = Integer.toUnsignedLong(address)
-        _writePage = UpdateCache(_writePage, addr, size.toLong())
-        val page = _writePage
+        _writePage = updateCache(_writePage, addr, size.toLong())
+        val page = _writePage!!
 
         if (page.flag != MemoryFlag.RX && page.flag != MemoryFlag.RW)
             throw InvalidMemoryException(addr)
@@ -63,70 +62,70 @@ class Memory {
     fun fetchCode(address: Int): Int {
         val size = 2
         val addr = Integer.toUnsignedLong(address)
-        _execPage = UpdateCache(_execPage, addr, size.toLong())
-        val page = _execPage
+        _execPage = updateCache(_execPage, addr, size.toLong())
+        val page = _execPage!!
 
         var pos = (addr - page.begin).toInt()
 
-        val _bufferCode = page.buffer
-        return _bufferCode[pos++] and 0xFF or (_bufferCode[pos] and 0xFF shl 8)
+        val bufferCode = page.buffer
+        return bufferCode[pos++].toInt() and 0xFF or (bufferCode[pos].toInt() and 0xFF shl 8)
     }
 
     @Throws(InvalidMemoryException::class)
     fun readInt(address: Int): Int {
         val size = 4
         val addr = Integer.toUnsignedLong(address)
-        _readPage = UpdateCache(_readPage, addr, size.toLong())
-        val page = _readPage
+        _readPage = updateCache(_readPage, addr, size.toLong())
+        val page = _readPage!!
 
         if (page.flag == MemoryFlag.HOOK)
             return page.hook(addr, size)
 
         var pos = (addr - page.begin).toInt()
-        val _buffer = page.buffer
-        return _buffer[pos++] and 0xFF or
-                (_buffer[pos++] and 0xFF shl 8) or
-                (_buffer[pos++] and 0xFF shl 16) or
-                (_buffer[pos] and 0xFF shl 24)
+        val buffer = page.buffer
+        return (buffer[pos++].toInt() and 0xFF) or
+                (buffer[pos++].toInt() and 0xFF shl 8) or
+                (buffer[pos++].toInt() and 0xFF shl 16) or
+                (buffer[pos].toInt() and 0xFF shl 24)
     }
 
     @Throws(InvalidMemoryException::class)
     fun readShort(address: Int): Short {
         val size = 2
         val addr = Integer.toUnsignedLong(address)
-        _readPage = UpdateCache(_readPage, addr, size.toLong())
-        val page = _readPage
+        _readPage = updateCache(_readPage, addr, size.toLong())
+        val page = _readPage!!
 
         if (page.flag == MemoryFlag.HOOK)
             return page.hook(addr, size).toShort()
 
         var pos = (addr - page.begin).toInt()
 
-        val _buffer = page.buffer
-        return (_buffer[pos++] and 0xFF or (_buffer[pos] and 0xFF shl 8)).toShort()
+        val buffer = page.buffer
+        return (buffer[pos++].toInt() and 0xFF or (buffer[pos].toInt() and 0xFF shl 8)).toShort()
     }
 
     @Throws(InvalidMemoryException::class)
     fun readByte(address: Int): Byte {
         val size = 1
         val addr = Integer.toUnsignedLong(address)
-        _readPage = UpdateCache(_readPage, addr, size.toLong())
-        val page = _readPage
+        _readPage = updateCache(_readPage, addr, size.toLong())
+        val page = _readPage!!
 
         if (page.flag == MemoryFlag.HOOK)
             return page.hook(addr, size).toByte()
 
         val pos = (addr - page.begin).toInt()
-        val _buffer = page.buffer
-        return _buffer[pos]
+        val buffer = page.buffer
+        return buffer[pos]
     }
 
     @Throws(InvalidMemoryException::class)
     fun writeInt(address: Int, value: Int) {
         val size = 4
         val addr = Integer.toUnsignedLong(address)
-        _writePage = UpdateCache(_writePage, addr, size.toLong())
-        val page = _writePage
+        _writePage = updateCache(_writePage, addr, size.toLong())
+        val page = _writePage!!
 
         if (page.flag == MemoryFlag.HOOK) {
             page.hook(addr, size, value)
@@ -134,20 +133,20 @@ class Memory {
         }
 
         var pos = (addr - page.begin).toInt()
-        val _buffer = page.buffer
-        _buffer[pos++] = value.toByte()
-        _buffer[pos++] = (value shr 8).toByte()
-        _buffer[pos++] = (value shr 16).toByte()
-        _buffer[pos] = (value shr 24).toByte()
+        val buffer = page.buffer
+        buffer[pos++] = value.toByte()
+        buffer[pos++] = (value shr 8).toByte()
+        buffer[pos++] = (value shr 16).toByte()
+        buffer[pos] = (value shr 24).toByte()
     }
 
     @Throws(InvalidMemoryException::class)
     fun writeShort(address: Int, shortValue: Short) {
         val size = 2
         val addr = Integer.toUnsignedLong(address)
-        val value = shortValue and 0xFFFF
-        _writePage = UpdateCache(_writePage, addr, size.toLong())
-        val page = _writePage
+        val value = shortValue.toInt() and 0xFFFF
+        _writePage = updateCache(_writePage, addr, size.toLong())
+        val page = _writePage!!
 
         if (page.flag == MemoryFlag.HOOK) {
             page.hook(addr, size, value)
@@ -155,38 +154,40 @@ class Memory {
         }
 
         var pos = (addr - page.begin).toInt()
-        val _buffer = page.buffer
-        _buffer[pos++] = value.toByte()
-        _buffer[pos] = (value shr 8).toByte()
+        val buffer = page.buffer
+        buffer[pos++] = value.toByte()
+        buffer[pos] = (value shr 8).toByte()
     }
 
     @Throws(InvalidMemoryException::class)
     fun writeByte(address: Int, byteValue: Byte) {
         val size = 1
         val addr = Integer.toUnsignedLong(address)
-        _writePage = UpdateCache(_writePage, addr, size.toLong())
-        val page = _writePage
+        _writePage = updateCache(_writePage, addr, size.toLong())
+        val page = _writePage!!
 
         if (page.flag == MemoryFlag.HOOK) {
-            page.hook(addr, size, byteValue and 0xFF)
+            page.hook(addr, size, byteValue.toInt() and 0xFF)
             return
         }
 
         val pos = (address - page.begin).toInt()
-        val _buffer = page.buffer
-        _buffer[pos] = byteValue
+        val buffer = page.buffer
+        buffer[pos] = byteValue
     }
 
     @Throws(InvalidMemoryException::class)
-    private fun UpdateCache(region: MemoryRegion?, address: Long, size: Long): MemoryRegion {
+    private fun updateCache(region: MemoryRegion?, address: Long, size: Long): MemoryRegion {
         return if (region != null && region.begin <= address && address + size <= region.end) {
             region
-        } else FindRegion(address, size)
+        } else {
+            findRegion(address, size)
+        }
 
     }
 
     @Throws(InvalidMemoryException::class)
-    fun FindRegion(address: Long, size: Long): MemoryRegion {
+    fun findRegion(address: Long, size: Long): MemoryRegion {
         for (page in _list) {
             if (!(page.begin <= address && address + size <= page.end)) continue
             return page
