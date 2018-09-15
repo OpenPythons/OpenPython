@@ -1,12 +1,8 @@
 package kr.pe.ecmaxp.openpie
 
-import kr.pe.ecmaxp.thumbsj.signal.ControlPauseSignal
-import kr.pe.ecmaxp.thumbsj.signal.ControlSignal
-import kr.pe.ecmaxp.thumbsj.signal.ControlStopSignal
 import li.cil.oc.api.machine.Architecture
 import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
-import li.cil.oc.api.machine.Signal
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 

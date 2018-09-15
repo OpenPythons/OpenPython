@@ -1,8 +1,8 @@
 package kr.pe.ecmaxp.openpie
 
-import kr.pe.ecmaxp.thumbsj.CPU
+import kr.pe.ecmaxp.thumbsk.CPU
 
-import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex
 
 class Interrupt(cpu: CPU, imm: Int) {
     val imm: Int

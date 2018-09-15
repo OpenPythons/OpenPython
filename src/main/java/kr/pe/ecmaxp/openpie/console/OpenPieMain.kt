@@ -1,10 +1,10 @@
 package kr.pe.ecmaxp.openpie.console
 
-import kr.pe.ecmaxp.thumbsj.CPU
-import kr.pe.ecmaxp.thumbsj.MemoryFlag
-import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.PC
-import kr.pe.ecmaxp.thumbsj.signal.ControlPauseSignal
-import kr.pe.ecmaxp.thumbsj.signal.ControlStopSignal
+import kr.pe.ecmaxp.thumbsk.CPU
+import kr.pe.ecmaxp.thumbsk.MemoryFlag
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.PC
+import kr.pe.ecmaxp.thumbsk.signal.ControlPauseSignal
+import kr.pe.ecmaxp.thumbsk.signal.ControlStopSignal
 import java.io.File
 import java.nio.file.Files
 
