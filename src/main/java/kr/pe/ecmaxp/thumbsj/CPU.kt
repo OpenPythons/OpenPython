@@ -1,3 +1,4 @@
+
 package kr.pe.ecmaxp.thumbsj
 
 import kr.pe.ecmaxp.thumbsj.exc.InvalidAddressArmException
@@ -33,22 +34,31 @@ import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex.SP
 import kr.pe.ecmaxp.thumbsj.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsj.signal.ControlStopSignal
 
+@Suppress("LocalVariableName", "RedundantGetter", "RedundantSetter")
 class CPU {
     var regs = Registers()
+        get() = field
+        set(value) {
+            field = value
+        }
 
     var memory = Memory()
+        get() = field
+        set(value) {
+            field = value
+        }
 
     var interruptHandler: InterruptHandler? = null
+        get() = field
+        set(value) {
+            field = value
+        }
 
-    var executedCount = 0
-
-    fun Interrupt(soffset: Byte): Boolean {
-        throw UnsupportedOperationException()
-    }
+    private var executedCount = 0
 
     @Throws(InvalidMemoryException::class, UnknownInstructionException::class, InvalidAddressArmException::class, ControlPauseSignal::class, ControlStopSignal::class)
-    fun run(count: Int) {
-        var count = count
+    fun run(inst_count: Int) {
+        var count = inst_count
         val memory = this.memory
         var REGS = regs.load()
 
@@ -66,43 +76,28 @@ class CPU {
         try {
             while (count-- > 0) {
                 var increase_pc = true
-                var Rs: Int
-                var Rd: Int
-                val Rb: Int
-                var left: Int
-                var right: Int
-                var value: Int
-                var addr: Int
-                val lvalue: Long
-                val L: Boolean
-                val B: Boolean
-                val S: Boolean
-                val H: Boolean
-                val list: Int
-
                 val code = memory.fetchCode(REGS[PC])
 
                 when (code shr 12 and L4) {
-                    0, 1 // :000x
-                    -> {
-                        Rs = code shr 3 and L3
-                        Rd = code and L3
-                        left = REGS[Rs]
+                    0, 1 -> { // :000x
+                        var Rs = code shr 3 and L3
+                        var Rd = code and L3
+                        var left = REGS[Rs]
+                        var value: Int
+
                         when (code shr 11 and L2) {
-                        // Format 1: move shifted register
-                            0 // :00000
-                            -> {
+                            // Format 1: move shifted register
+                            0 -> { // :00000
                                 // LSL Rd, Rs, #Offset5
-                                right = code shr 6 and L5 // right = 0 ~ 31
+                                val right = code shr 6 and L5 // right = 0 ~ 31
                                 value = left shl right
 
                                 if (right > 0)
                                     c = left shl right - 1 and FN != 0
                             }
-                            1 // :00001
-                            -> {
+                            1 -> { // :00001
                                 //  LSR Rd, Rs, #Offset5
-                                right = code shr 6 and L5 // right = 1 ~ 32
+                                val right = code shr 6 and L5 // right = 1 ~ 32
                                 if (right == 0) {
                                     value = 0
                                     c = left and FN != 0
@@ -111,10 +106,9 @@ class CPU {
                                     c = left and (1 shl right - 1) != 0
                                 }
                             }
-                            2 // :00010
-                            -> {
+                            2 -> { // :00010
                                 // ASR Rd, Rs, #Offset5
-                                right = code shr 6 and L5 // right = 1 ~ 32
+                                val right = code shr 6 and L5 // right = 1 ~ 32
                                 if (right == 0) {
                                     value = if (left > 0) 0 else -1
                                     c = left and FN != 0
@@ -123,31 +117,28 @@ class CPU {
                                     c = left and (1 shl right - 1) != 0
                                 }
                             }
-                            3 // :00011
-                            -> {
+                            3 -> { // :00011
                                 // Format 2: add/subtract
                                 val I = code shr 10 and 1 != 0
                                 val Rn = code shr 6 and L3
                                 Rs = code shr 3 and L3
                                 Rd = code and L3
                                 left = REGS[Rs]
-                                right = if (I) Rn else REGS[Rn]
+                                val right = if (I) Rn else REGS[Rn]
 
                                 when (code shr 9 and L1) {
-                                    0 // :0001100 | :0001110
-                                    -> {
+                                    0 -> { // :0001100 | :0001110
                                         // ADD Rd, Rs, Rn
                                         // ADD Rd, Rs, #Offset3
-                                        lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
+                                        val lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
                                         value = lvalue.toInt()
                                         c = lvalue > 0xFFFFFFFFL
                                         v = left xor value and (right xor value) < 0
                                     }
-                                    1 // :0001101 | :0001111
-                                    -> {
+                                    1 -> { // :0001101 | :0001111
                                         // SUB Rd, Rs, Rn
                                         // SUB Rd, Rs, #Offset3
-                                        lvalue = (left.toLong() and 0xffffffffL) +
+                                        val lvalue = (left.toLong() and 0xffffffffL) +
                                                 (right.inv().toLong() and 0xffffffffL) + 1L
                                         value = lvalue.toInt()
                                         c = lvalue > 0xFFFFFFFFL
@@ -163,21 +154,21 @@ class CPU {
                         z = value == 0
                         REGS[Rd] = value
                     }
-                    2, 3 // :001
-                    -> {
+                    2, 3 -> { // :001
                         // Format 3: move/compare/add/subtract immediate
-                        Rd = code shr 8 and L3
-                        left = REGS[Rd]
-                        right = code and L8
+                        val Rd = code shr 8 and L3
+                        val left = REGS[Rd]
+                        val right = code and L8
+                        var value: Int
+                        var lvalue: Long
+
                         when (code shr 11 and L2) {
-                            0 // :001100
-                            -> {
+                            0 -> { // :001100
                                 // MOV Rd, #Offset8
                                 value = right
                                 REGS[Rd] = value
                             }
-                            1 // :001101
-                            -> {
+                            1 -> { // :001101
                                 // CMP Rd, #Offset8
                                 lvalue = (left.toLong() and 0xffffffffL) +
                                         (right.inv().toLong() and 0xffffffffL) + 1L
@@ -186,8 +177,7 @@ class CPU {
                                 c = lvalue > 0xFFFFFFFFL
                                 v = left xor right and (left xor value) < 0
                             }
-                            2 // :001110
-                            -> {
+                            2 -> { // :001110
                                 // ADD Rd, #Offset8
                                 lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
                                 value = lvalue.toInt()
@@ -195,8 +185,7 @@ class CPU {
                                 c = lvalue > 0xFFFFFFFFL
                                 v = left xor value and (right xor value) < 0
                             }
-                            3 // :001111
-                            -> {
+                            3 -> { // :001111
                                 // SUB Rd, #Offset8
                                 lvalue = (left.toLong() and 0xffffffffL) +
                                         (right.inv().toLong() and 0xffffffffL) + 1L
@@ -211,371 +200,338 @@ class CPU {
                         n = value < 0
                         z = value == 0
                     }
-                    4 // :0100
-                    -> when (code shr 10 and L2) {
-                        0 // :010000
-                        -> {
-                            // Format 4: ALU operations
-                            Rs = code shr 3 and L3
-                            Rd = code and L3
-                            left = REGS[Rd]
-                            right = REGS[Rs]
-                            when (code shr 6 and L4) {
-                                0 // :0100000000
-                                -> {
-                                    // AND Rd, Rs
-                                    // Rd:= Rd AND Rs
-                                    value = left and right
-                                    REGS[Rd] = value
-                                }
-                                1 // :0100000001
-                                -> {
-                                    // EOR Rd, Rs
-                                    // Rd:= Rd EOR Rs
-                                    value = left xor right
-                                    REGS[Rd] = value
-                                }
-                                2 // :0100000010
-                                -> {
-                                    // LSL Rd, Rs
-                                    // Rd := Rd << Rs
+                    4 -> // :0100
+                        when (code shr 10 and L2) {
+                            0 -> { // :010000
+                                // Format 4: ALU operations
+                                val Rs = code shr 3 and L3
+                                val Rd = code and L3
+                                val left = REGS[Rd]
+                                var right = REGS[Rs]
+                                val value: Int
+                                val lvalue: Long
 
-                                    if (right >= 32) {
-                                        value = 0
-                                        c = right == 32 && left and 1 != 0
-                                    } else if (right < 0) {
-                                        value = 0
-                                        c = false
-                                    } else if (right == 0) {
-                                        value = left
-                                    } else {
-                                        value = left shl right
-                                        c = left shl right - 1 and FN != 0
-                                    }
-
-                                    REGS[Rd] = value
-                                }
-                                3 // :0100000011
-                                ->
-                                    // LSR Rd, Rs
-                                    // Rd := Rd >>> Rs
-
-                                    if (right >= 32) {
-                                        value = 0
-                                        c = right == 32 && left and FN != 0
-                                    } else if (right < 0) {
-                                        value = 0
-                                        c = false
-                                    } else if (right == 0) {
-                                        value = left
-                                    } else {
-                                        value = left.ushr(right)
+                                when (code shr 6 and L4) {
+                                    0 -> { // :0100000000
+                                        // AND Rd, Rs
+                                        // Rd:= Rd AND Rs
+                                        value = left and right
                                         REGS[Rd] = value
-                                        c = left.ushr(right - 1) and 1 != 0
                                     }
-                                4 // :0100000100
-                                ->
-                                    // ASR Rd, Rs
-                                    // Rd := Rd ASR Rs
-
-                                    if (right < 0 || right >= 32) {
-                                        value = if (left > 0) 0 else -1
-                                        c = value < 0
-                                    } else if (right == 0) {
-                                        value = left
-                                    } else {
-                                        value = left shr right
+                                    1 -> { // :0100000001
+                                        // EOR Rd, Rs
+                                        // Rd:= Rd EOR Rs
+                                        value = left xor right
                                         REGS[Rd] = value
-                                        c = left and (1 shl right - 1) != 0
                                     }
-                                5 // :0100000101
-                                -> {
-                                    // ADC Rd, Rs
-                                    // Rd := Rd + Rs + C-bit
-                                    lvalue = (left.toLong() and 0xffffffffL) +
-                                            (right.toLong() and 0xffffffffL) + if (c) 1L else 0L
-                                    value = lvalue.toInt()
-                                    REGS[Rd] = value
+                                    2 -> { // :0100000010
+                                        // LSL Rd, Rs
+                                        // Rd := Rd << Rs
 
-                                    c = lvalue != value.toLong()
-                                    v = left > 0 && right > 0 && value < 0 || left < 0 && right < 0 && value > 0
-                                }
-                                6 // :0100000110
-                                -> {
-                                    // SBC Rd, Rs
-                                    // Rd := Rd - Rs - NOT C-bit
-                                    lvalue = left.toLong() - right.toLong() - if (c) 0L else 1L
-                                    value = left - right - if (c) 0 else 1
-                                    REGS[Rd] = value
+                                        when {
+                                            right >= 32 -> {
+                                                value = 0
+                                                c = right == 32 && left and 1 != 0
+                                            }
+                                            right < 0 -> {
+                                                value = 0
+                                                c = false
+                                            }
+                                            right == 0 -> value = left
+                                            else -> {
+                                                value = left shl right
+                                                c = left shl right - 1 and FN != 0
+                                            }
+                                        }
 
-                                    c = c || value < 0
-                                    v = lvalue != value.toLong()
-                                }
-                                7 // :0100000111
-                                -> {
-                                    // ROR Rd, Rs
-                                    // Rd := Rd ROR Rs
-                                    right = right and 31
-                                    value = left.ushr(right) or (left shl 32 - right)
-                                    c = left.ushr(right - 1) and I0 != 0
-                                    REGS[Rd] = value
-                                }
-                                8 // :0100001000
-                                ->
-                                    // TST Rd, Rs
-                                    // set condition codes on Rd AND Rs
-                                    value = left and right
-                                9 // :0100001001
-                                -> {
-                                    // NEG Rd, Rs
-                                    // Rd = -Rs
-                                    lvalue = (right.inv().toLong() and 0xffffffffL) + 1L
-                                    value = lvalue.toInt()
-                                    REGS[Rd] = value
-                                    c = lvalue > 0xFFFFFFFFL
-                                    v = right and value < 0
-                                }
-                                10 // :0100001010
-                                -> {
-                                    // CMP Rd, Rs
-                                    // set condition codes on Rd - Rs
-                                    lvalue = (left.toLong() and 0xffffffffL) +
-                                            (right.inv().toLong() and 0xffffffffL) + 1L
-                                    value = lvalue.toInt()
-                                    // only compare (no write)
-                                    c = lvalue > 0xFFFFFFFFL
-                                    v = left xor right and (left xor value) < 0
-                                }
-                                11 // :0100001011
-                                -> {
-                                    // CMN Rd, Rs
-                                    // set condition codes on Rd + Rs
-                                    lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
-                                    value = lvalue.toInt()
-                                    // only compare (no write)
-                                    c = lvalue > 0xFFFFFFFFL
-                                    v = left xor value and (right xor value) < 0
-                                }
-                                12 // :0100001100
-                                -> {
-                                    // ORR Rd, Rs
-                                    // Rd := Rd OR Rs
-                                    value = left or right
-                                    REGS[Rd] = value
-                                }
-                                13 // :0100001101
-                                -> {
-                                    // MUL Rd, Rs
-                                    // Rd := Rs * Rd
-                                    val svalue = left.toLong() * right.toLong()
-                                    value = left * right
-                                    REGS[Rd] = value
-                                    c = c or (value.toLong() != svalue) // ???
-                                    v = false // svalue != value?
-                                }
-                                14 // :0100001110
-                                -> {
-                                    // BIC Rd, Rs
-                                    // Rd := Rd AND NOT Rs
-                                    value = left and right.inv()
-                                    REGS[Rd] = value
-                                }
-                                15 // :0100001111
-                                -> {
-                                    // MVN Rd, Rs
-                                    // Rd := NOT Rs
-                                    value = right.inv()
-                                    REGS[Rd] = value
-                                }
-                                else -> throw UnexceptedLogicError()
-                            }// only compare (no write)
+                                        REGS[Rd] = value
+                                    }
+                                    3 -> {
+                                        // :0100000011
+                                        // LSR Rd, Rs
+                                        // Rd := Rd >>> Rs
+                                        when {
+                                            right >= 32 -> {
+                                                value = 0
+                                                c = right == 32 && left and FN != 0
+                                            }
+                                            right < 0 -> {
+                                                value = 0
+                                                c = false
+                                            }
+                                            right == 0 -> value = left
+                                            else -> {
+                                                value = left.ushr(right)
+                                                REGS[Rd] = value
+                                                c = left.ushr(right - 1) and 1 != 0
+                                            }
+                                        }
+                                    }
+                                    4 -> // :0100000100
+                                        // ASR Rd, Rs
+                                        // Rd := Rd ASR Rs
 
-                            n = value < 0
-                            z = value == 0
+                                        if (right < 0 || right >= 32) {
+                                            value = if (left > 0) 0 else -1
+                                            c = value < 0
+                                        } else if (right == 0) {
+                                            value = left
+                                        } else {
+                                            value = left shr right
+                                            REGS[Rd] = value
+                                            c = left and (1 shl right - 1) != 0
+                                        }
+                                    5 -> { // :0100000101
+                                        // ADC Rd, Rs
+                                        // Rd := Rd + Rs + C-bit
+                                        lvalue = (left.toLong() and 0xffffffffL) +
+                                                (right.toLong() and 0xffffffffL) + if (c) 1L else 0L
+                                        value = lvalue.toInt()
+                                        REGS[Rd] = value
+
+                                        c = lvalue != value.toLong()
+                                        v = left > 0 && right > 0 && value < 0 || left < 0 && right < 0 && value > 0
+                                    }
+                                    6 -> { // :0100000110
+                                        // SBC Rd, Rs
+                                        // Rd := Rd - Rs - NOT C-bit
+                                        lvalue = left.toLong() - right.toLong() - if (c) 0L else 1L
+                                        value = left - right - if (c) 0 else 1
+                                        REGS[Rd] = value
+
+                                        c = c || value < 0
+                                        v = lvalue != value.toLong()
+                                    }
+                                    7 -> { // :0100000111
+                                        // ROR Rd, Rs
+                                        // Rd := Rd ROR Rs
+                                        right = right and 31
+                                        value = left.ushr(right) or (left shl 32 - right)
+                                        c = left.ushr(right - 1) and I0 != 0
+                                        REGS[Rd] = value
+                                    }
+                                    8 -> // :0100001000
+                                        // TST Rd, Rs
+                                        // set condition codes on Rd AND Rs
+                                        value = left and right
+                                    9 -> { // :0100001001
+                                        // NEG Rd, Rs
+                                        // Rd = -Rs
+                                        lvalue = (right.inv().toLong() and 0xffffffffL) + 1L
+                                        value = lvalue.toInt()
+                                        REGS[Rd] = value
+                                        c = lvalue > 0xFFFFFFFFL
+                                        v = right and value < 0
+                                    }
+                                    10 -> { // :0100001010
+                                        // CMP Rd, Rs
+                                        // set condition codes on Rd - Rs
+                                        lvalue = (left.toLong() and 0xffffffffL) +
+                                                (right.inv().toLong() and 0xffffffffL) + 1L
+                                        value = lvalue.toInt()
+                                        // only compare (no write)
+                                        c = lvalue > 0xFFFFFFFFL
+                                        v = left xor right and (left xor value) < 0
+                                    }
+                                    11 -> { // :0100001011
+                                        // CMN Rd, Rs
+                                        // set condition codes on Rd + Rs
+                                        lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
+                                        value = lvalue.toInt()
+                                        // only compare (no write)
+                                        c = lvalue > 0xFFFFFFFFL
+                                        v = left xor value and (right xor value) < 0
+                                    }
+                                    12 -> { // :0100001100
+                                        // ORR Rd, Rs
+                                        // Rd := Rd OR Rs
+                                        value = left or right
+                                        REGS[Rd] = value
+                                    }
+                                    13 -> { // :0100001101
+                                        // MUL Rd, Rs
+                                        // Rd := Rs * Rd
+                                        val svalue = left.toLong() * right.toLong()
+                                        value = left * right
+                                        REGS[Rd] = value
+                                        c = c or (value.toLong() != svalue) // ???
+                                        v = false // svalue != value?
+                                    }
+                                    14 -> { // :0100001110
+                                        // BIC Rd, Rs
+                                        // Rd := Rd AND NOT Rs
+                                        value = left and right.inv()
+                                        REGS[Rd] = value
+                                    }
+                                    15 -> { // :0100001111
+                                        // MVN Rd, Rs
+                                        // Rd := NOT Rs
+                                        value = right.inv()
+                                        REGS[Rd] = value
+                                    }
+                                    else -> throw UnexceptedLogicError()
+                                }// only compare (no write)
+
+                                n = value < 0
+                                z = value == 0
+                            }
+                            1 -> { // :010001
+                                // Format 5: Hi register operations/branch exchange
+                                val H1 = code shr 7 and L1 != 0
+                                val H2 = code shr 6 and L1 != 0
+                                val Rd = (code and L3) + if (H1) 8 else 0
+                                val Rs = (code shr 3 and L3) + if (H2) 8 else 0
+
+                                when (code shr 8 and L2) {
+                                    0 -> { // :01000100
+                                        // ADD Rd, Hs
+                                        // ADD Hd, Rs
+                                        // ADD Hd, Hs
+                                        val left = REGS[Rd]
+                                        var right = REGS[Rs]
+                                        if (Rs == PC)
+                                            right += 4
+
+                                        REGS[Rd] = left + right
+                                    }
+                                    1 -> { // :01000101
+                                        // CMP Rd, Hs
+                                        // CMP Hd, Rs
+                                        // CMP Hd, Hs
+                                        val left = REGS[Rd]
+                                        val right = REGS[Rs]
+                                        val lvalue = (left.toLong() and 0xffffffffL) +
+                                                (right.inv().toLong() and 0xffffffffL) + 1L
+                                        val value = lvalue.toInt()
+                                        // only compare (no write)
+                                        n = value < 0
+                                        z = value == 0
+                                        c = lvalue > 0xFFFFFFFFL
+                                        v = left xor right and (left xor value) < 0
+                                    }
+                                    2 -> { // :01000110
+                                        // MOV Rd, Hs
+                                        // MOV Hd, Rs
+                                        // MOV Hd, Hs
+                                        var value = REGS[Rs]
+                                        if (Rd == PC)
+                                            value -= 2
+
+                                        REGS[Rd] = value
+                                    }
+                                    3 -> { // :01000111
+                                        // BX Rs
+                                        // BX Hs
+                                        val value = REGS[Rs]
+                                        if (value and I0 != 1)
+                                            throw UnknownInstructionException()
+
+                                        if (H1)
+                                            REGS[LR] = REGS[PC] + 2 or I0
+
+                                        REGS[PC] = value and I0.inv()
+                                        increase_pc = false
+                                    }
+                                    else -> throw UnexceptedLogicError()
+                                }// no write condition code flags
+                            }
+                            2, 3 -> { // :01001
+                                // Format 6: PC-relative load
+                                // LDR Rd, [PC, #Imm]
+                                val Rd = code shr 8 and L3
+                                var addr = code and L8 shl 2
+                                addr += REGS[PC] + 4 and I1.inv()
+
+                                REGS[Rd] = memory.readInt(addr)
+                            }
                         }
-                        1 // :010001
-                        -> {
-                            // Format 5: Hi register operations/branch exchange
-                            val H1 = code shr 7 and L1 != 0
-                            val H2 = code shr 6 and L1 != 0
-                            Rd = (code and L3) + if (H1) 8 else 0
-                            Rs = (code shr 3 and L3) + if (H2) 8 else 0
-
-                            when (code shr 8 and L2) {
-                                0 // :01000100
-                                -> {
-                                    // ADD Rd, Hs
-                                    // ADD Hd, Rs
-                                    // ADD Hd, Hs
-                                    left = REGS[Rd]
-                                    right = REGS[Rs]
-                                    if (Rs == PC)
-                                        right += 4
-
-                                    REGS[Rd] = left + right
-                                }
-                                1 // :01000101
-                                -> {
-                                    // CMP Rd, Hs
-                                    // CMP Hd, Rs
-                                    // CMP Hd, Hs
-                                    left = REGS[Rd]
-                                    right = REGS[Rs]
-                                    lvalue = (left.toLong() and 0xffffffffL) +
-                                            (right.inv().toLong() and 0xffffffffL) + 1L
-                                    value = lvalue.toInt()
-                                    // only compare (no write)
-                                    n = value < 0
-                                    z = value == 0
-                                    c = lvalue > 0xFFFFFFFFL
-                                    v = left xor right and (left xor value) < 0
-                                }
-                                2 // :01000110
-                                -> {
-                                    // MOV Rd, Hs
-                                    // MOV Hd, Rs
-                                    // MOV Hd, Hs
-                                    value = REGS[Rs]
-                                    if (Rd == PC)
-                                        value -= 2
-
-                                    REGS[Rd] = value
-                                }
-                                3 // :01000111
-                                -> {
-                                    // BX Rs
-                                    // BX Hs
-                                    value = REGS[Rs]
-                                    if (value and I0 != 1)
-                                        throw UnknownInstructionException()
-
-                                    if (H1)
-                                        REGS[LR] = REGS[PC] + 2 or I0
-
-                                    REGS[PC] = value and I0.inv()
-                                    increase_pc = false
-                                }
-                                else -> throw UnexceptedLogicError()
-                            }// no write condition code flags
-                        }
-                        2, 3 // :01001
-                        -> {
-                            // Format 6: PC-relative load
-                            // LDR Rd, [PC, #Imm]
-                            Rd = code shr 8 and L3
-                            addr = code and L8 shl 2
-                            addr += REGS[PC] + 4 and I1.inv()
-
-                            REGS[Rd] = memory.readInt(addr)
-                        }
-                    }
-                    5 // :0101
-                    -> {
-                        val Ro: Int
+                    5 -> { // :0101
                         if (code and I9 == 0)
                         // :0101xx0
                         {
                             // Format 7: load/store with register offset
-                            L = code and I11 != 0
-                            B = code and I10 != 0
-                            Ro = code shr 6 and L3
-                            Rb = code shr 3 and L3
-                            Rd = code and L3
-                            addr = REGS[Rb] + REGS[Ro]
+                            val L = code and I11 != 0
+                            val B = code and I10 != 0
+                            val Ro = code shr 6 and L3
+                            val Rb = code shr 3 and L3
+                            val Rd = code and L3
+                            val addr = REGS[Rb] + REGS[Ro]
 
                             if (L) {
-                                if (B)
-                                // :0101110
-                                {
+                                if (B) {// :0101100
                                     // LDRB Rd, [Rb, Ro]
                                     REGS[Rd] = memory.readByte(addr).toInt() and 0xFF
-                                } else
-                                // :0101100
-                                {
+                                } else {// :0101100
                                     // LDR Rd, [Rb, Ro]
                                     REGS[Rd] = memory.readInt(addr)
                                 }
                             } else {
-                                if (B)
-                                // :0101010
-                                {
+                                if (B) { // :0101010
                                     // STRB Rd, [Rb, Ro]
                                     memory.writeByte(addr, REGS[Rd].toByte())
-                                } else
-                                // :0101000
-                                {
+                                } else { // :0101000
                                     // STR Rd, [Rb, Ro]
                                     memory.writeInt(addr, REGS[Rd])
                                 }
                             }
-                        } else
-                        // :0101xx1
-                        {
+                        } else { // :0101xx1
                             // Format 8: load/store sign-extended byte/halfword
-                            H = code and I11 != 0
-                            S = code and I10 != 0
-                            Ro = code shr 6 and L3
-                            Rb = code shr 3 and L3
-                            Rd = code and L3
-                            addr = REGS[Rb] + REGS[Ro]
+                            val H = code and I11 != 0
+                            val S = code and I10 != 0
+                            val Ro = code shr 6 and L3
+                            val Rb = code shr 3 and L3
+                            val Rd = code and L3
+                            val addr = REGS[Rb] + REGS[Ro]
 
                             if (S) {
-                                if (H)
-                                // :0101111
-                                {
+                                val value = if (H) {// :0101111
                                     // LDSH Rd, [Rb, Ro]
-                                    value = memory.readShort(addr).toInt()
-                                } else
-                                // :0101011
-                                {
+                                    memory.readShort(addr).toInt()
+                                } else { // :0101011
                                     // LDSB Rd, [Rb, Ro]
-                                    value = memory.readByte(addr).toInt()
+                                    memory.readByte(addr).toInt()
                                 }
 
                                 REGS[Rd] = value
                             } else {
-                                if (H)
-                                // :0101101
-                                {
+                                if (H) { // :0101101
                                     // LDRH Rd, [Rb, Ro]
-                                    value = memory.readShort(addr).toInt()
+                                    val value = memory.readShort(addr).toInt()
                                     REGS[Rd] = value
-                                } else
-                                // :0101001
-                                {
+                                } else { // :0101001
                                     // STRH Rd, [Rb, Ro]
-                                    value = REGS[Rd]
+                                    val value = REGS[Rd]
                                     memory.writeShort(addr, value.toShort())
                                 }
                             }
                         }
                     }
-                    6, 7 // :011
-                    -> {
+                    6, 7 -> { // :011
                         // Format 9: load/store with immediate offset
-                        B = code and I12 != 0
-                        L = code and I11 != 0
-                        Rb = code shr 3 and L3
-                        Rd = code and L3
-                        value = code shr 6 and L5
-                        if (!B)
-                            value = value shl 2
+                        val B = code and I12 != 0
+                        val L = code and I11 != 0
+                        val Rb = code shr 3 and L3
+                        val Rd = code and L3
+                        var offset = code shr 6 and L5
 
-                        addr = REGS[Rb] + value
+                        if (!B)
+                            offset = offset shl 2
+
+                        val addr = REGS[Rb] + offset
 
                         if (L) {
-                            if (!B)
+                            val value = if (!B)
                             // :01111
                             // LDR Rd, [Rb, #Imm]
-                                value = memory.readInt(addr)
+                                memory.readInt(addr)
                             else
                             // :01101
                             // LDRB Rd, [Rb, #Imm]
-                                value = memory.readByte(addr).toInt() and 0xFF
+                                memory.readByte(addr).toInt() and 0xFF
 
                             REGS[Rd] = value
                         } else {
-                            value = REGS[Rd]
+                            val value = REGS[Rd]
 
                             if (!B)
                             // :01100
@@ -587,14 +543,13 @@ class CPU {
                                 memory.writeByte(addr, value.toByte())
                         }
                     }
-                    8 // :1000x
-                    -> {
+                    8 -> { // :1000x
                         // Format 10: load/store halfword
-                        L = code and I11 != 0
-                        Rb = code shr 3 and L3
-                        Rd = code and L3
-                        value = code shr 6 and L5 shl 1
-                        addr = REGS[Rb] + value
+                        val L = code and I11 != 0
+                        val Rb = code shr 3 and L3
+                        val Rd = code and L3
+                        val value = code shr 6 and L5 shl 1
+                        val addr = REGS[Rb] + value
 
                         if (L)
                         // :10001
@@ -605,13 +560,12 @@ class CPU {
                         // STRH Rd, [Rb, #Imm]
                             memory.writeShort(addr, REGS[Rd].toShort())
                     }
-                    9 // :1001x
-                    -> {
+                    9 -> { // :1001x
                         // Format 11: SP-relative load/store
-                        L = code and I11 != 0
-                        Rd = code shr 8 and L3
-                        value = code and L8 shl 2
-                        addr = REGS[SP] + value
+                        val L = code and I11 != 0
+                        val Rd = code shr 8 and L3
+                        val value = code and L8 shl 2
+                        val addr = REGS[SP] + value
 
                         if (L)
                         // :10011
@@ -622,34 +576,30 @@ class CPU {
                         // STR Rd, [SP, #Imm]
                             memory.writeInt(addr, REGS[Rd])
                     }
-                    10 // :1010x
-                    -> {
+                    10 -> { // :1010x
                         // Format 12: load address
                         val fSP = code and I11 != 0
-                        Rd = code shr 8 and L3
-                        value = code and L8 shl 2
+                        val Rd = code shr 8 and L3
+                        var value = code and L8 shl 2
 
-                        if (fSP)
+                        value += if (fSP)
                         // :10101
                         // ADD Rd, SP, #Imm
-                            value += REGS[SP]
+                            REGS[SP]
                         else
                         // :10100
                         // ADD Rd, PC, #Imm
-                            value += REGS[PC] + 4 and I1.inv()
+                            REGS[PC] + 4 and I1.inv()
 
                         REGS[Rd] = value
                     }
-                    11 // :1011
-                    -> {
-                        val R: Boolean
+                    11 -> { // :1011
                         when (code shr 8 and L4) {
-                            0 // :10110000x
-                            -> {
+                            0 -> { // :10110000x
                                 // Format 13: add offset to Stack Pointer
 
-                                S = code and I7 != 0
-                                value = code and L7 shl 2
+                                val S = code and I7 != 0
+                                val value = code and L7 shl 2
 
                                 if (S)
                                 // :101100000
@@ -660,49 +610,41 @@ class CPU {
                                 // ADD SP, #Imm
                                     REGS[SP] += value
                             }
-                            1 // :10110001
-                            ->
+                            1 -> // :10110001
                                 // CBZ Rd, #Imm
                                 throw UnsupportedInstructionException()
-                            2 // :10110010
-                            -> {
+                            2 -> { // :10110010
                                 // SXTH, SXTB, UXTH, UXTB
-                                Rs = code shr 3 and L3
-                                Rd = code and L3
-                                value = REGS[Rs]
+                                val Rs = code shr 3 and L3
+                                val Rd = code and L3
+                                val left = REGS[Rs]
 
-                                when (code shr 6 and L2) {
-                                    0 // :1011001000
-                                    ->
+                                val value = when (code shr 6 and L2) {
+                                    0 -> // :1011001000
                                         // SXTH Rd, Rs
-                                        value = value.toShort().toInt()
-                                    1 // :1011001001
-                                    ->
+                                        left.toShort().toInt()
+                                    1 -> // :1011001001
                                         // SXTB Rd, Rs
-                                        value = value.toByte().toInt()
-                                    2 // :1011001010
-                                    ->
+                                        left.toByte().toInt()
+                                    2 -> // :1011001010
                                         // UXTH Rd, Rs
-                                        value = value and 0xFFFF
-                                    3 // :1011001011
-                                    ->
+                                        left and 0xFFFF
+                                    3 -> // :1011001011
                                         // UXTB Rd, Rs
-                                        value = value and 0XFF
+                                        left and 0XFF
                                     else -> throw UnexceptedLogicError()
                                 }
 
                                 REGS[Rd] = value
                             }
-                            3 // :10110011
-                            ->
+                            3 -> // :10110011
                                 // CBZ Rd, #Imm
                                 throw UnsupportedInstructionException()
-                            4, 5 // :1011010x
-                            -> {
+                            4, 5 -> { // :1011010x
                                 // Format 14: push/pop registers
-                                R = code and I8 != 0
-                                list = code and L8
-                                addr = REGS[SP]
+                                val R = code and I8 != 0
+                                val list = code and L8
+                                var addr = REGS[SP]
 
                                 try {
                                     if (R)
@@ -724,38 +666,30 @@ class CPU {
                                     REGS[SP] = addr
                                 }
                             }
-                            6 // :10110110
-                                , 7 // :10110111
-                                , 8 // :10111000
-                            -> throw UnknownInstructionException()
-                            9 // :10111001
-                            ->
+                            6, 7, 8 -> // :10110110 :10110111 :10111000
+                                throw UnknownInstructionException()
+                            9 -> // :10111001
                                 // CBNZ Rd, #Imm
                                 throw UnsupportedInstructionException()
-                            10 // :10111010xx
-                            -> {
-                                Rs = code shr 3 and L3
-                                Rd = code and L3
-                                value = REGS[Rs]
+                            10 -> { // :10111010xx
+                                val Rs = code shr 3 and L3
+                                val Rd = code and L3
+                                var value = REGS[Rs]
 
                                 when (code shr 6 and L2) {
-                                    0 // :1011101000
-                                    ->
+                                    0 -> // :1011101000
                                         // REV Rd, Rs
                                         value = value.ushr(24) and 0xFF or (
                                                 value.ushr(16) and 0xFF shl 8) or (
                                                 value.ushr(8) and 0xFF shl 16) or
                                                 (value and 0xFF shl 24)
-                                    1 // :1011101001
-                                    ->
+                                    1 -> // :1011101001
                                         // REV16 Rd, Rs
                                         throw UnsupportedInstructionException()
-                                    2 // :1011101010
-                                    ->
+                                    2 -> // :1011101010
                                         // INVALID
                                         throw UnknownInstructionException()
-                                    3 // :1011101011
-                                    ->
+                                    3 -> // :1011101011
                                         // REVSH Rd, Rs
                                         throw UnsupportedInstructionException()
                                     else -> throw UnexceptedLogicError()
@@ -763,16 +697,14 @@ class CPU {
 
                                 REGS[Rd] = value
                             }
-                            11 // :10111011
-                            ->
+                            11 -> // :10111011
                                 // CBNZ Rd, #Imm
                                 throw UnsupportedInstructionException()
-                            12, 13 // :1011110x
-                            -> {
+                            12, 13 -> { // :1011110x
                                 // Format 14: push/pop registers
-                                R = code and I8 != 0
-                                list = code and L8
-                                addr = REGS[SP]
+                                val R = code and I8 != 0
+                                val list = code and L8
+                                var addr = REGS[SP]
 
                                 try {
                                     // POP { Rlist }
@@ -787,7 +719,7 @@ class CPU {
                                     // :10111101 {..., PC}
                                     {
                                         // POP { ..., PC }
-                                        value = memory.readInt(addr)
+                                        val value = memory.readInt(addr)
                                         if (value and I0 != 1)
                                             throw InvalidAddressArmException()
 
@@ -799,33 +731,27 @@ class CPU {
                                     REGS[SP] = addr
                                 }
                             }
-                            14 // :10111110
-                                , 15 // :10111111
-                            -> throw UnknownInstructionException()
+                            14, 15 -> // :10111110 :10111111
+                                throw UnknownInstructionException()
                             else -> throw UnexceptedLogicError()
                         }// condition codes are not set
                     }
-                    12 // :1100
-                    -> {
+                    12 -> { // :1100
                         // Format 15: multiple load/store
-                        L = code and I11 != 0
-                        list = code and L8
-                        Rb = code shr 8 and L3
-                        addr = REGS[Rb]
+                        val L = code and I11 != 0
+                        val list = code and L8
+                        val Rb = code shr 8 and L3
+                        var addr = REGS[Rb]
 
                         try {
-                            if (!L)
-                            // :11001
-                            {
+                            if (!L) { // :11001
                                 // STMIA Rb!, { Rlist }
                                 for (i in 0..7)
                                     if (list and (1 shl i) != 0) {
                                         memory.writeInt(addr, REGS[i])
                                         addr += 4
                                     }
-                            } else
-                            // :11000
-                            {
+                            } else { // :11000
                                 // LDMIA Rb!, { Rlist }
                                 for (i in 0..7)
                                     if (list and (1 shl i) != 0) {
@@ -837,73 +763,59 @@ class CPU {
                             REGS[Rb] = addr
                         }
                     }
-                    13 // :1101
-                    -> {
+                    13 -> { // :1101
                         val soffset = (code and L8).toByte()
-                        var cond = false
-
                         // Format 16: conditional branch
-                        when (code shr 8 and L4) {
-                            0 // :11010000
-                            ->
+                        val cond = when (code shr 8 and L4) {
+                            0 -> // :11010000
                                 // BEQ label
-                                cond = z
-                            1 // :11010001
-                            ->
+                                z
+                            1 -> // :11010001
                                 // BNE label
-                                cond = !z
-                            2 // :11010010
-                            ->
+                                !z
+                            2 -> // :11010010
                                 // BCS label
-                                cond = c
-                            3 // :11010011
-                            ->
+                                c
+                            3 -> // :11010011
                                 // BCC label
-                                cond = !c
-                            4 // :11010100
-                            ->
+                                !c
+                            4 -> // :11010100
                                 // BMI label
-                                cond = n
-                            5 // :11010101
-                            ->
+                                n
+                            5 -> // :11010101
                                 // BPL label
-                                cond = !n
-                            6 // :11010110
-                            ->
+                                !n
+                            6 -> // :11010110
                                 // BVS label
-                                cond = v
-                            7 // :11010111
-                            ->
+                                v
+                            7 -> // :11010111
                                 // BVC label
-                                cond = !v
-                            8 // :11011000
-                            ->
+                                !v
+                            8 -> // :11011000
                                 // BHI label
-                                cond = c && !z
-                            9 // :11011001
-                            ->
+                                c && !z
+                            9 -> // :11011001
                                 // BLS label
-                                cond = !c || z
-                            10 // :11011010
-                            ->
+                                !c || z
+                            10 -> // :11011010
                                 // BGE label
-                                cond = n == v
-                            11 // :11011011
-                            ->
+                                // (n && v) || (!n && !v)
+                                n == v
+                            11 -> // :11011011
                                 // BLT label
-                                cond = n != v
-                            12 // :11011100
-                            ->
+                                // (n && !v) || (!n && v)
+                                n != v
+                            12 -> // :11011100
                                 // BGT label
-                                cond = !z && n == v
-                            13 // :11011101
-                            ->
+                                // !z && (n && v || !n && !v)
+                                !z && n == v
+                            13 -> // :11011101
                                 // BLE label
-                                cond = z || n != v
-                            14 // :11011110
-                            -> throw UnknownInstructionException()
-                            15 // :11011111
-                            -> {
+                                // z || (n && !v) || (!n && v)
+                                z || n != v
+                            14 -> // :11011110
+                                throw UnknownInstructionException()
+                            15 -> { // :11011111
                                 // Format 17: software interrupt
                                 // SWI Value8
 
@@ -931,14 +843,14 @@ class CPU {
                                     z = REGS[CPSR] and FZ != 0
                                     n = REGS[CPSR] and FN != 0
                                 }
+
+                                false // this is not jump
                             }
-                        }// = (n && v) || (!n && !v)
-                        // = (n && !v) || (!n && v)
-                        // = !z && (n && v || !n && !v)
-                        // = z || (n && !v) || (!n && v)
+                            else -> throw UnexceptedLogicError()
+                        }
 
                         if (cond) {
-                            value = soffset.toInt() and L8 shl 1
+                            var value = soffset.toInt() and L8 shl 1
                             if (value and I8 != 0) {
                                 value = value or L8.inv()
                             }
@@ -947,13 +859,12 @@ class CPU {
                             increase_pc = false
                         }
                     }
-                    14 // :11100
-                    -> {
+                    14 -> { // :11100
                         // Format 18: unconditional branch
                         if (code and I11 != 0)
                             throw UnknownInstructionException()
 
-                        value = code and L10 shl 1
+                        var value = code and L10 shl 1
                         if (code and I10 != 0) {
                             value = value or L11.inv()
                         }
@@ -961,16 +872,15 @@ class CPU {
                         REGS[PC] += 4 + value
                         increase_pc = false
                     }
-                    15 // :1111
-                    -> {
+                    15 -> { // :1111
                         // Format 19: long branch with link
-                        H = code shr 11 and L1 != 0
-                        value = code and L11
+                        val H = code shr 11 and L1 != 0
+                        val value = code and L11
                         if (!H) {
                             REGS[LR] = value shl 12
                             count++
                         } else {
-                            addr = REGS[LR]
+                            var addr = REGS[LR]
                             addr = addr or (value shl 1)
                             if (addr and (1 shl 22) != 0)
                                 addr = addr or 8388607.inv()
