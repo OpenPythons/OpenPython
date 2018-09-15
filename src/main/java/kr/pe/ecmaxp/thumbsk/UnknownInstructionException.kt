@@ -1,3 +1,3 @@
-package kr.pe.ecmaxp.thumbsj
+package kr.pe.ecmaxp.thumbsk
 
 open class UnknownInstructionException : Exception()

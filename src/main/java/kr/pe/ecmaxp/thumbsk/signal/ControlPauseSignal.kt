@@ -1,3 +1,3 @@
-package kr.pe.ecmaxp.thumbsj.signal
+package kr.pe.ecmaxp.thumbsk.signal
 
 class ControlPauseSignal(`object`: Any) : ControlSignal(`object`)

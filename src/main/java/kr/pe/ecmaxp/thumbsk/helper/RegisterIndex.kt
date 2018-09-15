@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.thumbsj.helper
+package kr.pe.ecmaxp.thumbsk.helper
 
 object RegisterIndex {
     val R0 = 0

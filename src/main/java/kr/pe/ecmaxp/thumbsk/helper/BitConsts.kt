@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.thumbsj.helper
+package kr.pe.ecmaxp.thumbsk.helper
 
 object BitConsts {
     const val I0 = 1

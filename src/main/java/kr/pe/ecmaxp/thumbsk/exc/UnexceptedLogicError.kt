@@ -1,3 +1,3 @@
-package kr.pe.ecmaxp.thumbsj.exc
+package kr.pe.ecmaxp.thumbsk.exc
 
 class UnexceptedLogicError : AssertionError()

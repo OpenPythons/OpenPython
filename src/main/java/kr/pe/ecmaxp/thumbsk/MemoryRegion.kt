@@ -1,6 +1,6 @@
-package kr.pe.ecmaxp.thumbsj
+package kr.pe.ecmaxp.thumbsk
 
-import kr.pe.ecmaxp.thumbsj.exc.InvalidMemoryException
+import kr.pe.ecmaxp.thumbsk.exc.InvalidMemoryException
 
 import java.util.Arrays
 

@@ -1,7 +1,7 @@
-package kr.pe.ecmaxp.thumbsj
+package kr.pe.ecmaxp.thumbsk
 
-import kr.pe.ecmaxp.thumbsj.helper.BitConsts
-import kr.pe.ecmaxp.thumbsj.helper.RegisterIndex
+import kr.pe.ecmaxp.thumbsk.helper.BitConsts
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex
 
 class Registers {
     private var _regs: IntArray? = IntArray(RegisterIndex.CPSR + 1)
