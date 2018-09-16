@@ -86,25 +86,24 @@ class CPU {
 
                         when (code shr 11 and L2) { // move shifted register
                             0 -> { // :00000 ; LSL Rd, Rs, #Offset5
-                                val right = code shr 6 and L5 // right = 0 ~ 31
+                                val right = code shr 6 and L5 // 0 ~ 31
                                 value = left shl right
 
                                 if (right > 0)
                                     c = left shl right - 1 and FN != 0
                             }
                             1 -> { // :00001 ; LSR Rd, Rs, #Offset5
-                                val right = code shr 6 and L5 // right = 1 ~ 32
+                                val right = code shr 6 and L5 // 1 ~ 32
                                 if (right == 0) {
                                     value = 0
                                     c = left and FN != 0
                                 } else {
-                                    value = left.ushr(right)
+                                    value = left ushr right
                                     c = left and (1 shl right - 1) != 0
                                 }
                             }
-                            2 -> { // :00010
-                                // ASR Rd, Rs, #Offset5
-                                val right = code shr 6 and L5 // right = 1 ~ 32
+                            2 -> { // :00010 ; ASR Rd, Rs, #Offset5
+                                val right = code shr 6 and L5 // 1 ~ 32
                                 if (right == 0) {
                                     value = if (left > 0) 0 else -1
                                     c = left and FN != 0
@@ -123,16 +122,19 @@ class CPU {
 
                                 when (code shr 9 and L1) {
                                     0 -> { // :0001100 | :0001110 ; ADD Rd, Rs, Rn | ADD Rd, Rs, #Offset3
-                                        val lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
-                                        value = lvalue.toInt()
-                                        c = lvalue > 0xFFFFFFFFL
+                                        val Lleft = left.toLong() and 0xffffffffL
+                                        val Lright = right.toLong() and 0xffffffffL
+                                        val Lvalue = Lleft + Lright;
+                                        value = Lvalue.toInt()
+                                        c = Lvalue > 0xFFFFFFFFL
                                         v = left xor value and (right xor value) < 0
                                     }
                                     1 -> { // :0001101 | :0001111 ; SUB Rd, Rs, Rn | SUB Rd, Rs, #Offset3
-                                        val lvalue = (left.toLong() and 0xffffffffL) +
-                                                (right.inv().toLong() and 0xffffffffL) + 1L
-                                        value = lvalue.toInt()
-                                        c = lvalue > 0xFFFFFFFFL
+                                        val Lleft = left.toLong() and 0xffffffffL
+                                        val LIright = right.inv().toLong() and 0xffffffffL
+                                        val Lvalue = Lleft + LIright + 1L
+                                        value = Lvalue.toInt()
+                                        c = Lvalue > 0xFFFFFFFFL
                                         v = left xor right and (left xor value) < 0
                                     }
                                     else -> throw UnexceptedLogicError()
@@ -150,7 +152,7 @@ class CPU {
                         val left = REGS[Rd]
                         val right = code and L8
                         var value: Int
-                        var lvalue: Long
+                        var Lvalue: Long
 
                         when (code shr 11 and L2) {
                             0 -> { // :001100 ; MOV Rd, #Offset8
@@ -158,26 +160,26 @@ class CPU {
                                 REGS[Rd] = value
                             }
                             1 -> { // :001101 ; CMP Rd, #Offset8
-                                lvalue = (left.toLong() and 0xffffffffL) +
+                                Lvalue = (left.toLong() and 0xffffffffL) +
                                         (right.inv().toLong() and 0xffffffffL) + 1L
-                                value = lvalue.toInt()
+                                value = Lvalue.toInt()
                                 // only compare (no write)
-                                c = lvalue > 0xFFFFFFFFL
+                                c = Lvalue > 0xFFFFFFFFL
                                 v = left xor right and (left xor value) < 0
                             }
                             2 -> { // :001110 ; ADD Rd, #Offset8
-                                lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
-                                value = lvalue.toInt()
+                                Lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
+                                value = Lvalue.toInt()
                                 REGS[Rd] = value
-                                c = lvalue > 0xFFFFFFFFL
+                                c = Lvalue > 0xFFFFFFFFL
                                 v = left xor value and (right xor value) < 0
                             }
                             3 -> { // :001111 ; SUB Rd, #Offset8
-                                lvalue = (left.toLong() and 0xffffffffL) +
+                                Lvalue = (left.toLong() and 0xffffffffL) +
                                         (right.inv().toLong() and 0xffffffffL) + 1L
-                                value = lvalue.toInt()
+                                value = Lvalue.toInt()
                                 REGS[Rd] = value
-                                c = lvalue > 0xFFFFFFFFL
+                                c = Lvalue > 0xFFFFFFFFL
                                 v = left xor right and (left xor value) < 0
                             }
                             else -> throw UnexceptedLogicError()
@@ -194,7 +196,7 @@ class CPU {
                                 val left = REGS[Rd]
                                 var right = REGS[Rs]
                                 val value: Int
-                                val lvalue: Long
+                                val Lvalue: Long
 
                                 when (code shr 6 and L4) {
                                     0 -> { // :0100000000 ; AND Rd, Rs ; Rd:= Rd AND Rs
@@ -236,9 +238,9 @@ class CPU {
                                             }
                                             right == 0 -> value = left
                                             else -> {
-                                                value = left.ushr(right)
+                                                value = left ushr right
                                                 REGS[Rd] = value
-                                                c = left.ushr(right - 1) and 1 != 0
+                                                c = (left ushr (right - 1)) and 1 != 0
                                             }
                                         }
                                     }
@@ -254,21 +256,21 @@ class CPU {
                                             c = left and (1 shl right - 1) != 0
                                         }
                                     5 -> { // :0100000101 ; ADC Rd, Rs ; Rd := Rd + Rs + C-bit
-                                        lvalue = (left.toLong() and 0xffffffffL) +
+                                        Lvalue = (left.toLong() and 0xffffffffL) +
                                                 (right.toLong() and 0xffffffffL) + if (c) 1L else 0L
-                                        value = lvalue.toInt()
+                                        value = Lvalue.toInt()
                                         REGS[Rd] = value
 
-                                        c = lvalue != value.toLong()
+                                        c = Lvalue != value.toLong()
                                         v = left > 0 && right > 0 && value < 0 || left < 0 && right < 0 && value > 0
                                     }
                                     6 -> { // :0100000110 ; SBC Rd, Rs ; Rd := Rd - Rs - NOT C-bit
-                                        lvalue = left.toLong() - right.toLong() - if (c) 0L else 1L
+                                        Lvalue = left.toLong() - right.toLong() - if (c) 0L else 1L
                                         value = left - right - if (c) 0 else 1
                                         REGS[Rd] = value
 
                                         c = c || value < 0
-                                        v = lvalue != value.toLong()
+                                        v = Lvalue != value.toLong()
                                     }
                                     7 -> { // :0100000111 ; ROR Rd, Rs ; Rd := Rd ROR Rs
                                         right = right and 31
@@ -279,23 +281,23 @@ class CPU {
                                     8 -> // :0100001000 ; TST Rd, Rs ; set condition codes on Rd AND Rs
                                         value = left and right
                                     9 -> { // :0100001001 ; NEG Rd, Rs ; Rd = -Rs
-                                        lvalue = (right.inv().toLong() and 0xffffffffL) + 1L
-                                        value = lvalue.toInt()
+                                        Lvalue = (right.inv().toLong() and 0xffffffffL) + 1L
+                                        value = Lvalue.toInt()
                                         REGS[Rd] = value
-                                        c = lvalue > 0xFFFFFFFFL
+                                        c = Lvalue > 0xFFFFFFFFL
                                         v = right and value < 0
                                     }
                                     10 -> { // :0100001010 ; CMP Rd, Rs ; set condition codes on Rd - Rs
-                                        lvalue = (left.toLong() and 0xffffffffL) +
+                                        Lvalue = (left.toLong() and 0xffffffffL) +
                                                 (right.inv().toLong() and 0xffffffffL) + 1L
-                                        value = lvalue.toInt()
-                                        c = lvalue > 0xFFFFFFFFL
+                                        value = Lvalue.toInt()
+                                        c = Lvalue > 0xFFFFFFFFL
                                         v = left xor right and (left xor value) < 0
                                     }
                                     11 -> { // :0100001011 ; CMN Rd, Rs ; set condition codes on Rd + Rs
-                                        lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
-                                        value = lvalue.toInt()
-                                        c = lvalue > 0xFFFFFFFFL
+                                        Lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
+                                        value = Lvalue.toInt()
+                                        c = Lvalue > 0xFFFFFFFFL
                                         v = left xor value and (right xor value) < 0
                                     }
                                     12 -> { // :0100001100 ; ORR Rd, Rs ; Rd := Rd OR Rs
@@ -341,13 +343,13 @@ class CPU {
                                     1 -> { // :01000101 ; CMP Rd, Hs ; CMP Hd, Rs ; CMP Hd, Hs
                                         val left = REGS[Rd]
                                         val right = REGS[Rs]
-                                        val lvalue = (left.toLong() and 0xffffffffL) +
+                                        val Lvalue = (left.toLong() and 0xffffffffL) +
                                                 (right.inv().toLong() and 0xffffffffL) + 1L
-                                        val value = lvalue.toInt()
+                                        val value = Lvalue.toInt()
                                         // only compare (no write)
                                         n = value < 0
                                         z = value == 0
-                                        c = lvalue > 0xFFFFFFFFL
+                                        c = Lvalue > 0xFFFFFFFFL
                                         v = left xor right and (left xor value) < 0
                                     }
                                     2 -> { // :01000110 ; MOV Rd, Hs ; MOV Hd, Rs ; MOV Hd, Hs
@@ -410,7 +412,7 @@ class CPU {
                             val addr = REGS[Rb] + REGS[Ro]
 
                             if (S) {
-                                REGS[Rd] = if (H) {// :0101111 ; LDSH Rd, [Rb, Ro]
+                                REGS[Rd] = if (H) { // :0101111 ; LDSH Rd, [Rb, Ro]
                                     memory.readShort(addr).toInt()
                                 } else { // :0101011 ; LDSB Rd, [Rb, Ro]
                                     memory.readByte(addr).toInt()
@@ -500,7 +502,15 @@ class CPU {
                                 else // :101100001 ; ADD SP, #Imm
                                     REGS[SP] += value
                             }
-                            1 -> throw UnsupportedInstructionException() // :10110001 ; CBZ Rd, #Imm
+                            1 -> { // :10110001 ; CBZ Rd, #Imm
+                                val Rd = code and L3
+                                val offset = (code shr 4 and L5 shl 1) + 4
+
+                                if (REGS[Rd] == 0) {
+                                    REGS[PC] += offset
+                                    increase_pc = false
+                                }
+                            }
                             2 -> { // :10110010 ; SXTH, SXTB, UXTH, UXTB
                                 val Rs = code shr 3 and L3
                                 val Rd = code and L3
@@ -520,7 +530,15 @@ class CPU {
 
                                 REGS[Rd] = value
                             }
-                            3 -> throw UnsupportedInstructionException() // :10110011 ; CBZ Rd, #Imm
+                            3 -> { // :10110011 ; CBZ Rd, #Imm
+                                val Rd = code and L3
+                                val offset = (code shr 4 and L5 shl 1) + 4 + 0x40
+
+                                if (REGS[Rd] == 0) {
+                                    REGS[PC] += offset
+                                    increase_pc = false
+                                }
+                            }
                             4, 5 -> { // :1011010x ; push/pop registers
                                 val R = code and I8 != 0
                                 val list = code and L8
@@ -545,7 +563,15 @@ class CPU {
                                 }
                             }
                             6, 7, 8 -> throw UnknownInstructionException() // :10110110 :10110111 :10111000
-                            9 -> throw UnsupportedInstructionException() // :10111001 ; CBNZ Rd, #Imm
+                            9 -> { // :10111001 ; CBNZ Rd, #Imm
+                                val Rd = code and L3
+                                val offset = (code shr 4 and L5 shl 1) + 4
+
+                                if (REGS[Rd] != 0) {
+                                    REGS[PC] += offset
+                                    increase_pc = false
+                                }
+                            }
                             10 -> { // :10111010xx
                                 val Rs = code shr 3 and L3
                                 val Rd = code and L3
@@ -568,8 +594,15 @@ class CPU {
 
                                 REGS[Rd] = value
                             }
-                            11 -> // :10111011 ; CBNZ Rd, #Imm
-                                throw UnsupportedInstructionException()
+                            11 -> { // :10111011 ; CBNZ Rd, #Imm
+                                val Rd = code and L3
+                                val offset = (code shr 4 and L5 shl 1) + 4 + 0x40
+
+                                if (REGS[Rd] != 0) {
+                                    REGS[PC] += offset
+                                    increase_pc = false
+                                }
+                            }
                             12, 13 -> { // :1011110x ; push/pop registers
                                 val R = code and I8 != 0
                                 val list = code and L8
@@ -635,14 +668,14 @@ class CPU {
                             3 -> !c // :11010011; BCC label
                             4 -> n // :11010100 ; BMI label
                             5 -> !n // :11010101 ; BPL label
-                            6 -> v// :11010110 ; BVS label
+                            6 -> v // :11010110 ; BVS label
                             7 -> !v // :11010111 ; BVC label
                             8 -> c && !z // :11011000 ; BHI label
                             9 -> !c || z // :11011001 ; BLS label
                             10 -> n == v // :11011010 ; BGE label ; (n && v) || (!n && !v)
                             11 -> n != v // :11011011 ; BLT label ; (n && !v) || (!n && v)
-                            12 -> !z && n == v// :11011100 ; BGT label ; !z && (n && v || !n && !v)
-                            13 -> z || n != v// :11011101 ; BLE label ; z || (n && !v) || (!n && v)
+                            12 -> !z && n == v // :11011100 ; BGT label ; !z && (n && v || !n && !v)
+                            13 -> z || n != v // :11011101 ; BLE label ; z || (n && !v) || (!n && v)
                             14 -> throw UnknownInstructionException() // :11011110
                             15 -> { // :11011111 ; software interrupt
                                 // SWI Value8
@@ -717,7 +750,7 @@ class CPU {
                         }
                     }
                     else -> throw UnknownInstructionException()
-                } //  CPSR condition codes are unaffected
+                } // CPSR condition are unaffected
 
                 if (increase_pc) {
                     REGS[PC] += 2
