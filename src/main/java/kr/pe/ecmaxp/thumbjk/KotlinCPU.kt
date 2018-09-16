@@ -4,9 +4,81 @@ import kr.pe.ecmaxp.thumbsk.CPU
 import kr.pe.ecmaxp.thumbsk.exc.InvalidAddressArmException
 import kr.pe.ecmaxp.thumbsk.helper.BitConsts
 import kr.pe.ecmaxp.thumbsk.helper.BitConsts.I0
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.R0
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.R1
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.R2
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.R3
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.R4
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.R5
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.R6
+import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.R7
+import java.util.*
 
 abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
     var running = false
+
+    private var cb: Callback = Callback { crash() }
+    private var cb_offset: Int = 0
+    private val hints: HashMap<Int, Pair<Callback, Int>> = hashMapOf();
+
+    protected abstract fun gen_hints(): java.util.HashMap<Int, Callback>;
+
+    init {
+        @Suppress("LeakingThis")
+        for (pair in gen_hints()){
+            hints[pair.key or 1] = Pair(pair.value, 0)
+        }
+    }
+
+    protected fun hint(addr: Int, func: Callback)  {
+        hint(addr, func, 0)
+    }
+
+    val lastVisits = ArrayDeque<String>();
+
+    protected fun show(tag: String) {
+        val stackTrace = Thread.currentThread().getStackTrace();
+        for (st in stackTrace) {
+            if (st.fileName.startsWith("MicroPython")) {
+                val line = st.toString()
+                if (!lastVisits.contains(line)) {
+                    print(tag)
+                    print(" ")
+                    println(line)
+                    lastVisits.addLast(line)
+                    if (lastVisits.size > 3)
+                        lastVisits.removeFirst()
+                }
+                break
+            }
+        }
+    }
+
+    protected fun hint(addr: Int, func: Callback, offset: Int)  {
+        if (!hints.contains(addr)) {
+            show("hint")
+        }
+
+        hints[addr] = Pair(func, offset)
+    }
+
+    private fun jump(func: Callback?, func_offset: Int) {
+        show("jump")
+        if (func != null)
+            cb = func
+
+        cb_offset = func_offset
+    }
+
+    private fun jump(func: Callback?, func_offset: Int, return_offset: Int) {
+        show("jump")
+        hint(lr, cb, return_offset)
+
+        if (func != null)
+            cb = func
+
+        cb_offset = func_offset
+    }
 
     fun crash() {
         throw Exception()
@@ -16,16 +88,25 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
 
     }
 
-    fun call(cb_addr: Int) {
-        TODO("not yet")
+    var has_address = false;
+    fun step(incr: Int) {
+        // TODO: more step for all control flow in instruction operator function
+        val is_empty = memory.readInt(536936352) == 0;
+        if (has_address && is_empty) {
+            throw Exception("panic")
+        } else if (!is_empty) {
+            has_address = true
+        }
+
+        pc += incr
     }
 
-    fun call(cb_addr: Int, cb: Callback) {
-        call(cb_addr, cb, 0)
+    fun call(cb: Callback) {
+        call(cb, 0)
     }
 
-    fun call(cb_addr: Int, cb: Callback, offset: Int) {
-        jump(cb_addr, cb, offset)
+    fun call(callback: Callback, offset: Int) {
+        jump(callback, offset)
         running = true
         while (running)
             cb(cb_offset)
@@ -34,30 +115,24 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
     fun add(left: Int, right: Int): Int {
         val value = left + right
 
-        pc += 2
+        step(2);
         return value
     }
 
     fun sub(left: Int, right: Int): Int {
         val value = left - right
 
-        pc += 2
+        step(2);
         return value
     }
 
-    fun mov(value: Int, src: Int, dest: Int): Int {
-        pc += 2
+    fun mov(value: Int): Int {
+        step(2);
         return value
-    }
-
-    fun mov_pc(value: Int): Int { // TODO: check register PC?
-        pc += value
-        pc += 0
-        return pc
     }
 
     fun adr(base: Int, offset: Int): Int {
-        pc += 2
+        step(2);
         return base + offset
     }
 
@@ -70,7 +145,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         z = value == 0
         c = Lvalue > 0xFFFFFFFFL
         v = left xor right and (left xor value) < 0
-        pc += 2
+        step(2);
     }
 
     fun cmn(left: Int, right: Int) {
@@ -81,7 +156,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         z = value == 0
         c = Lvalue > 0xFFFFFFFFL
         v = left xor value and (right xor value) < 0
-        pc += 2
+        step(2);
     }
 
     fun rev(left: Int): Int {
@@ -90,7 +165,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
                 left.ushr(8) and 0xFF shl 16) or
                 (left and 0xFF shl 24)
 
-        pc += 2
+        step(2);
         return value
     }
 
@@ -104,7 +179,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         z = value == 0
         c = Lvalue > 0xFFFFFFFFL
         v = left xor value and (right xor value) < 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -118,16 +193,15 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         z = value == 0
         c = Lvalue > 0xFFFFFFFFL
         v = left xor right and (left xor value) < 0
-        pc += 2
+        step(2);
         return value
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun movs(reg: Int, value: Int): Int {
-        // if (reg == PC);
-
         n = value < 0
         z = value == 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -136,7 +210,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
 
         n = value < 0
         z = value == 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -145,7 +219,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
 
         n = value < 0
         z = value == 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -157,7 +231,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
 
         n = value < 0
         z = value == 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -167,7 +241,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         n = value < 0
         z = value == 0
         c = left and (1 shl right - 1) != 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -177,7 +251,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         n = value < 0
         z = value == 0
         c = left and (1 shl right - 1) != 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -190,7 +264,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         z = value == 0
         c = Lvalue != value.toLong()
         v = left > 0 && right > 0 && value < 0 || left < 0 && right < 0 && value > 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -202,7 +276,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         z = value == 0
         c = c || value < 0
         v = Lvalue != value.toLong()
-        pc += 2
+        step(2);
         return value
     }
 
@@ -213,7 +287,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         n = value < 0
         z = value == 0
         c = left.ushr(offset - 1) and BitConsts.I0 != 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -222,10 +296,10 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
 
         n = value < 0
         z = value == 0
-        pc += 2
+        step(2);
     }
 
-    fun rsbs(left: Int, right: Int): Int {
+    fun rsbs(@Suppress("UNUSED_PARAMETER") left: Int, right: Int): Int {
         val Lvalue = (right.inv().toLong() and 0xffffffffL) + 1L
         val value = Lvalue.toInt()
 
@@ -233,7 +307,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         z = value == 0
         c = Lvalue > 0xFFFFFFFFL
         v = right and value < 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -242,7 +316,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
 
         n = value < 0
         z = value == 0
-        pc += 2
+        step(2);
         return value
     }
 
@@ -254,7 +328,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
         z = value == 0
         c = c or (value.toLong() != svalue) // ???
         v = false // svalue != value?
-        pc += 2
+        step(2);
         return value
     }
 
@@ -263,96 +337,96 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
 
         n = value < 0
         z = value == 0
-        pc += 2
+        step(2);
         return value
     }
 
-    fun mvns(left: Int, right: Int): Int {
+    fun mvns(@Suppress("UNUSED_PARAMETER") left: Int, right: Int): Int {
         val value = right.inv()
 
         n = value < 0
         z = value == 0
-        pc += 2
+        step(2);
         return value
     }
 
     fun ldrb(addr: Int): Int {
         val value = memory.readByte(addr).toInt() and 0xFF
-        pc += 2
+        step(2);
         return value
     }
 
     fun ldr(addr: Int): Int {
         val value = memory.readInt(addr)
 
-        pc += 2
+        step(2);
         return value
     }
 
     fun strb(addr: Int, value: Int) {
         memory.writeByte(addr, value.toByte())
 
-        pc += 2
+        step(2);
     }
 
     fun str(addr: Int, value: Int) {
         memory.writeInt(addr, value)
         
-        pc += 2
+        step(2);
     }
 
     fun ldrsh(addr: Int): Int {
         val value = memory.readShort(addr).toInt()
 
-        pc += 2
+        step(2);
         return value
     }
 
     fun ldrsb(addr: Int): Int {
         val value = memory.readByte(addr).toInt()
 
-        pc += 2
+        step(2);
         return value
     }
 
     fun ldrh(addr: Int): Int {
         val value = memory.readShort(addr).toInt()
 
-        pc += 2
+        step(2);
         return value
     }
 
     fun strh(addr: Int, value: Int) {
         memory.writeShort(addr, value.toShort())
 
-        pc += 2
+        step(2);
     }
 
     fun sxth(left: Int): Int {
         val value = left.toShort().toInt()
 
-        pc += 2
+        step(2);
         return value
     }
 
     fun sxtb(left: Int): Int {
         val value = left.toByte().toInt()
 
-        pc += 2
+        step(2);
         return value
     }
 
     fun uxth(left: Int): Int {
         val value = left and 0xFFFF
 
-        pc += 2
+        step(2);
         return value
     }
 
     fun uxtb(left: Int): Int {
         val value = left and 0XFF
 
-        pc += 2
+        step(2);
         return value
     }
 
@@ -375,7 +449,7 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
             sp = addr
         }
 
-        pc += 2
+        step(2);
     }
 
     fun pop(R: Boolean, vararg Rlist: Int) {
@@ -387,14 +461,14 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
                 val value = memory.readInt(addr)
 
                 when (reg) {
-                    0 -> r0 = value
-                    1 -> r1 = value
-                    2 -> r2 = value
-                    3 -> r3 = value
-                    4 -> r4 = value
-                    5 -> r5 = value
-                    6 -> r6 = value
-                    7 -> r7 = value
+                    R0 -> r0 = value
+                    R1 -> r1 = value
+                    R2 -> r2 = value
+                    R3 -> r3 = value
+                    R4 -> r4 = value
+                    R5 -> r5 = value
+                    R6 -> r6 = value
+                    R7 -> r7 = value
                     else -> crash()
                 }
 
@@ -406,12 +480,11 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
                 if (value and I0 != 1)
                     throw InvalidAddressArmException()
 
-                pc = value and I0.inv()
                 addr += 4
-                return
-            } else {
-                pc += 2
 
+                b(value)
+            } else {
+                step(2);
             }
         } finally {
             sp = addr
@@ -419,423 +492,250 @@ abstract class KotlinCPU(cpu: CPU) : JavaCPU(cpu) {
     }
 
     fun stm(addr: Int, vararg Vlist: Int): Int {
-        pc += 2
-        return 0
+        var vaddr = addr
+
+        for (value in Vlist) {
+            memory.writeInt(addr, value)
+            vaddr += 4
+        }
+
+        step(2);
+        return vaddr
     }
 
     fun ldm(addr: Int, vararg Rlist: Int): Int {
-        pc += 2
+        var vaddr = addr
+
+        for (reg in Rlist) {
+            val value = memory.readInt(addr)
+
+            when (reg) {
+                R0 -> r0 = value
+                R1 -> r1 = value
+                R2 -> r2 = value
+                R3 -> r3 = value
+                R4 -> r4 = value
+                R5 -> r5 = value
+                R6 -> r6 = value
+                R7 -> r7 = value
+                else -> crash()
+            }
+
+            vaddr += 4
+        }
+
+        step(2);
         return addr
     }
 
-    private var cb: Callback? = null
-    private var cb_offset: Int = 0
-
-    private var cbr: Callback? = null
-    private var cbr_addr: Int = 0
-    private var cbr_offset: Int = 0
-
-    private fun jump(func_addr: Int, func: Callback, func_offset: Int) {
-        pc = func_addr + func_offset;
-        cb = func
-        cb_offset = func_offset
-    }
-
-    private fun jump(addr: Int)
-    {
-       // TODO: find address
-    }
-
-    private fun jump(func_addr: Int, func: Callback, func_offset: Int, origin_addr: Int, origin_cb: Callback, origin_offset: Int)
-    {
-        jump(func_addr, func, func_offset);
-
-        cbr = origin_cb
-        cbr_addr = origin_addr + origin_offset
-        cbr_offset = origin_offset
-
-        lr = cbr_addr;
-    }
-
-    fun beq(): Boolean {
-        return z
-    }
-
-    fun beq(addr: Int): Boolean {
-        val cond = beq()
+    fun beq(func: Callback?, func_offset: Int): Boolean {
+        val cond = z
         if (cond)
-            jump(addr)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun beq(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = beq()
+    fun bne(func: Callback?, func_offset: Int): Boolean {
+        val cond = !z
         if (cond)
-            jump(func_addr, func, func_offset)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bne(): Boolean {
-        return !z
-    }
-
-    fun bne(addr: Int): Boolean {
-        val cond = bne()
+    fun bhs(func: Callback?, func_offset: Int): Boolean {
+        val cond = c
         if (cond)
-            jump(addr)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bne(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bne()
+    fun blo(func: Callback?, func_offset: Int): Boolean {
+        val cond = !c
         if (cond)
-            jump(func_addr, func, func_offset)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bhs(): Boolean {
-        return c
-    }
-
-    fun bhs(addr: Int): Boolean {
-        val cond = bhs()
+    fun bmi(func: Callback?, func_offset: Int): Boolean {
+        val cond = n
         if (cond)
-            jump(addr)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bhs(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bhs()
+    fun bpl(func: Callback?, func_offset: Int): Boolean {
+        val cond = !n
         if (cond)
-            jump(func_addr, func, func_offset)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun blo(): Boolean {
-        return !c
-    }
-
-    fun blo(addr: Int): Boolean {
-        val cond = blo()
+    fun bvs(func: Callback?, func_offset: Int): Boolean {
+        val cond = v
         if (cond)
-            jump(addr)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun blo(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = blo()
+    fun bvc(func: Callback?, func_offset: Int): Boolean {
+        val cond = !v
         if (cond)
-            jump(func_addr, func, func_offset)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bmi(): Boolean {
-        return n
-    }
-
-    fun bmi(addr: Int): Boolean {
-        val cond = bmi()
+    fun bhi(func: Callback?, func_offset: Int): Boolean {
+        val cond = c && !z
         if (cond)
-            jump(addr)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bmi(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bmi()
+    fun bls(func: Callback?, func_offset: Int): Boolean {
+        val cond = !c || z
         if (cond)
-            jump(func_addr, func, func_offset)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bpl(): Boolean {
-        return !n
-    }
-
-    fun bpl(addr: Int): Boolean {
-        val cond = bpl()
+    fun bge(func: Callback?, func_offset: Int): Boolean {
+        val cond = n == v
         if (cond)
-            jump(addr)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bpl(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bpl()
+    fun blt(func: Callback?, func_offset: Int): Boolean {
+        val cond = n != v
         if (cond)
-            jump(func_addr, func, func_offset)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bvs(): Boolean {
-        return v
-    }
-
-    fun bvs(addr: Int): Boolean {
-        val cond = bvs()
+    fun bgt(func: Callback?, func_offset: Int): Boolean {
+        val cond = !z && n == v
         if (cond)
-            jump(addr)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bvs(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bvs()
+    fun ble(func: Callback?, func_offset: Int): Boolean {
+        val cond = z || n != v
         if (cond)
-            jump(func_addr, func, func_offset)
+            jump(func, func_offset)
         else
-            pc += 2
+            step(2);
 
         return cond
     }
 
-    fun bvc(): Boolean {
-        return !v
-    }
+    fun svc(@Suppress("UNUSED_PARAMETER") imm: Int): Int {
+        crash()
 
-    fun bvc(addr: Int): Boolean {
-        val cond = bvc()
-        if (cond)
-            jump(addr)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun bvc(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bvc()
-        if (cond)
-            jump(func_addr, func, func_offset)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun bhi(): Boolean {
-        return c && !z
-    }
-
-    fun bhi(addr: Int): Boolean {
-        val cond = bhi()
-        if (cond)
-            jump(addr)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun bhi(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bhi()
-        if (cond)
-            jump(func_addr, func, func_offset)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun bls(): Boolean {
-        return !c || z
-    }
-
-    fun bls(addr: Int): Boolean {
-        val cond = bls()
-        if (cond)
-            jump(addr)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun bls(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bls()
-        if (cond)
-            jump(func_addr, func, func_offset)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun bge(): Boolean {
-        return n == v
-    }
-
-    fun bge(addr: Int): Boolean {
-        val cond = bge()
-        if (cond)
-            jump(addr)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun bge(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bge()
-        if (cond)
-            jump(func_addr, func, func_offset)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun blt(): Boolean {
-        return n != v
-    }
-
-    fun blt(addr: Int): Boolean {
-        val cond = blt()
-        if (cond)
-            jump(addr)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun blt(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = blt()
-        if (cond)
-            jump(func_addr, func, func_offset)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun bgt(): Boolean {
-        return !z && n == v
-    }
-
-    fun bgt(addr: Int): Boolean {
-        val cond = bgt()
-        if (cond)
-            jump(addr)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun bgt(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = bgt()
-        if (cond)
-            jump(func_addr, func, func_offset)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun ble(): Boolean {
-        return z || n != v
-    }
-
-    fun ble(addr: Int): Boolean {
-        val cond = ble()
-        if (cond)
-            jump(addr)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun ble(func_addr: Int, func: Callback, func_offset: Int): Boolean {
-        val cond = ble()
-        if (cond)
-            jump(func_addr, func, func_offset)
-        else
-            pc += 2
-
-        return cond
-    }
-
-    fun cbz(left: Int, right: Int): Int {
-        pc += 2
+        step(2);
         return 0
     }
 
-    fun cbnz(left: Int, right: Int): Int {
-        pc += 2
-        return 0
-    }
-
-    fun svc(imm: Int): Int {
-        pc += 2
-        return 0
-    }
-
-    fun b(func_addr: Int)  {
-        TODO("not implemented")
-    }
-
-    fun b(func_addr: Int, func: Callback, func_offset: Int) {
-        jump(func_addr, func, func_offset)
-    }
-
-    fun bl(func_addr: Int) {
-        TODO("not implemented")
-    }
-
-    fun bl(func_addr: Int, func: Callback, func_offset: Int, origin_addr: Int, origin_cb: Callback, origin_offset: Int) {
-        jump(func_addr, func, func_offset, origin_addr, origin_cb, origin_offset)
-    }
-
-    fun blx(addr: Int) {
-        if (addr == 0)
-            running = false;
+    fun b(addr: Int)  {
+        if (jump(addr))
+            return;
 
         TODO("not implemented")
     }
 
-    fun blx(func_addr: Int, func: Callback, func_offset: Int) {
-        jump(func_addr, func, func_offset)
+    fun b(func: Callback?) {
+        jump(func, 0)
+    }
+
+    fun b(func: Callback?, func_offset: Int) {
+        jump(func, func_offset)
+    }
+
+    fun bl(addr: Int, return_offset: Int) {
+        hint(lr, cb, return_offset)
+        if (jump(addr))
+            return;
+
+        TODO("not implemented")
+    }
+
+    fun bl(func: Callback?, return_offset: Int) {
+        hint(lr, cb, return_offset)
+        jump(func, 0, return_offset)
+    }
+
+    fun bl(func: Callback?, func_offset: Int, return_offset: Int) {
+        hint(lr, cb, return_offset)
+        jump(func, func_offset, return_offset)
+    }
+
+    fun blx(func: Callback, return_offset: Int) {
+        hint(lr, cb, return_offset)
+        jump(func, 0)
+    }
+
+    fun blx(addr: Int, return_offset: Int) {
+        hint(lr, cb, return_offset)
+        if (jump(addr))
+            return;
+
+        TODO("no hint")
+    }
+
+    fun jump(addr: Int): Boolean {
+        assert((addr and 1) != 0)
+        val hint = hints.get(addr)
+        if (hint != null) {
+            jump(hint.first, hint.second)
+            return true
+        }
+
+        return false
     }
 
     fun bx(addr: Int) {
-        TODO("not implemented")
+        if (jump(addr))
+            return;
+
+        TODO("no hint")
     }
 }
