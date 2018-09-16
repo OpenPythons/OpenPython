@@ -1,21 +1,21 @@
 package kr.pe.ecmaxp.thumbsk.helper
 
 object RegisterIndex {
-    val R0 = 0
-    val R1 = 1
-    val R2 = 2
-    val R3 = 3
-    val R4 = 4
-    val R5 = 5
-    val R6 = 6
-    val R7 = 7
-    val R8 = 8
-    val R9 = 9
-    val R10 = 10
-    val R11 = 11
-    val R12 = 12
-    val SP = 13
-    val LR = 14
-    val PC = 15
-    val CPSR = 16
+    const val R0 = 0
+    const val R1 = 1
+    const val R2 = 2
+    const val R3 = 3
+    const val R4 = 4
+    const val R5 = 5
+    const val R6 = 6
+    const val R7 = 7
+    const val R8 = 8
+    const val R9 = 9
+    const val R10 = 10
+    const val R11 = 11
+    const val R12 = 12
+    const val SP = 13
+    const val LR = 14
+    const val PC = 15
+    const val CPSR = 16
 }

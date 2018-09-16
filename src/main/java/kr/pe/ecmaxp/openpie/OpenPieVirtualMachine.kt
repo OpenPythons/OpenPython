@@ -74,17 +74,19 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         close()
 
         cpu = CPU()
-        cpu!!.memory.map(0x08000000L, 256 * KB, MemoryFlag.RX) // flash
-        cpu!!.memory.map(0x20000000L, 64 * KB, MemoryFlag.RW) // sram
-        cpu!!.memory.map(0x40000000L, 4 * KB) { addr: Long, is_read: Boolean, size: Int, value: Int
+        val Cpu = cpu!!;
+
+        Cpu.memory.map(0x08000000L, 256 * KB, MemoryFlag.RX) // flash
+        Cpu.memory.map(0x20000000L, 64 * KB, MemoryFlag.RW) // sram
+        Cpu.memory.map(0x40000000L, 4 * KB) { addr: Long, is_read: Boolean, size: Int, value: Int
             ->
             this.PeripheralHook(addr, is_read, size, value)
         } // peripheral
-        cpu!!.memory.map(0x60000000L, 192 * KB, MemoryFlag.RW) // ram
-        cpu!!.memory.map(0xE0000000L, 16 * KB, MemoryFlag.RW) // syscall
-        cpu!!.memory.writeBuffer(0x08000000, firmware)
-        cpu!!.regs.set(PC, cpu!!.memory.readInt(0x08000000 + 4))
-        cpu!!.interruptHandler = interruptHandler
+        Cpu.memory.map(0x60000000L, 192 * KB, MemoryFlag.RW) // ram
+        Cpu.memory.map(0xE0000000L, 16 * KB, MemoryFlag.RW) // syscall
+        Cpu.memory.writeBuffer(0x08000000, firmware)
+        Cpu.regs.set(PC, cpu!!.memory.readInt(0x08000000 + 4))
+        Cpu.interruptHandler = interruptHandler
 
         state = VMState()
 
