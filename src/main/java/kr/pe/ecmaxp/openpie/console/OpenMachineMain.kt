@@ -1,7 +1,6 @@
 package kr.pe.ecmaxp.openpie.console
 
-import kr.pe.ecmaxp.micropython.example.MicroPython_mp
-import kr.pe.ecmaxp.openpie.OpenPieVirtualMachine
+import kr.pe.ecmaxp.micropython.example.MicroPython
 import kr.pe.ecmaxp.thumbsk.CPU
 import kr.pe.ecmaxp.thumbsk.MemoryFlag
 import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.PC
@@ -14,10 +13,11 @@ import java.nio.file.Files
 object OpenMachineMain {
     internal var pos = 0
 
+
     @Throws(Exception::class, ControlPauseSignal::class, ControlStopSignal::class)
     @JvmStatic
     fun main(args: Array<String>) {
-        val mp = MicroPython_mp(CPU())
+        val mp = MicroPython(CPU())
         val cpu = mp.cpu
         val memory = cpu.memory
 
@@ -26,9 +26,26 @@ object OpenMachineMain {
         val KB = 1024
         memory.map(0x08000000L, 256 * KB, MemoryFlag.RX) // flash
         memory.map(0x20000000L, 64 * KB, MemoryFlag.RW) // sram
-        memory.map(0x40000000L, 4 * KB) { addr: Long, is_read: Boolean, size: Int, value: Int
-            -> TODO("not yet")
+
+        fun handle (addr: Long, is_read: Boolean, size: Int, value: Int): Int {
+            if (!is_read)
+                print("${addr} ${size} ${value}\n")
+            else {
+                return when (addr) {
+                    0x40000200L -> { // mp_hal_ticks_ms
+                        0
+                    }
+                    else -> TODO("missing")
+                }
+            }
+
+            return 0;
         }
+
+        memory.map(0x40000000L, 4 * KB) { addr: Long, is_read: Boolean, size: Int, value: Int
+            -> handle(addr, is_read, size, value)
+        }
+
         // peripheral
         memory.map(0x60000000L, 192 * KB, MemoryFlag.RW) // ram
         memory.map(0xE0000000L, 16 * KB, MemoryFlag.RW) // syscall
