@@ -4,10 +4,10 @@ import kr.pe.ecmaxp.thumbsk.exc.InvalidMemoryException
 
 import java.util.Arrays
 
-class MemoryRegion(val begin: Long, size: Int, val flag: MemoryFlag) {
+class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
     val end: Long
     val buffer: ByteArray
-    private var Hook: MemoryHook? = null
+    internal var Hook: MemoryHook? = null
 
     init {
         end = begin + size

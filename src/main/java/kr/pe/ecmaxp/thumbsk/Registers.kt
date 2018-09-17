@@ -13,8 +13,7 @@ class Registers {
     private var _regs: IntArray? = IntArray(RegisterIndex.CPSR + 1)
 
     init {
-        _regs!![RegisterIndex.CPSR] = BitConsts.FT or // set Thumb
-                BitConsts.FZ // set Zero
+        _regs!![RegisterIndex.CPSR] = BitConsts.FZ // set Zero
     }
 
     fun load(): IntArray {

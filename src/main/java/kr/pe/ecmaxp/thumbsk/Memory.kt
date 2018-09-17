@@ -11,15 +11,24 @@ class Memory {
     private var _readPage: MemoryRegion? = null
     private var _writePage: MemoryRegion? = null
 
-    @Throws(InvalidMemoryException::class)
-    fun map(address: Long, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int) {
-        val region = MemoryRegion(address, size, hook)
-        _list.add(region)
+    fun copy(): Memory {
+        val memory = Memory()
+        for (region in _list) {
+            if (region.flag == MemoryFlag.HOOK) {
+                memory.map(region)
+            } else {
+                val newRegion = MemoryRegion(region.begin, region.size, region.flag)
+                for (i in 0 until region.buffer.size)
+                    newRegion.buffer[i] = region.buffer[i]
+
+                memory.map(newRegion)
+            }
+        }
+
+        return memory;
     }
 
-    @Throws(InvalidMemoryException::class)
-    fun map(address: Long, size: Int, flag: MemoryFlag) {
-        val region = MemoryRegion(address, size, flag)
+    internal fun map(region: MemoryRegion) {
         _list.add(region)
 
         if (region.flag == MemoryFlag.RX) {
@@ -29,6 +38,16 @@ class Memory {
 
             _execPage = region
         }
+    }
+
+    @Throws(InvalidMemoryException::class)
+    fun map(address: Long, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int) {
+        map(MemoryRegion(address, size, hook))
+    }
+
+    @Throws(InvalidMemoryException::class)
+    fun map(address: Long, size: Int, flag: MemoryFlag) {
+        map(MemoryRegion(address, size, flag))
     }
 
     @Throws(InvalidMemoryException::class)
@@ -102,7 +121,7 @@ class Memory {
         var pos = (addr - page.begin).toInt()
 
         val buffer = page.buffer
-        return (buffer[pos++].toInt() and 0xFF or (buffer[pos].toInt() and 0xFF shl 8)).toShort()
+        return ((buffer[pos++].toInt() and 0xFF) or (buffer[pos].toInt() and 0xFF shl 8)).toShort()
     }
 
     @Throws(InvalidMemoryException::class)
