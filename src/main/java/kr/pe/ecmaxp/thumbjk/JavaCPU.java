@@ -1,82 +1,61 @@
 package kr.pe.ecmaxp.thumbjk;
 
-import kr.pe.ecmaxp.thumbsk.CPU;
 import kr.pe.ecmaxp.thumbsk.Memory;
 import kr.pe.ecmaxp.thumbsk.Registers;
 
 import static kr.pe.ecmaxp.thumbsk.helper.BitConsts.*;
 import static kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.*;
 
+
+@SuppressWarnings("WeakerAccess")
 abstract public class JavaCPU
 {
-    final static boolean debug = true;
+    public final Memory memory;
 
-    public CPU cpu;
-    public Memory memory;
-
-    public JavaCPU()
+    public JavaCPU(Memory memory)
     {
-        this(new CPU());
+        this.memory = memory;
+        setRegs(new Registers());
     }
 
-    public JavaCPU(CPU cpu)
-    {
-        this.cpu = cpu;
-        this.memory = cpu.getMemory();
-    }
+    // register but fields
+    public int r0;
+    public int r1;
+    public int r2;
+    public int r3;
+    public int r4;
+    public int r5;
+    public int r6;
+    public int r7;
+    public int r8;
+    public int r9;
+    public int r10;
+    public int r11;
+    public int r12;
+    public int sp;
+    public int lr;
+    public int pc;
+    public boolean q;
+    public boolean n;
+    public boolean z;
+    public boolean c;
+    public boolean v;
 
-
-    protected int r0 = 0;
-    protected int r1 = 0;
-    protected int r2 = 0;
-    protected int r3 = 0;
-    protected int r4 = 0;
-    protected int r5 = 0;
-    protected int r6 = 0;
-    protected int r7 = 0;
-    protected int r8 = 0;
-    protected int r9 = 0;
-    protected int r10 = 0;
-    protected int r11 = 0;
-    protected int r12 = 0;
-    protected int sp = 0;
-    protected int lr = 0;
-    protected int pc = 0;
-    protected boolean q = false;
-    protected boolean n = false;
-    protected boolean z = false;
-    protected boolean c = false;
-    protected boolean v = false;
-
+    @SuppressWarnings("unused")
     public Registers getRegs()
     {
+        Registers regs = new Registers();
         int cpsr = (q ? FQ : 0) |
                 (v ? FV : 0) |
                 (c ? FC : 0) |
                 (z ? FZ : 0) |
                 (n ? FN : 0);
 
-        Registers regs = new Registers();
-        regs.store(new int[]
-                {
-                        r0,
-                        r1,
-                        r2,
-                        r3,
-                        r4,
-                        r5,
-                        r6,
-                        r7,
-                        r8,
-                        r9,
-                        r10,
-                        r11,
-                        r12,
-                        sp,
-                        lr,
-                        pc,
-                        cpsr,
-                });
+        regs.store(new int[]{
+                r0, r1, r2, r3, r4, r5, r6, r7,
+                r8, r9, r10, r11, r12, sp, lr, pc,
+                cpsr
+        });
 
         return regs;
     }
@@ -107,7 +86,5 @@ abstract public class JavaCPU
         z = (cpsr & FZ) != 0;
         n = (cpsr & FN) != 0;
     }
-
-
 }
 
