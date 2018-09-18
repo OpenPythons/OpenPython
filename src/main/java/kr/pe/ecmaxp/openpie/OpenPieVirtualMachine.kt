@@ -1,5 +1,6 @@
 package kr.pe.ecmaxp.openpie
 
+import com.google.common.io.ByteStreams
 import com.google.gson.Gson
 import com.mojang.realmsclient.util.Pair
 import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_CONTROL
@@ -473,21 +474,22 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         if (region.flag == MemoryFlag.HOOK)
             throw InvalidMemoryException(address.toLong())
 
-        val buffer = region.buffer
-
         val start = (address - region.begin).toInt()
-        val size = Math.min(region.end - addr, maxSize.toLong()).toInt()
+        var size = Math.min(region.end - addr, maxSize.toLong()).toInt()
         val end = start + size
+        val buffer = ByteArray(size)
 
-        var pos: Int
-        pos = start
-        while (pos < end) {
-            if (buffer[pos].toInt() == 0)
+        val memory = this.cpu!!.memory
+        for (pos in 0 until size) {
+            val ch = memory.readByte(start + pos)
+            buffer[pos] = ch
+            if (ch == 0.toByte()) {
+                size = pos
                 break
-            pos++
+            }
         }
 
-        return String(buffer, start, pos - start, StandardCharsets.UTF_8)
+        return String(buffer, 0, size, StandardCharsets.UTF_8)
     }
 
     @Throws(LimitReachedException::class)
@@ -496,7 +498,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     }
 
     private fun PeripheralHook(addr: Long, is_read: Boolean, size: Int, value: Int): Int {
-        var value = value
+        var rvalue = value
         if (is_read) {
             when (addr.toInt()) {
                 OP_IO_RXR -> {
@@ -506,33 +508,33 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
                 OP_IO_TXR -> return 0
                 OP_CON_PENDING, OP_CON_EXCEPTION, OP_CON_INTR_CHAR -> {
                 }
-                OP_CON_RAM_SIZE -> value = 0x80000
+                OP_CON_RAM_SIZE -> rvalue = 0x80000
                 OP_CON_IDLE, OP_CON_INSNS -> {
                 }
                 OP_RTC_TICKS_MS -> return System.currentTimeMillis().toInt()
-                else -> System.out.printf("failure: %x, %d, %d\n", addr, size, value)
+                else -> System.out.printf("failure: %x, %d, %d\n", addr, size, rvalue)
             }
         } else {
             when (addr.toInt()) {
-                OP_IO_RXR -> state!!.inputBuffer.add(value.toChar())
-                OP_IO_TXR -> if (value == 0) {
+                OP_IO_RXR -> state!!.inputBuffer.add(rvalue.toChar())
+                OP_IO_TXR -> if (rvalue == 0) {
                     val length = state!!.outputBuffer.length
                     if (length > 0)
                         machine.signal("print")
 
                     println("console:" + state!!.outputBuffer.toString())
                 } else {
-                    state!!.outputBuffer.append(value.toChar())
+                    state!!.outputBuffer.append(rvalue.toChar())
                 }
                 OP_CON_PENDING, OP_CON_EXCEPTION, OP_CON_INTR_CHAR, OP_CON_RAM_SIZE, OP_CON_IDLE, OP_CON_INSNS, OP_RTC_TICKS_MS -> {
                 }
-                OP_IO_RXR + 1 -> state!!.redirectKeyEvent = value != 0
-                else -> System.out.printf("failure: %x, %d, %d\n", addr, size, value)
+                OP_IO_RXR + 1 -> state!!.redirectKeyEvent = rvalue != 0
+                else -> System.out.printf("failure: %x, %d, %d\n", addr, size, rvalue)
             }
         }
 
 
-        return value
+        return rvalue
     }
 
     @Synchronized

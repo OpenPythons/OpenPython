@@ -41,6 +41,7 @@ object OpenPieMain {
         cpu.memory.writeBuffer(flash, firmware)
         cpu.regs[PC] = cpu.memory.readInt(0x08000000 + 4)
 
+        @Suppress("UNUSED_VARIABLE")
         val line = "print(1, 2, 3)\r\n".toByteArray()
 
 
