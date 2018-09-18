@@ -122,16 +122,16 @@ class CPU {
 
                                 when (code shr 9 and L1) {
                                     0 -> { // :0001100 | :0001110 ; ADD Rd, Rs, Rn | ADD Rd, Rs, #Offset3
-                                        val Lleft = left.toLong() and 0xffffffffL
-                                        val Lright = right.toLong() and 0xffffffffL
+                                        val Lleft = Integer.toUnsignedLong(left)
+                                        val Lright = Integer.toUnsignedLong(right)
                                         val Lvalue = Lleft + Lright;
                                         value = Lvalue.toInt()
                                         c = Lvalue > 0xFFFFFFFFL
                                         v = left xor value and (right xor value) < 0
                                     }
                                     1 -> { // :0001101 | :0001111 ; SUB Rd, Rs, Rn | SUB Rd, Rs, #Offset3
-                                        val Lleft = left.toLong() and 0xffffffffL
-                                        val LIright = right.inv().toLong() and 0xffffffffL
+                                        val Lleft = Integer.toUnsignedLong(left)
+                                        val LIright = Integer.toUnsignedLong(right.inv())
                                         val Lvalue = Lleft + LIright + 1L
                                         value = Lvalue.toInt()
                                         c = Lvalue > 0xFFFFFFFFL
@@ -160,23 +160,23 @@ class CPU {
                                 REGS[Rd] = value
                             }
                             1 -> { // :001101 ; CMP Rd, #Offset8
-                                Lvalue = (left.toLong() and 0xffffffffL) +
-                                        (right.inv().toLong() and 0xffffffffL) + 1L
+                                Lvalue = (Integer.toUnsignedLong(left)) +
+                                        (Integer.toUnsignedLong(right.inv())) + 1L
                                 value = Lvalue.toInt()
                                 // only compare (no write)
                                 c = Lvalue > 0xFFFFFFFFL
                                 v = left xor right and (left xor value) < 0
                             }
                             2 -> { // :001110 ; ADD Rd, #Offset8
-                                Lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
+                                Lvalue = (Integer.toUnsignedLong(left)) + (Integer.toUnsignedLong(right))
                                 value = Lvalue.toInt()
                                 REGS[Rd] = value
                                 c = Lvalue > 0xFFFFFFFFL
                                 v = left xor value and (right xor value) < 0
                             }
                             3 -> { // :001111 ; SUB Rd, #Offset8
-                                Lvalue = (left.toLong() and 0xffffffffL) +
-                                        (right.inv().toLong() and 0xffffffffL) + 1L
+                                Lvalue = (Integer.toUnsignedLong(left)) +
+                                        (Integer.toUnsignedLong(right.inv())) + 1L
                                 value = Lvalue.toInt()
                                 REGS[Rd] = value
                                 c = Lvalue > 0xFFFFFFFFL
@@ -256,8 +256,8 @@ class CPU {
                                             c = left and (1 shl right - 1) != 0
                                         }
                                     5 -> { // :0100000101 ; ADC Rd, Rs ; Rd := Rd + Rs + C-bit
-                                        Lvalue = (left.toLong() and 0xffffffffL) +
-                                                (right.toLong() and 0xffffffffL) + if (c) 1L else 0L
+                                        Lvalue = (Integer.toUnsignedLong(left)) +
+                                                (Integer.toUnsignedLong(right)) + if (c) 1L else 0L
                                         value = Lvalue.toInt()
                                         REGS[Rd] = value
 
@@ -281,21 +281,21 @@ class CPU {
                                     8 -> // :0100001000 ; TST Rd, Rs ; set condition codes on Rd AND Rs
                                         value = left and right
                                     9 -> { // :0100001001 ; NEG Rd, Rs ; Rd = -Rs
-                                        Lvalue = (right.inv().toLong() and 0xffffffffL) + 1L
+                                        Lvalue = (Integer.toUnsignedLong(right.inv())) + 1L
                                         value = Lvalue.toInt()
                                         REGS[Rd] = value
                                         c = Lvalue > 0xFFFFFFFFL
                                         v = right and value < 0
                                     }
                                     10 -> { // :0100001010 ; CMP Rd, Rs ; set condition codes on Rd - Rs
-                                        Lvalue = (left.toLong() and 0xffffffffL) +
-                                                (right.inv().toLong() and 0xffffffffL) + 1L
+                                        Lvalue = (Integer.toUnsignedLong(left)) +
+                                                (Integer.toUnsignedLong(right.inv())) + 1L
                                         value = Lvalue.toInt()
                                         c = Lvalue > 0xFFFFFFFFL
                                         v = left xor right and (left xor value) < 0
                                     }
                                     11 -> { // :0100001011 ; CMN Rd, Rs ; set condition codes on Rd + Rs
-                                        Lvalue = (left.toLong() and 0xffffffffL) + (right.toLong() and 0xffffffffL)
+                                        Lvalue = (Integer.toUnsignedLong(left)) + (Integer.toUnsignedLong(right))
                                         value = Lvalue.toInt()
                                         c = Lvalue > 0xFFFFFFFFL
                                         v = left xor value and (right xor value) < 0
@@ -343,8 +343,8 @@ class CPU {
                                     1 -> { // :01000101 ; CMP Rd, Hs ; CMP Hd, Rs ; CMP Hd, Hs
                                         val left = REGS[Rd]
                                         val right = REGS[Rs]
-                                        val Lvalue = (left.toLong() and 0xffffffffL) +
-                                                (right.inv().toLong() and 0xffffffffL) + 1L
+                                        val Lvalue = (Integer.toUnsignedLong(left)) +
+                                                (Integer.toUnsignedLong(right.inv())) + 1L
                                         val value = Lvalue.toInt()
                                         // only compare (no write)
                                         n = value < 0
