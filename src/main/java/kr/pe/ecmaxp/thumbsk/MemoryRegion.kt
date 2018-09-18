@@ -6,12 +6,15 @@ import java.util.Arrays
 
 class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
     val end: Long
-    val buffer: ByteArray
+    internal val buffer: IntArray
     internal var Hook: MemoryHook? = null
 
     init {
+        if (size % 4 != 0)
+            throw Exception("invalid memory size")
+
         end = begin + size
-        buffer = ByteArray(size)
+        buffer = IntArray(size / 4)
     }
 
     constructor(begin: Long, size: Int, hook: MemoryHook) : this(begin, size, MemoryFlag.HOOK) {
@@ -22,7 +25,6 @@ class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
         return "MemoryRegion{" +
                 "Begin=" + begin +
                 ", End=" + end +
-                ", Buffer=" + Arrays.toString(buffer) +
                 ", Flag=" + flag +
                 '}'.toString()
     }
@@ -43,6 +45,10 @@ class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
     @Throws(InvalidMemoryException::class)
     fun hook(address: Long, size: Int, value: Int) {
         hook(address, false, size, value)
+    }
+
+    fun loadKey(address: Long): Int {
+        return ((address - begin) / 4).toInt()
     }
 }
 
