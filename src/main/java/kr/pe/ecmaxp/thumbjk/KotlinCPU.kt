@@ -18,28 +18,27 @@ import java.util.*
 abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
     private var cb: Callback = Callback { crash() }
     private var cb_offset: Int = 0
-    protected val hints: HashMap<Int, Pair<Callback, Int>> = hashMapOf();
-    public val refCPU = CPU()
 
-    protected abstract fun gen_hints(): java.util.HashMap<Int, Callback>;
+    private var hf_addr: Int = 0
+    private var hf_func: Callback = Callback { crash() }
+    private var hf_offset: Int = 0
+
+    protected val hints: SortedMap<Int, Pair<Callback, Int>> = sortedMapOf()
+    val refCPU = CPU()
+
+    protected abstract fun gen_hints();
 
     init {
         refCPU.memory = memory
 
         @Suppress("LeakingThis")
-        for (pair in gen_hints()) {
-            hints[pair.key or 1] = Pair(pair.value, 0)
-        }
-    }
-
-    protected fun hint(addr: Int, func: Callback) {
-        hint(addr, func, 0)
+        gen_hints()
     }
 
     val lastVisits = ArrayDeque<String>();
 
     protected fun show(tag: String, forced: Boolean = false) {
-        if (false)
+        if (true)
             return;
 
         val stackTrace = Thread.currentThread().getStackTrace();
@@ -59,11 +58,8 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         }
     }
 
-    protected fun hint(addr: Int, func: Callback, offset: Int) {
-        if (!hints.contains(addr)) {
-            show("hint")
-            hints[addr] = Pair(func, offset)
-        }
+    protected fun hint(addr: Int, func: Callback, offset: Int = 0) {
+        hints[(addr + offset) or 1] = Pair(func, offset)
     }
 
     private fun jump(func: Callback?, func_offset: Int) {
@@ -75,14 +71,29 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         cb_offset = func_offset
     }
 
-    private fun jump(func: Callback?, func_offset: Int, return_offset: Int) {
-        show("jump")
-        hint(lr, cb, return_offset)
+    fun jump(addr: Int): Boolean {
+        if ((addr and 1) == 0)
+            crash()
 
-        if (func != null)
-            cb = func
+        if (addr == hf_addr) {
+            jump(hf_func, hf_offset)
+            return true
+        }
 
-        cb_offset = func_offset
+        val hint = hints.get(addr)
+        if (hint != null) {
+            jump(hint.first, hint.second)
+            return true
+        }
+
+        return false
+    }
+
+    fun link(lr_addr: Int, return_offset: Int) {
+        lr = lr_addr
+        hf_addr = lr
+        hf_func = cb
+        hf_offset = return_offset
     }
 
     fun crash(): Nothing {
@@ -96,19 +107,22 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
     private var srAddr: Int? = null;
     private var srValue: Int? = null;
 
-    private fun step_memory(addr: Int) {
+    private fun stepMemory(addr: Int, has_value: Boolean = false) {
+        if (true)
+            return
+
         srAddr = addr;
-        srValue = null;
+
+        if (has_value) {
+            srValue = memory.readInt(addr - addr % 4);
+        } else {
+            srValue = null
+        }
     }
 
-    private fun step_memory(addr: Int, value: Int) {
-        srAddr = addr;
-        srValue = value;
-    }
-
-    private fun step() {
-        // if (true)
-        //     return
+    protected fun step() {
+        if (true)
+            return
 
         if (!init) {
             refCPU.regs = regs;
@@ -137,8 +151,8 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
             }
 
             if (srValue != null) {
-                srValue = srMemory.readInt(srAddr!!)
-                val refValue = mem!!.readInt(srAddr!!)
+                srValue = srMemory.readInt(srAddr!!- srAddr!! % 4)
+                val refValue = mem!!.readInt(srAddr!!- srAddr!! % 4)
                 if (srValue!! != refValue) {
                     val msg = "invalid memory ${srAddr!!} => src=${srValue}; ref=${refValue}"
                     println(msg)
@@ -447,7 +461,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
     fun ldrb(addr: Int): Int {
         step()
         val value = memory.readByte(addr).toInt() and 0xFF
-        step_memory(addr, memory.readInt(addr))
+        stepMemory(addr, true)
 
         pc += 2
         return value
@@ -456,7 +470,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
     fun ldr(addr: Int): Int {
         step()
         val value = memory.readInt(addr)
-        step_memory(addr, memory.readInt(addr))
+        // stepMemory(addr, memory.readInt(addr))
 
         pc += 2
         return value
@@ -465,7 +479,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
     fun strb(addr: Int, value: Int) {
         step()
         memory.writeByte(addr, value.toByte())
-        step_memory(addr, memory.readInt(addr))
+        // stepMemory(addr, memory.readInt(addr))
 
         pc += 2
     }
@@ -474,7 +488,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         step()
 
         memory.writeInt(addr, value)
-        step_memory(addr, memory.readInt(addr))
+        // stepMemory(addr, memory.readInt(addr))
 
         pc += 2
     }
@@ -482,7 +496,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
     fun ldrsh(addr: Int): Int {
         step()
         val value = memory.readShort(addr).toInt()
-        step_memory(addr, memory.readInt(addr))
+        // stepMemory(addr, memory.readInt(addr))
 
         pc += 2
         return value
@@ -491,7 +505,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
     fun ldrsb(addr: Int): Int {
         step()
         val value = memory.readByte(addr).toInt()
-        step_memory(addr, memory.readInt(addr))
+        // stepMemory(addr, memory.readInt(addr))
 
         pc += 2
         return value
@@ -500,7 +514,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
     fun ldrh(addr: Int): Int {
         step()
         val value = memory.readShort(addr).toInt() and 0xFFFF
-        step_memory(addr, memory.readInt(addr))
+        // stepMemory(addr, memory.readInt(addr))
 
         pc += 2
         return value
@@ -509,7 +523,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
     fun strh(addr: Int, value: Int) {
         step()
         memory.writeShort(addr, value.toShort())
-        step_memory(addr, memory.readInt(addr))
+        // stepMemory(addr, memory.readInt(addr))
 
         pc += 2
     }
@@ -563,7 +577,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
                 memory.writeInt(addr, value)
             }
         } finally {
-            step_memory(addr)
+            // stepMemory(addr)
             sp = addr
         }
 
@@ -606,7 +620,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
                 pc += 2
             }
         } finally {
-            step_memory(addr)
+            // stepMemory(addr)
             sp = addr
         }
     }
@@ -621,7 +635,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         }
 
         pc += 2
-        step_memory(vaddr)
+        stepMemory(vaddr)
         return vaddr
     }
 
@@ -648,7 +662,7 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         }
 
         pc += 2
-        step_memory(vaddr)
+        stepMemory(vaddr)
         return vaddr
     }
 
@@ -656,13 +670,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return beq(cb, func_offset)
     }
 
-    fun beq(func: Callback, func_offset: Int): Boolean {
+    fun beq(): Boolean {
         step()
         val cond = z
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun beq(func: Callback, func_offset: Int): Boolean {
+        val cond = beq()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -671,13 +693,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bne(cb, func_offset)
     }
 
-    fun bne(func: Callback, func_offset: Int): Boolean {
+    fun bne(): Boolean {
         step()
         val cond = !z
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bne(func: Callback, func_offset: Int): Boolean {
+        val cond = bne()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -686,13 +716,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bhs(cb, func_offset)
     }
 
-    fun bhs(func: Callback, func_offset: Int): Boolean {
+    fun bhs(): Boolean {
         step()
         val cond = c
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bhs(func: Callback, func_offset: Int): Boolean {
+        val cond = bhs()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -701,13 +739,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return blo(cb, func_offset)
     }
 
-    fun blo(func: Callback, func_offset: Int): Boolean {
+    fun blo(): Boolean {
         step()
         val cond = !c
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun blo(func: Callback, func_offset: Int): Boolean {
+        val cond = blo()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -716,13 +762,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bmi(cb, func_offset)
     }
 
-    fun bmi(func: Callback, func_offset: Int): Boolean {
+    fun bmi(): Boolean {
         step()
         val cond = n
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bmi(func: Callback, func_offset: Int): Boolean {
+        val cond = bmi()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -731,13 +785,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bpl(cb, func_offset)
     }
 
-    fun bpl(func: Callback, func_offset: Int): Boolean {
+    fun bpl(): Boolean {
         step()
         val cond = !n
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bpl(func: Callback, func_offset: Int): Boolean {
+        val cond = bpl()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -746,13 +808,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bvs(cb, func_offset)
     }
 
-    fun bvs(func: Callback, func_offset: Int): Boolean {
+    fun bvs(): Boolean {
         step()
         val cond = v
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bvs(func: Callback, func_offset: Int): Boolean {
+        val cond = bvs()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -761,13 +831,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bvc(cb, func_offset)
     }
 
-    fun bvc(func: Callback, func_offset: Int): Boolean {
+    fun bvc(): Boolean {
         step()
         val cond = !v
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bvc(func: Callback, func_offset: Int): Boolean {
+        val cond = bvc()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -776,13 +854,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bhi(cb, func_offset)
     }
 
-    fun bhi(func: Callback, func_offset: Int): Boolean {
+    fun bhi(): Boolean {
         step()
         val cond = c && !z
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bhi(func: Callback, func_offset: Int): Boolean {
+        val cond = bhi()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -791,13 +877,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bls(cb, func_offset)
     }
 
-    fun bls(func: Callback, func_offset: Int): Boolean {
+    fun bls(): Boolean {
         step()
         val cond = !c || z
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bls(func: Callback, func_offset: Int): Boolean {
+        val cond = bls()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -806,13 +900,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bge(cb, func_offset)
     }
 
-    fun bge(func: Callback, func_offset: Int): Boolean {
+    fun bge(): Boolean {
         step()
         val cond = n == v
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bge(func: Callback, func_offset: Int): Boolean {
+        val cond = bge()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -821,13 +923,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return blt(cb, func_offset)
     }
 
-    fun blt(func: Callback, func_offset: Int): Boolean {
+    fun blt(): Boolean {
         step()
         val cond = n != v
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun blt(func: Callback, func_offset: Int): Boolean {
+        val cond = blt()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -836,13 +946,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return bgt(cb, func_offset)
     }
 
-    fun bgt(func: Callback, func_offset: Int): Boolean {
+    fun bgt(): Boolean {
         step()
         val cond = !z && n == v
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun bgt(func: Callback, func_offset: Int): Boolean {
+        val cond = bgt()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -851,13 +969,21 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         return ble(cb, func_offset)
     }
 
-    fun ble(func: Callback, func_offset: Int): Boolean {
+    fun ble(): Boolean {
         step()
         val cond = z || n != v
         if (cond)
-            jump(func, func_offset)
+            return true
         else
             pc += 2
+
+        return cond
+    }
+
+    fun ble(func: Callback, func_offset: Int): Boolean {
+        val cond = ble()
+        if (cond)
+            jump(func, func_offset)
 
         return cond
     }
@@ -868,19 +994,19 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         throw Interrupt(imm)
     }
 
-    private fun autob(addr: Int) {
-        if (jump(addr))
+    fun autob(addr: Int) {
+        if (jump(addr or 1))
             return;
 
-        TODO("not implemented")
+        TODO("not implemented ${addr}")
     }
 
     fun b(addr: Int) {
         step()
-        if (jump(addr))
+        if (jump(addr or 1))
             return;
 
-        TODO("not implemented")
+        TODO("not implemented ${addr}")
     }
 
     fun b(func: Callback) {
@@ -888,60 +1014,31 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         jump(func, 0)
     }
 
-    fun b(func: Callback?, func_offset: Int) {
-        step()
-        jump(func, func_offset)
-    }
-
-    fun bl(addr: Int, return_offset: Int) {
-        step()
-        hint(lr, cb, return_offset)
-        if (jump(addr))
-            return;
-
-        TODO("not implemented")
-    }
-
     fun bl(func: Callback, lr_addr: Int, return_offset: Int) {
         step()
-        lr = lr_addr
-        hint(lr, cb, return_offset)
-        jump(func, 0, return_offset)
+        link(lr_addr, return_offset)
+        jump(func, 0)
     }
 
     fun bl(func: Callback?, func_offset: Int, lr_addr: Int, return_offset: Int) {
         step()
-        lr = lr_addr
-        hint(lr, cb, return_offset)
-        jump(func, func_offset, return_offset)
+        link(lr_addr, return_offset)
+        jump(func, func_offset)
     }
 
     fun blx(func: Callback, lr_addr: Int, return_offset: Int) {
         step()
-        lr = lr_addr
-        hint(lr, cb, return_offset)
+        link(lr_addr, return_offset)
         jump(func, 0)
     }
 
     fun blx(addr: Int, lr_addr: Int, return_offset: Int) {
         step()
-        lr = lr_addr
-        hint(lr, cb, return_offset)
+        link(lr_addr, return_offset)
         if (jump(addr))
             return;
 
-        TODO("no hint")
-    }
-
-    fun jump(addr: Int): Boolean {
-        assert((addr and 1) != 0)
-        val hint = hints.get(addr)
-        if (hint != null) {
-            jump(hint.first, hint.second)
-            return true
-        }
-
-        return false
+        TODO("no hint ${addr}")
     }
 
     fun bx(addr: Int) {
@@ -949,6 +1046,6 @@ abstract class KotlinCPU(memory: Memory) : JavaCPU(memory) {
         if (jump(addr))
             return;
 
-        TODO("no hint")
+        TODO("no hint ${addr}")
     }
 }
