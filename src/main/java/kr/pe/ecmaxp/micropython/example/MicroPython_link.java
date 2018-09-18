@@ -1,5 +1,6 @@
 package kr.pe.ecmaxp.micropython.example;
 
+import kotlin.Pair;
 import kr.pe.ecmaxp.thumbjk.Callback;
 import kr.pe.ecmaxp.thumbjk.KotlinCPU;
 import kr.pe.ecmaxp.thumbjk.InterruptHandler;
@@ -17,1237 +18,7607 @@ abstract public class MicroPython_link extends KotlinCPU
         super(memory);
     }
 
+    private void gen_hints_1() {
+        hint(nlr_push_tail, this::nlr_push_tail, 0);
+        hint(nlr_pop, this::nlr_pop, 0);
+        hint(nlr_push, this::nlr_push, 0);
+        hint(nlr_jump, this::nlr_jump, 0);
+        hint(nlr_jump, this::nlr_jump, 14);
+        hint(m_malloc, this::m_malloc, 0);
+        hint(m_malloc, this::m_malloc, 10);
+        hint(m_malloc, this::m_malloc, 24);
+        hint(m_malloc_maybe, this::m_malloc_maybe, 0);
+        hint(m_malloc_maybe, this::m_malloc_maybe, 10);
+        hint(m_malloc0, this::m_malloc0, 0);
+        hint(m_malloc0, this::m_malloc0, 6);
+        hint(m_realloc, this::m_realloc, 0);
+        hint(m_realloc, this::m_realloc, 14);
+        hint(m_realloc, this::m_realloc, 28);
+        hint(m_realloc_maybe, this::m_realloc_maybe, 0);
+        hint(m_realloc_maybe, this::m_realloc_maybe, 14);
+        hint(m_free, this::m_free, 0);
+        hint(m_free, this::m_free, 8);
+        hint(m_get_total_bytes_allocated, this::m_get_total_bytes_allocated, 0);
+        hint(m_get_current_bytes_allocated, this::m_get_current_bytes_allocated, 0);
+        hint(m_get_peak_bytes_allocated, this::m_get_peak_bytes_allocated, 0);
+        hint(gc_mark_subtree, this::gc_mark_subtree, 0);
+        hint(gc_init, this::gc_init, 0);
+        hint(gc_init, this::gc_init, 26);
+        hint(gc_init, this::gc_init, 74);
+        hint(gc_init, this::gc_init, 90);
+        hint(gc_lock, this::gc_lock, 0);
+        hint(gc_unlock, this::gc_unlock, 0);
+        hint(gc_is_locked, this::gc_is_locked, 0);
+        hint(gc_collect_start, this::gc_collect_start, 0);
+        hint(gc_collect_start, this::gc_collect_start, 252);
+        hint(gc_collect_start, this::gc_collect_start, 270);
+        hint(gc_collect_root, this::gc_collect_root, 0);
+        hint(gc_collect_root, this::gc_collect_root, 128);
+        hint(gc_collect_end, this::gc_collect_end, 0);
+        hint(gc_collect_end, this::gc_collect_end, 94);
+        hint(gc_collect_end, this::gc_collect_end, 310);
+        hint(gc_collect_end, this::gc_collect_end, 320);
+        hint(gc_collect_end, this::gc_collect_end, 328);
+        hint(gc_collect_end, this::gc_collect_end, 332);
+        hint(gc_info, this::gc_info, 0);
+        hint(gc_alloc, this::gc_alloc, 0);
+        hint(gc_alloc, this::gc_alloc, 190);
+        hint(gc_alloc, this::gc_alloc, 380);
+        hint(gc_free, this::gc_free, 0);
+        hint(gc_nbytes, this::gc_nbytes, 0);
+        hint(gc_realloc, this::gc_realloc, 0);
+        hint(gc_realloc, this::gc_realloc, 236);
+        hint(gc_realloc, this::gc_realloc, 478);
+        hint(gc_realloc, this::gc_realloc, 522);
+        hint(gc_realloc, this::gc_realloc, 538);
+        hint(gc_dump_info, this::gc_dump_info, 0);
+        hint(gc_dump_info, this::gc_dump_info, 222);
+        hint(gc_dump_info, this::gc_dump_info, 238);
+        hint(gc_dump_alloc_table, this::gc_dump_alloc_table, 0);
+        hint(gc_dump_alloc_table, this::gc_dump_alloc_table, 34);
+        hint(gc_dump_alloc_table, this::gc_dump_alloc_table, 96);
+        hint(gc_dump_alloc_table, this::gc_dump_alloc_table, 194);
+        hint(gc_dump_alloc_table, this::gc_dump_alloc_table, 232);
+        hint(gc_dump_alloc_table, this::gc_dump_alloc_table, 336);
+        hint(mp_pystack_init, this::mp_pystack_init, 0);
+        hint(mp_pystack_alloc, this::mp_pystack_alloc, 0);
+        hint(mp_pystack_alloc, this::mp_pystack_alloc, 30);
+        hint(mp_pystack_alloc, this::mp_pystack_alloc, 34);
+        hint(find_qstr, this::find_qstr, 0);
+        hint(qstr_compute_hash, this::qstr_compute_hash, 0);
+        hint(qstr_init, this::qstr_init, 0);
+        hint(qstr_find_strn, this::qstr_find_strn, 0);
+        hint(qstr_find_strn, this::qstr_find_strn, 12);
+        hint(qstr_find_strn, this::qstr_find_strn, 82);
+        hint(qstr_from_strn, this::qstr_from_strn, 0);
+        hint(qstr_from_strn, this::qstr_from_strn, 12);
+        hint(qstr_from_strn, this::qstr_from_strn, 58);
+        hint(qstr_from_strn, this::qstr_from_strn, 84);
+        hint(qstr_from_strn, this::qstr_from_strn, 112);
+        hint(qstr_from_strn, this::qstr_from_strn, 126);
+        hint(qstr_from_strn, this::qstr_from_strn, 142);
+        hint(qstr_from_strn, this::qstr_from_strn, 188);
+        hint(qstr_from_strn, this::qstr_from_strn, 210);
+        hint(qstr_from_strn, this::qstr_from_strn, 234);
+        hint(qstr_from_str, this::qstr_from_str, 0);
+        hint(qstr_from_str, this::qstr_from_str, 8);
+        hint(qstr_from_str, this::qstr_from_str, 16);
+        hint(qstr_hash, this::qstr_hash, 0);
+        hint(qstr_hash, this::qstr_hash, 6);
+        hint(qstr_len, this::qstr_len, 0);
+        hint(qstr_len, this::qstr_len, 6);
+        hint(qstr_str, this::qstr_str, 0);
+        hint(qstr_str, this::qstr_str, 6);
+        hint(qstr_data, this::qstr_data, 0);
+        hint(qstr_data, this::qstr_data, 8);
+        hint(qstr_pool_info, this::qstr_pool_info, 0);
+        hint(qstr_pool_info, this::qstr_pool_info, 86);
+        hint(qstr_dump_data, this::qstr_dump_data, 0);
+        hint(qstr_dump_data, this::qstr_dump_data, 48);
+        hint(vstr_ensure_extra, this::vstr_ensure_extra, 0);
+        hint(vstr_ensure_extra, this::vstr_ensure_extra, 28);
+        hint(vstr_ensure_extra, this::vstr_ensure_extra, 44);
+        hint(vstr_add_strn, this::vstr_add_strn, 0);
+        hint(vstr_add_strn, this::vstr_add_strn, 14);
+        hint(vstr_add_strn, this::vstr_add_strn, 28);
+        hint(vstr_ins_blank_bytes_constprop_2, this::vstr_ins_blank_bytes_constprop_2, 0);
+        hint(vstr_ins_blank_bytes_constprop_2, this::vstr_ins_blank_bytes_constprop_2, 22);
+        hint(vstr_ins_blank_bytes_constprop_2, this::vstr_ins_blank_bytes_constprop_2, 36);
+        hint(vstr_init, this::vstr_init, 0);
+        hint(vstr_init, this::vstr_init, 22);
+        hint(vstr_init_len, this::vstr_init_len, 0);
+        hint(vstr_init_len, this::vstr_init_len, 12);
+        hint(vstr_init_fixed_buf, this::vstr_init_fixed_buf, 0);
+        hint(vstr_init_print, this::vstr_init_print, 0);
+        hint(vstr_init_print, this::vstr_init_print, 10);
+        hint(vstr_clear, this::vstr_clear, 0);
+        hint(vstr_clear, this::vstr_clear, 18);
+        hint(vstr_new, this::vstr_new, 0);
+        hint(vstr_new, this::vstr_new, 10);
+        hint(vstr_new, this::vstr_new, 18);
+        hint(vstr_free, this::vstr_free, 0);
+        hint(vstr_free, this::vstr_free, 20);
+        hint(vstr_free, this::vstr_free, 28);
+        hint(vstr_extend, this::vstr_extend, 0);
+        hint(vstr_extend, this::vstr_extend, 20);
+        hint(vstr_extend, this::vstr_extend, 32);
+        hint(vstr_add_len, this::vstr_add_len, 0);
+        hint(vstr_add_len, this::vstr_add_len, 10);
+        hint(vstr_null_terminated_str, this::vstr_null_terminated_str, 0);
+        hint(vstr_null_terminated_str, this::vstr_null_terminated_str, 18);
+        hint(vstr_add_byte, this::vstr_add_byte, 0);
+        hint(vstr_add_byte, this::vstr_add_byte, 10);
+        hint(vstr_add_char, this::vstr_add_char, 0);
+        hint(vstr_add_char, this::vstr_add_char, 16);
+        hint(vstr_add_char, this::vstr_add_char, 50);
+        hint(vstr_add_char, this::vstr_add_char, 94);
+        hint(vstr_add_char, this::vstr_add_char, 116);
+        hint(vstr_add_str, this::vstr_add_str, 0);
+        hint(vstr_add_str, this::vstr_add_str, 12);
+        hint(vstr_add_str, this::vstr_add_str, 22);
+        hint(vstr_ins_byte, this::vstr_ins_byte, 0);
+        hint(vstr_ins_byte, this::vstr_ins_byte, 8);
+        hint(vstr_ins_char, this::vstr_ins_char, 0);
+        hint(vstr_ins_char, this::vstr_ins_char, 8);
+        hint(vstr_cut_tail_bytes, this::vstr_cut_tail_bytes, 0);
+        hint(vstr_cut_out_bytes, this::vstr_cut_out_bytes, 0);
+        hint(vstr_cut_out_bytes, this::vstr_cut_out_bytes, 38);
+        hint(plat_print_strn, this::plat_print_strn, 0);
+        hint(plat_print_strn, this::plat_print_strn, 10);
+        hint(mp_print_str, this::mp_print_str, 0);
+        hint(mp_print_str, this::mp_print_str, 12);
+        hint(mp_print_str, this::mp_print_str, 26);
+        hint(mp_print_strn, this::mp_print_strn, 0);
+        hint(mp_print_strn, this::mp_print_strn, 80);
+        hint(mp_print_strn, this::mp_print_strn, 104);
+        hint(mp_print_strn, this::mp_print_strn, 132);
+        hint(mp_print_int, this::mp_print_int, 0);
+        hint(mp_print_int, this::mp_print_int, 56);
+        hint(mp_print_int, this::mp_print_int, 158);
+        hint(mp_print_int, this::mp_print_int, 188);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 0);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 42);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 80);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 220);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 294);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 362);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 394);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 426);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 466);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 490);
+        hint(mp_print_mp_int, this::mp_print_mp_int, 506);
+        hint(mp_print_float, this::mp_print_float, 0);
+        hint(mp_print_float, this::mp_print_float, 46);
+        hint(mp_print_float, this::mp_print_float, 98);
+        hint(mp_print_float, this::mp_print_float, 132);
+        hint(mp_vprintf, this::mp_vprintf, 0);
+        hint(mp_vprintf, this::mp_vprintf, 90);
+        hint(mp_vprintf, this::mp_vprintf, 314);
+        hint(mp_vprintf, this::mp_vprintf, 424);
+        hint(mp_vprintf, this::mp_vprintf, 472);
+        hint(mp_vprintf, this::mp_vprintf, 534);
+        hint(mp_vprintf, this::mp_vprintf, 610);
+        hint(mp_vprintf, this::mp_vprintf, 632);
+        hint(mp_vprintf, this::mp_vprintf, 654);
+        hint(mp_printf, this::mp_printf, 0);
+        hint(mp_printf, this::mp_printf, 14);
+        hint(utf8_get_char, this::utf8_get_char, 0);
+        hint(utf8_next_char, this::utf8_next_char, 0);
+        hint(utf8_ptr_to_index, this::utf8_ptr_to_index, 0);
+        hint(utf8_charlen, this::utf8_charlen, 0);
+        hint(unichar_isspace, this::unichar_isspace, 0);
+        hint(unichar_isalpha, this::unichar_isalpha, 0);
+        hint(unichar_isdigit, this::unichar_isdigit, 0);
+        hint(unichar_isxdigit, this::unichar_isxdigit, 0);
+        hint(unichar_isident, this::unichar_isident, 0);
+        hint(unichar_isupper, this::unichar_isupper, 0);
+        hint(unichar_islower, this::unichar_islower, 0);
+        hint(unichar_tolower, this::unichar_tolower, 0);
+        hint(unichar_tolower, this::unichar_tolower, 8);
+        hint(unichar_toupper, this::unichar_toupper, 0);
+        hint(unichar_toupper, this::unichar_toupper, 8);
+        hint(unichar_xdigit_value, this::unichar_xdigit_value, 0);
+        hint(utf8_check, this::utf8_check, 0);
+        hint(mpn_remove_trailing_zeros, this::mpn_remove_trailing_zeros, 0);
+        hint(text_mpn_shr, this::text_mpn_shr, 0);
+        hint(text_mpn_add, this::text_mpn_add, 0);
+        hint(text_mpn_sub, this::text_mpn_sub, 0);
+        hint(text_mpn_sub, this::text_mpn_sub, 40);
+        hint(mpn_xor_neg, this::mpn_xor_neg, 0);
+        hint(mpn_xor_neg, this::mpn_xor_neg, 40);
+        hint(mpz_need_dig, this::mpz_need_dig, 0);
+        hint(mpz_need_dig, this::mpz_need_dig, 34);
+        hint(mpz_clone, this::mpz_clone, 0);
+        hint(mpz_clone, this::mpz_clone, 10);
+        hint(mpz_clone, this::mpz_clone, 58);
+        hint(mpz_clone, this::mpz_clone, 72);
+        hint(mpn_cmp_part_1, this::mpn_cmp_part_1, 0);
+        hint(mpz_free, this::mpz_free, 0);
+        hint(mpz_free, this::mpz_free, 18);
+        hint(mpz_free, this::mpz_free, 26);
+        hint(mpz_set_from_int_part_4, this::mpz_set_from_int_part_4, 0);
+        hint(mpz_set_from_int_part_4, this::mpz_set_from_int_part_4, 12);
+        hint(mpz_init_zero, this::mpz_init_zero, 0);
+        hint(mpz_deinit, this::mpz_deinit, 0);
+        hint(mpz_deinit, this::mpz_deinit, 24);
+        hint(mpz_set, this::mpz_set, 0);
+        hint(mpz_set, this::mpz_set, 12);
+        hint(mpz_set, this::mpz_set, 44);
+        hint(mpz_set_from_int, this::mpz_set_from_int, 0);
+        hint(mpz_set_from_int, this::mpz_set_from_int, 14);
+        hint(mpz_init_from_int, this::mpz_init_from_int, 0);
+        hint(mpz_init_from_int, this::mpz_init_from_int, 10);
+        hint(mpz_init_from_int, this::mpz_init_from_int, 18);
+        hint(mpz_init_fixed_from_int, this::mpz_init_fixed_from_int, 0);
+        hint(mpz_init_fixed_from_int, this::mpz_init_fixed_from_int, 40);
+        hint(mpz_set_from_ll, this::mpz_set_from_ll, 0);
+        hint(mpz_set_from_ll, this::mpz_set_from_ll, 18);
+        hint(mpz_set_from_float, this::mpz_set_from_float, 0);
+        hint(mpz_set_from_float, this::mpz_set_from_float, 58);
+        hint(mpz_set_from_float, this::mpz_set_from_float, 108);
+        hint(mpz_set_from_float, this::mpz_set_from_float, 130);
+        hint(mpz_set_from_str, this::mpz_set_from_str, 0);
+        hint(mpz_set_from_str, this::mpz_set_from_str, 24);
+        hint(mpz_set_from_bytes, this::mpz_set_from_bytes, 0);
+        hint(mpz_set_from_bytes, this::mpz_set_from_bytes, 32);
+        hint(mpz_set_from_bytes, this::mpz_set_from_bytes, 62);
+        hint(mpz_cmp, this::mpz_cmp, 0);
+        hint(mpz_cmp, this::mpz_cmp, 56);
+        hint(mpz_abs_inpl, this::mpz_abs_inpl, 0);
+        hint(mpz_abs_inpl, this::mpz_abs_inpl, 12);
+        hint(mpz_neg_inpl, this::mpz_neg_inpl, 0);
+        hint(mpz_neg_inpl, this::mpz_neg_inpl, 12);
+        hint(mpz_not_inpl, this::mpz_not_inpl, 0);
+        hint(mpz_not_inpl, this::mpz_not_inpl, 12);
+        hint(mpz_not_inpl, this::mpz_not_inpl, 26);
+        hint(mpz_not_inpl, this::mpz_not_inpl, 72);
+        hint(mpz_not_inpl, this::mpz_not_inpl, 84);
+        hint(mpz_not_inpl, this::mpz_not_inpl, 100);
+        hint(mpz_shl_inpl, this::mpz_shl_inpl, 0);
+        hint(mpz_shl_inpl, this::mpz_shl_inpl, 28);
+        hint(mpz_shl_inpl, this::mpz_shl_inpl, 44);
+        hint(mpz_shl_inpl, this::mpz_shl_inpl, 130);
+        hint(mpz_shr_inpl, this::mpz_shr_inpl, 0);
+        hint(mpz_shr_inpl, this::mpz_shr_inpl, 28);
+        hint(mpz_shr_inpl, this::mpz_shr_inpl, 36);
+        hint(mpz_shr_inpl, this::mpz_shr_inpl, 48);
+        hint(mpz_shr_inpl, this::mpz_shr_inpl, 180);
+        hint(mpz_add_inpl, this::mpz_add_inpl, 0);
+        hint(mpz_add_inpl, this::mpz_add_inpl, 26);
+        hint(mpz_add_inpl, this::mpz_add_inpl, 56);
+        hint(mpz_add_inpl, this::mpz_add_inpl, 72);
+        hint(mpz_add_inpl, this::mpz_add_inpl, 98);
+        hint(mpz_add_inpl, this::mpz_add_inpl, 114);
+        hint(mpz_sub_inpl, this::mpz_sub_inpl, 0);
+        hint(mpz_sub_inpl, this::mpz_sub_inpl, 30);
+        hint(mpz_sub_inpl, this::mpz_sub_inpl, 62);
+        hint(mpz_sub_inpl, this::mpz_sub_inpl, 78);
+        hint(mpz_sub_inpl, this::mpz_sub_inpl, 112);
+        hint(mpz_sub_inpl, this::mpz_sub_inpl, 128);
+        hint(mpz_and_inpl, this::mpz_and_inpl, 0);
+        hint(mpz_and_inpl, this::mpz_and_inpl, 46);
+        hint(mpz_and_inpl, this::mpz_and_inpl, 70);
+        hint(mpz_and_inpl, this::mpz_and_inpl, 112);
+        hint(mpz_and_inpl, this::mpz_and_inpl, 212);
+        hint(mpz_or_inpl, this::mpz_or_inpl, 0);
+        hint(mpz_or_inpl, this::mpz_or_inpl, 48);
+        hint(mpz_or_inpl, this::mpz_or_inpl, 148);
+        hint(mpz_or_inpl, this::mpz_or_inpl, 218);
+        hint(mpz_xor_inpl, this::mpz_xor_inpl, 0);
+        hint(mpz_xor_inpl, this::mpz_xor_inpl, 46);
+        hint(mpz_xor_inpl, this::mpz_xor_inpl, 98);
+        hint(mpz_xor_inpl, this::mpz_xor_inpl, 164);
+        hint(mpz_xor_inpl, this::mpz_xor_inpl, 174);
+        hint(mpz_xor_inpl, this::mpz_xor_inpl, 208);
+        hint(mpz_mul_inpl, this::mpz_mul_inpl, 0);
+        hint(mpz_mul_inpl, this::mpz_mul_inpl, 40);
+        hint(mpz_mul_inpl, this::mpz_mul_inpl, 62);
+        hint(mpz_mul_inpl, this::mpz_mul_inpl, 76);
+        hint(mpz_mul_inpl, this::mpz_mul_inpl, 144);
+        hint(mpz_mul_inpl, this::mpz_mul_inpl, 160);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 0);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 38);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 46);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 54);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 64);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 88);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 100);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 112);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 118);
+        hint(mpz_pow_inpl, this::mpz_pow_inpl, 130);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 0);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 20);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 36);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 52);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 60);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 100);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 152);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 162);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 172);
+        hint(mpz_divmod_inpl, this::mpz_divmod_inpl, 472);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 0);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 54);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 66);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 74);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 82);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 108);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 120);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 132);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 144);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 150);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 156);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 168);
+        hint(mpz_pow3_inpl, this::mpz_pow3_inpl, 180);
+        hint(mpz_hash, this::mpz_hash, 0);
+        hint(mpz_as_int_checked, this::mpz_as_int_checked, 0);
+        hint(mpz_as_bytes, this::mpz_as_bytes, 0);
+        hint(mpz_as_float, this::mpz_as_float, 0);
+        hint(mpz_as_float, this::mpz_as_float, 44);
+        hint(mpz_as_float, this::mpz_as_float, 52);
+        hint(mpz_as_float, this::mpz_as_float, 58);
+        hint(mpz_as_str_inpl, this::mpz_as_str_inpl, 0);
+        hint(mpz_as_str_inpl, this::mpz_as_str_inpl, 76);
+        hint(mpz_as_str_inpl, this::mpz_as_str_inpl, 86);
+        hint(mpz_as_str_inpl, this::mpz_as_str_inpl, 174);
+        hint(mpz_as_str_inpl, this::mpz_as_str_inpl, 184);
+        hint(mpz_as_str_inpl, this::mpz_as_str_inpl, 240);
+        hint(mp_reader_mem_readbyte, this::mp_reader_mem_readbyte, 0);
+        hint(mp_reader_mem_close, this::mp_reader_mem_close, 0);
+        hint(mp_reader_mem_close, this::mp_reader_mem_close, 16);
+        hint(mp_reader_mem_close, this::mp_reader_mem_close, 24);
+        hint(mp_reader_new_mem, this::mp_reader_new_mem, 0);
+        hint(mp_reader_new_mem, this::mp_reader_new_mem, 16);
+        hint(is_string_or_bytes, this::is_string_or_bytes, 0);
+        hint(next_char, this::next_char, 0);
+        hint(next_char, this::next_char, 34);
+        hint(next_char, this::next_char, 56);
+        hint(skip_whitespace, this::skip_whitespace, 0);
+        hint(skip_whitespace, this::skip_whitespace, 40);
+        hint(skip_whitespace, this::skip_whitespace, 48);
+        hint(skip_whitespace, this::skip_whitespace, 58);
+        hint(skip_whitespace, this::skip_whitespace, 72);
+        hint(skip_whitespace, this::skip_whitespace, 100);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 0);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 14);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 114);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 190);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 276);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 286);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 304);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 330);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 336);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 378);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 386);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 392);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 446);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 452);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 466);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 484);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 544);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 588);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 666);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 698);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 706);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 718);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 740);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 762);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 786);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 828);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 862);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 868);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 880);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 896);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 938);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 956);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 984);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1012);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1018);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1032);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1102);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1108);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1132);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1154);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1216);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1242);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1280);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1286);
+        hint(mp_lexer_to_next, this::mp_lexer_to_next, 1326);
+        hint(mp_lexer_new, this::mp_lexer_new, 0);
+        hint(mp_lexer_new, this::mp_lexer_new, 16);
+        hint(mp_lexer_new, this::mp_lexer_new, 56);
+        hint(mp_lexer_new, this::mp_lexer_new, 68);
+        hint(mp_lexer_new, this::mp_lexer_new, 84);
+        hint(mp_lexer_new, this::mp_lexer_new, 90);
+        hint(mp_lexer_new, this::mp_lexer_new, 96);
+        hint(mp_lexer_new, this::mp_lexer_new, 102);
+        hint(mp_lexer_new_from_str_len, this::mp_lexer_new_from_str_len, 0);
+        hint(mp_lexer_new_from_str_len, this::mp_lexer_new_from_str_len, 10);
+        hint(mp_lexer_new_from_str_len, this::mp_lexer_new_from_str_len, 22);
+        hint(mp_lexer_new_from_file, this::mp_lexer_new_from_file, 0);
+        hint(mp_lexer_new_from_file, this::mp_lexer_new_from_file, 12);
+        hint(mp_lexer_new_from_file, this::mp_lexer_new_from_file, 18);
+        hint(mp_lexer_new_from_file, this::mp_lexer_new_from_file, 28);
+        hint(mp_lexer_free, this::mp_lexer_free, 0);
+        hint(mp_lexer_free, this::mp_lexer_free, 12);
+        hint(mp_lexer_free, this::mp_lexer_free, 20);
+        hint(mp_lexer_free, this::mp_lexer_free, 30);
+        hint(mp_lexer_free, this::mp_lexer_free, 38);
+        hint(pop_result, this::pop_result, 0);
+        hint(peek_result, this::peek_result, 0);
+        hint(parser_alloc, this::parser_alloc, 0);
+        hint(parser_alloc, this::parser_alloc, 38);
+        hint(parser_alloc, this::parser_alloc, 56);
+        hint(parser_alloc, this::parser_alloc, 82);
+        hint(push_result_node, this::push_result_node, 0);
+        hint(push_result_node, this::push_result_node, 26);
+        hint(push_rule, this::push_rule, 0);
+        hint(push_rule, this::push_rule, 30);
+        hint(push_rule_from_arg, this::push_rule_from_arg, 0);
+        hint(push_rule_from_arg, this::push_rule_from_arg, 14);
+        hint(push_result_token, this::push_result_token, 0);
+        hint(push_result_token, this::push_result_token, 26);
+        hint(push_result_token, this::push_result_token, 48);
+        hint(push_result_token, this::push_result_token, 80);
+        hint(push_result_token, this::push_result_token, 98);
+        hint(push_result_token, this::push_result_token, 120);
+        hint(push_result_token, this::push_result_token, 132);
+        hint(push_result_token, this::push_result_token, 166);
+        hint(push_result_token, this::push_result_token, 188);
+        hint(push_result_token, this::push_result_token, 206);
+        hint(mp_parse_node_is_const_false, this::mp_parse_node_is_const_false, 0);
+        hint(mp_parse_node_is_const_true, this::mp_parse_node_is_const_true, 0);
+        hint(mp_parse_node_get_int_maybe, this::mp_parse_node_get_int_maybe, 0);
+        hint(push_result_rule, this::push_result_rule, 0);
+        hint(push_result_rule, this::push_result_rule, 22);
+        hint(push_result_rule, this::push_result_rule, 68);
+        hint(push_result_rule, this::push_result_rule, 78);
+        hint(push_result_rule, this::push_result_rule, 104);
+        hint(push_result_rule, this::push_result_rule, 152);
+        hint(push_result_rule, this::push_result_rule, 158);
+        hint(push_result_rule, this::push_result_rule, 214);
+        hint(push_result_rule, this::push_result_rule, 220);
+        hint(push_result_rule, this::push_result_rule, 230);
+        hint(push_result_rule, this::push_result_rule, 238);
+        hint(push_result_rule, this::push_result_rule, 256);
+        hint(push_result_rule, this::push_result_rule, 262);
+        hint(push_result_rule, this::push_result_rule, 272);
+        hint(push_result_rule, this::push_result_rule, 284);
+        hint(push_result_rule, this::push_result_rule, 300);
+        hint(push_result_rule, this::push_result_rule, 306);
+        hint(push_result_rule, this::push_result_rule, 320);
+        hint(push_result_rule, this::push_result_rule, 342);
+        hint(push_result_rule, this::push_result_rule, 348);
+        hint(push_result_rule, this::push_result_rule, 364);
+        hint(push_result_rule, this::push_result_rule, 388);
+        hint(push_result_rule, this::push_result_rule, 406);
+        hint(push_result_rule, this::push_result_rule, 412);
+        hint(push_result_rule, this::push_result_rule, 424);
+        hint(push_result_rule, this::push_result_rule, 448);
+        hint(push_result_rule, this::push_result_rule, 466);
+        hint(push_result_rule, this::push_result_rule, 500);
+        hint(push_result_rule, this::push_result_rule, 506);
+        hint(push_result_rule, this::push_result_rule, 518);
+        hint(push_result_rule, this::push_result_rule, 544);
+        hint(push_result_rule, this::push_result_rule, 564);
+        hint(push_result_rule, this::push_result_rule, 594);
+        hint(push_result_rule, this::push_result_rule, 682);
+        hint(push_result_rule, this::push_result_rule, 694);
+        hint(push_result_rule, this::push_result_rule, 708);
+        hint(push_result_rule, this::push_result_rule, 714);
+        hint(push_result_rule, this::push_result_rule, 732);
+        hint(push_result_rule, this::push_result_rule, 742);
+        hint(push_result_rule, this::push_result_rule, 754);
+        hint(push_result_rule, this::push_result_rule, 760);
+        hint(push_result_rule, this::push_result_rule, 772);
+        hint(push_result_rule, this::push_result_rule, 780);
+        hint(push_result_rule, this::push_result_rule, 788);
+        hint(push_result_rule, this::push_result_rule, 806);
+        hint(push_result_rule, this::push_result_rule, 816);
+        hint(push_result_rule, this::push_result_rule, 864);
+        hint(push_result_rule, this::push_result_rule, 880);
+        hint(push_result_rule, this::push_result_rule, 926);
+        hint(push_result_rule, this::push_result_rule, 938);
+        hint(mp_parse_node_extract_list, this::mp_parse_node_extract_list, 0);
+    }
+
+    private void gen_hints_2() {
+        hint(mp_parse, this::mp_parse, 0);
+        hint(mp_parse, this::mp_parse, 26);
+        hint(mp_parse, this::mp_parse, 40);
+        hint(mp_parse, this::mp_parse, 56);
+        hint(mp_parse, this::mp_parse, 82);
+        hint(mp_parse, this::mp_parse, 234);
+        hint(mp_parse, this::mp_parse, 240);
+        hint(mp_parse, this::mp_parse, 304);
+        hint(mp_parse, this::mp_parse, 310);
+        hint(mp_parse, this::mp_parse, 328);
+        hint(mp_parse, this::mp_parse, 336);
+        hint(mp_parse, this::mp_parse, 370);
+        hint(mp_parse, this::mp_parse, 426);
+        hint(mp_parse, this::mp_parse, 438);
+        hint(mp_parse, this::mp_parse, 444);
+        hint(mp_parse, this::mp_parse, 482);
+        hint(mp_parse, this::mp_parse, 488);
+        hint(mp_parse, this::mp_parse, 544);
+        hint(mp_parse, this::mp_parse, 560);
+        hint(mp_parse, this::mp_parse, 580);
+        hint(mp_parse, this::mp_parse, 600);
+        hint(mp_parse, this::mp_parse, 614);
+        hint(mp_parse, this::mp_parse, 694);
+        hint(mp_parse, this::mp_parse, 702);
+        hint(mp_parse, this::mp_parse, 714);
+        hint(mp_parse, this::mp_parse, 734);
+        hint(mp_parse, this::mp_parse, 788);
+        hint(mp_parse, this::mp_parse, 800);
+        hint(mp_parse, this::mp_parse, 806);
+        hint(mp_parse_tree_clear, this::mp_parse_tree_clear, 0);
+        hint(mp_parse_tree_clear, this::mp_parse_tree_clear, 20);
+        hint(scope_new, this::scope_new, 0);
+        hint(scope_new, this::scope_new, 16);
+        hint(scope_new, this::scope_new, 42);
+        hint(scope_new, this::scope_new, 58);
+        hint(scope_free, this::scope_free, 0);
+        hint(scope_free, this::scope_free, 14);
+        hint(scope_free, this::scope_free, 22);
+        hint(scope_find, this::scope_find, 0);
+        hint(scope_find_or_add_id, this::scope_find_or_add_id, 0);
+        hint(scope_find_or_add_id, this::scope_find_or_add_id, 12);
+        hint(scope_find_or_add_id, this::scope_find_or_add_id, 38);
+        hint(scope_find_global, this::scope_find_global, 0);
+        hint(scope_find_global, this::scope_find_global, 12);
+        hint(scope_find_local_and_close_over, this::scope_find_local_and_close_over, 0);
+        hint(scope_find_local_and_close_over, this::scope_find_local_and_close_over, 44);
+        hint(scope_find_local_and_close_over, this::scope_find_local_and_close_over, 76);
+        hint(compile_increase_except_level, this::compile_increase_except_level, 0);
+        hint(apply_to_single_or_list, this::apply_to_single_or_list, 0);
+        hint(apply_to_single_or_list, this::apply_to_single_or_list, 48);
+        hint(apply_to_single_or_list, this::apply_to_single_or_list, 58);
+        hint(compile_del_stmt, this::compile_del_stmt, 0);
+        hint(compile_del_stmt, this::compile_del_stmt, 12);
+        hint(compile_import_name, this::compile_import_name, 0);
+        hint(compile_import_name, this::compile_import_name, 12);
+        hint(scope_new_and_link, this::scope_new_and_link, 0);
+        hint(scope_new_and_link, this::scope_new_and_link, 14);
+        hint(compile_trailer_period, this::compile_trailer_period, 0);
+        hint(compile_trailer_period, this::compile_trailer_period, 14);
+        hint(compile_const_object, this::compile_const_object, 0);
+        hint(compile_const_object, this::compile_const_object, 10);
+        hint(close_over_variables_etc, this::close_over_variables_etc, 0);
+        hint(close_over_variables_etc, this::close_over_variables_etc, 48);
+        hint(close_over_variables_etc, this::close_over_variables_etc, 106);
+        hint(close_over_variables_etc, this::close_over_variables_etc, 152);
+        hint(compile_funcdef_lambdef, this::compile_funcdef_lambdef, 0);
+        hint(compile_funcdef_lambdef, this::compile_funcdef_lambdef, 30);
+        hint(compile_funcdef_lambdef, this::compile_funcdef_lambdef, 54);
+        hint(compile_funcdef_lambdef, this::compile_funcdef_lambdef, 60);
+        hint(compile_funcdef_lambdef, this::compile_funcdef_lambdef, 72);
+        hint(compile_lambdef, this::compile_lambdef, 0);
+        hint(compile_lambdef, this::compile_lambdef, 24);
+        hint(compile_lambdef, this::compile_lambdef, 38);
+        hint(compile_funcdef_helper, this::compile_funcdef_helper, 0);
+        hint(compile_funcdef_helper, this::compile_funcdef_helper, 22);
+        hint(compile_funcdef_helper, this::compile_funcdef_helper, 38);
+        hint(compile_error_set_line_isra_0, this::compile_error_set_line_isra_0, 0);
+        hint(compile_syntax_error, this::compile_syntax_error, 0);
+        hint(compile_syntax_error, this::compile_syntax_error, 20);
+        hint(compile_syntax_error, this::compile_syntax_error, 32);
+        hint(compile_star_expr, this::compile_star_expr, 0);
+        hint(compile_star_expr, this::compile_star_expr, 8);
+        hint(compile_break_cont_stmt, this::compile_break_cont_stmt, 0);
+        hint(compile_break_cont_stmt, this::compile_break_cont_stmt, 28);
+        hint(compile_break_cont_stmt, this::compile_break_cont_stmt, 42);
+        hint(compile_scope_func_lambda_param_isra_5, this::compile_scope_func_lambda_param_isra_5, 0);
+        hint(compile_scope_func_lambda_param_isra_5, this::compile_scope_func_lambda_param_isra_5, 28);
+        hint(compile_scope_func_lambda_param_isra_5, this::compile_scope_func_lambda_param_isra_5, 76);
+        hint(compile_scope_lambda_param, this::compile_scope_lambda_param, 0);
+        hint(compile_scope_lambda_param, this::compile_scope_lambda_param, 10);
+        hint(compile_scope_func_param, this::compile_scope_func_param, 0);
+        hint(compile_scope_func_param, this::compile_scope_func_param, 10);
+        hint(compile_yield_from_isra_6, this::compile_yield_from_isra_6, 0);
+        hint(compile_yield_from_isra_6, this::compile_yield_from_isra_6, 12);
+        hint(compile_yield_from_isra_6, this::compile_yield_from_isra_6, 20);
+        hint(compile_yield_from_isra_6, this::compile_yield_from_isra_6, 28);
+        hint(compile_await_object_method, this::compile_await_object_method, 0);
+        hint(compile_await_object_method, this::compile_await_object_method, 12);
+        hint(compile_await_object_method, this::compile_await_object_method, 24);
+        hint(compile_await_object_method, this::compile_await_object_method, 32);
+        hint(compile_load_id, this::compile_load_id, 0);
+        hint(compile_load_id, this::compile_load_id, 16);
+        hint(compile_load_id, this::compile_load_id, 28);
+        hint(compile_store_id, this::compile_store_id, 0);
+        hint(compile_store_id, this::compile_store_id, 16);
+        hint(compile_store_id, this::compile_store_id, 28);
+        hint(compile_funcdef, this::compile_funcdef, 0);
+        hint(compile_funcdef, this::compile_funcdef, 12);
+        hint(compile_funcdef, this::compile_funcdef, 20);
+        hint(compile_delete_id, this::compile_delete_id, 0);
+        hint(compile_delete_id, this::compile_delete_id, 16);
+        hint(compile_delete_id, this::compile_delete_id, 28);
+        hint(compile_node, this::compile_node, 0);
+        hint(compile_node, this::compile_node, 46);
+        hint(compile_node, this::compile_node, 62);
+        hint(compile_node, this::compile_node, 70);
+        hint(compile_node, this::compile_node, 102);
+        hint(compile_node, this::compile_node, 112);
+        hint(compile_node, this::compile_node, 132);
+        hint(compile_node, this::compile_node, 140);
+        hint(compile_node, this::compile_node, 158);
+        hint(compile_node, this::compile_node, 168);
+        hint(compile_node, this::compile_node, 184);
+        hint(c_assign, this::c_assign, 0);
+        hint(c_assign, this::c_assign, 38);
+        hint(c_assign, this::c_assign, 44);
+        hint(c_assign, this::c_assign, 78);
+        hint(c_assign, this::c_assign, 114);
+        hint(c_assign, this::c_assign, 178);
+        hint(c_assign, this::c_assign, 196);
+        hint(c_assign, this::c_assign, 216);
+        hint(c_assign, this::c_assign, 226);
+        hint(c_assign, this::c_assign, 234);
+        hint(c_assign, this::c_assign, 250);
+        hint(c_assign, this::c_assign, 262);
+        hint(c_assign, this::c_assign, 272);
+        hint(c_assign, this::c_assign, 338);
+        hint(c_assign_tuple, this::c_assign_tuple, 0);
+        hint(c_assign_tuple, this::c_assign_tuple, 48);
+        hint(c_assign_tuple, this::c_assign_tuple, 72);
+        hint(c_assign_tuple, this::c_assign_tuple, 102);
+        hint(c_assign_tuple, this::c_assign_tuple, 166);
+        hint(c_assign_tuple, this::c_assign_tuple, 178);
+        hint(c_assign_tuple, this::c_assign_tuple, 200);
+        hint(c_if_cond, this::c_if_cond, 0);
+        hint(c_if_cond, this::c_if_cond, 20);
+        hint(c_if_cond, this::c_if_cond, 36);
+        hint(c_if_cond, this::c_if_cond, 52);
+        hint(c_if_cond, this::c_if_cond, 106);
+        hint(c_if_cond, this::c_if_cond, 126);
+        hint(c_if_cond, this::c_if_cond, 174);
+        hint(c_if_cond, this::c_if_cond, 182);
+        hint(c_if_cond, this::c_if_cond, 216);
+        hint(c_if_cond, this::c_if_cond, 226);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 0);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 28);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 36);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 46);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 60);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 76);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 82);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 90);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 98);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 104);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 118);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 142);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 154);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 162);
+        hint(compile_scope_comp_iter, this::compile_scope_comp_iter, 176);
+        hint(check_for_doc_string, this::check_for_doc_string, 0);
+        hint(check_for_doc_string, this::check_for_doc_string, 74);
+        hint(check_for_doc_string, this::check_for_doc_string, 82);
+        hint(compile_scope, this::compile_scope, 0);
+        hint(compile_scope, this::compile_scope, 26);
+        hint(compile_scope, this::compile_scope, 62);
+        hint(compile_scope, this::compile_scope, 68);
+        hint(compile_scope, this::compile_scope, 90);
+        hint(compile_scope, this::compile_scope, 98);
+        hint(compile_scope, this::compile_scope, 106);
+        hint(compile_scope, this::compile_scope, 132);
+        hint(compile_scope, this::compile_scope, 140);
+        hint(compile_scope, this::compile_scope, 146);
+        hint(compile_scope, this::compile_scope, 156);
+        hint(compile_scope, this::compile_scope, 184);
+        hint(compile_scope, this::compile_scope, 192);
+        hint(compile_scope, this::compile_scope, 204);
+        hint(compile_scope, this::compile_scope, 232);
+        hint(compile_scope, this::compile_scope, 266);
+        hint(compile_scope, this::compile_scope, 278);
+        hint(compile_scope, this::compile_scope, 286);
+        hint(compile_scope, this::compile_scope, 292);
+        hint(compile_scope, this::compile_scope, 298);
+        hint(compile_scope, this::compile_scope, 310);
+        hint(compile_scope, this::compile_scope, 328);
+        hint(compile_scope, this::compile_scope, 336);
+        hint(compile_scope, this::compile_scope, 354);
+        hint(compile_scope, this::compile_scope, 366);
+        hint(compile_scope, this::compile_scope, 374);
+        hint(compile_scope, this::compile_scope, 384);
+        hint(compile_scope, this::compile_scope, 392);
+        hint(compile_scope, this::compile_scope, 400);
+        hint(compile_scope, this::compile_scope, 408);
+        hint(compile_scope, this::compile_scope, 416);
+        hint(compile_scope, this::compile_scope, 436);
+        hint(compile_dictorsetmaker_item, this::compile_dictorsetmaker_item, 0);
+        hint(compile_dictorsetmaker_item, this::compile_dictorsetmaker_item, 12);
+        hint(compile_dictorsetmaker_item, this::compile_dictorsetmaker_item, 20);
+        hint(compile_subscript, this::compile_subscript, 0);
+        hint(compile_subscript, this::compile_subscript, 20);
+        hint(compile_subscript, this::compile_subscript, 36);
+        hint(compile_subscript, this::compile_subscript, 50);
+        hint(compile_subscript, this::compile_subscript, 74);
+        hint(compile_subscript, this::compile_subscript, 90);
+        hint(compile_subscript, this::compile_subscript, 104);
+        hint(compile_subscript, this::compile_subscript, 116);
+        hint(compile_subscript, this::compile_subscript, 130);
+        hint(compile_trailer_bracket, this::compile_trailer_bracket, 0);
+        hint(compile_trailer_bracket, this::compile_trailer_bracket, 10);
+        hint(compile_trailer_bracket, this::compile_trailer_bracket, 18);
+        hint(text_c_tuple, this::text_c_tuple, 0);
+        hint(text_c_tuple, this::text_c_tuple, 16);
+        hint(text_c_tuple, this::text_c_tuple, 48);
+        hint(text_c_tuple, this::text_c_tuple, 62);
+        hint(compile_generic_tuple, this::compile_generic_tuple, 0);
+        hint(compile_generic_tuple, this::compile_generic_tuple, 10);
+        hint(compile_while_stmt, this::compile_while_stmt, 0);
+        hint(compile_while_stmt, this::compile_while_stmt, 42);
+        hint(compile_while_stmt, this::compile_while_stmt, 60);
+        hint(compile_while_stmt, this::compile_while_stmt, 72);
+        hint(compile_while_stmt, this::compile_while_stmt, 80);
+        hint(compile_while_stmt, this::compile_while_stmt, 88);
+        hint(compile_while_stmt, this::compile_while_stmt, 96);
+        hint(compile_while_stmt, this::compile_while_stmt, 108);
+        hint(compile_while_stmt, this::compile_while_stmt, 128);
+        hint(compile_while_stmt, this::compile_while_stmt, 136);
+        hint(compile_yield_stmt, this::compile_yield_stmt, 0);
+        hint(compile_yield_stmt, this::compile_yield_stmt, 10);
+        hint(compile_yield_stmt, this::compile_yield_stmt, 16);
+        hint(c_del_stmt, this::c_del_stmt, 0);
+        hint(c_del_stmt, this::c_del_stmt, 22);
+        hint(c_del_stmt, this::c_del_stmt, 52);
+        hint(c_del_stmt, this::c_del_stmt, 112);
+        hint(c_del_stmt, this::c_del_stmt, 120);
+        hint(c_del_stmt, this::c_del_stmt, 134);
+        hint(c_del_stmt, this::c_del_stmt, 154);
+        hint(c_del_stmt, this::c_del_stmt, 206);
+        hint(c_del_stmt, this::c_del_stmt, 222);
+        hint(c_del_stmt, this::c_del_stmt, 238);
+        hint(c_del_stmt, this::c_del_stmt, 252);
+        hint(compile_generic_all_nodes, this::compile_generic_all_nodes, 0);
+        hint(compile_generic_all_nodes, this::compile_generic_all_nodes, 28);
+        hint(compile_generic_all_nodes, this::compile_generic_all_nodes, 48);
+        hint(compile_power, this::compile_power, 0);
+        hint(compile_power, this::compile_power, 8);
+        hint(compile_power, this::compile_power, 16);
+        hint(compile_if_stmt, this::compile_if_stmt, 0);
+        hint(compile_if_stmt, this::compile_if_stmt, 20);
+        hint(compile_if_stmt, this::compile_if_stmt, 40);
+        hint(compile_if_stmt, this::compile_if_stmt, 48);
+        hint(compile_if_stmt, this::compile_if_stmt, 54);
+        hint(compile_if_stmt, this::compile_if_stmt, 76);
+        hint(compile_if_stmt, this::compile_if_stmt, 88);
+        hint(compile_if_stmt, this::compile_if_stmt, 96);
+        hint(compile_if_stmt, this::compile_if_stmt, 108);
+        hint(compile_if_stmt, this::compile_if_stmt, 130);
+        hint(compile_if_stmt, this::compile_if_stmt, 138);
+        hint(compile_if_stmt, this::compile_if_stmt, 156);
+        hint(compile_if_stmt, this::compile_if_stmt, 178);
+        hint(compile_if_stmt, this::compile_if_stmt, 186);
+        hint(compile_if_stmt, this::compile_if_stmt, 192);
+        hint(compile_if_stmt, this::compile_if_stmt, 202);
+        hint(compile_if_stmt, this::compile_if_stmt, 214);
+        hint(compile_if_stmt, this::compile_if_stmt, 222);
+        hint(compile_comprehension, this::compile_comprehension, 0);
+        hint(compile_comprehension, this::compile_comprehension, 26);
+        hint(compile_comprehension, this::compile_comprehension, 40);
+        hint(compile_comprehension, this::compile_comprehension, 48);
+        hint(compile_comprehension, this::compile_comprehension, 60);
+        hint(compile_comprehension, this::compile_comprehension, 72);
+        hint(compile_atom_bracket, this::compile_atom_bracket, 0);
+        hint(compile_atom_bracket, this::compile_atom_bracket, 20);
+        hint(compile_atom_bracket, this::compile_atom_bracket, 64);
+        hint(compile_atom_bracket, this::compile_atom_bracket, 80);
+        hint(compile_atom_bracket, this::compile_atom_bracket, 88);
+        hint(compile_atom_bracket, this::compile_atom_bracket, 108);
+        hint(compile_atom_bracket, this::compile_atom_bracket, 118);
+        hint(compile_atom_bracket, this::compile_atom_bracket, 126);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 0);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 24);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 58);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 72);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 92);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 136);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 216);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 224);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 242);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 276);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 296);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 308);
+        hint(compile_trailer_paren_helper, this::compile_trailer_paren_helper, 320);
+        hint(compile_classdef_helper, this::compile_classdef_helper, 0);
+        hint(compile_classdef_helper, this::compile_classdef_helper, 20);
+        hint(compile_classdef_helper, this::compile_classdef_helper, 28);
+        hint(compile_classdef_helper, this::compile_classdef_helper, 42);
+        hint(compile_classdef_helper, this::compile_classdef_helper, 50);
+        hint(compile_classdef_helper, this::compile_classdef_helper, 82);
+        hint(compile_classdef, this::compile_classdef, 0);
+        hint(compile_classdef, this::compile_classdef, 12);
+        hint(compile_classdef, this::compile_classdef, 20);
+        hint(compile_trailer_paren, this::compile_trailer_paren, 0);
+        hint(compile_trailer_paren, this::compile_trailer_paren, 12);
+        hint(compile_decorated, this::compile_decorated, 0);
+        hint(compile_decorated, this::compile_decorated, 20);
+        hint(compile_decorated, this::compile_decorated, 56);
+        hint(compile_decorated, this::compile_decorated, 80);
+        hint(compile_decorated, this::compile_decorated, 102);
+        hint(compile_decorated, this::compile_decorated, 124);
+        hint(compile_decorated, this::compile_decorated, 140);
+        hint(compile_decorated, this::compile_decorated, 178);
+        hint(compile_decorated, this::compile_decorated, 198);
+        hint(compile_decorated, this::compile_decorated, 230);
+        hint(compile_decorated, this::compile_decorated, 242);
+        hint(compile_decorated, this::compile_decorated, 256);
+        hint(compile_atom_brace, this::compile_atom_brace, 0);
+        hint(compile_atom_brace, this::compile_atom_brace, 22);
+        hint(compile_atom_brace, this::compile_atom_brace, 52);
+        hint(compile_atom_brace, this::compile_atom_brace, 60);
+        hint(compile_atom_brace, this::compile_atom_brace, 66);
+        hint(compile_atom_brace, this::compile_atom_brace, 94);
+        hint(compile_atom_brace, this::compile_atom_brace, 124);
+        hint(compile_atom_brace, this::compile_atom_brace, 132);
+        hint(compile_atom_brace, this::compile_atom_brace, 138);
+        hint(compile_atom_brace, this::compile_atom_brace, 170);
+        hint(compile_atom_brace, this::compile_atom_brace, 210);
+        hint(compile_atom_brace, this::compile_atom_brace, 230);
+        hint(compile_atom_brace, this::compile_atom_brace, 238);
+        hint(compile_atom_brace, this::compile_atom_brace, 280);
+        hint(compile_atom_brace, this::compile_atom_brace, 290);
+        hint(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param, 0);
+        hint(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param, 64);
+        hint(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param, 104);
+        hint(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param, 114);
+        hint(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param, 122);
+        hint(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param, 130);
+        hint(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param, 136);
+        hint(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param, 142);
+        hint(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param, 158);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 0);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 12);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 88);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 110);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 134);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 152);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 196);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 208);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 266);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 278);
+        hint(compile_atom_expr_normal, this::compile_atom_expr_normal, 290);
+        hint(compile_term, this::compile_term, 0);
+        hint(compile_term, this::compile_term, 20);
+        hint(compile_term, this::compile_term, 40);
+        hint(compile_term, this::compile_term, 66);
+        hint(compile_binary_op, this::compile_binary_op, 0);
+        hint(compile_binary_op, this::compile_binary_op, 22);
+        hint(compile_binary_op, this::compile_binary_op, 46);
+        hint(compile_binary_op, this::compile_binary_op, 54);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 0);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 32);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 40);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 52);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 58);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 84);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 116);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 124);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 146);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 172);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 182);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 192);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 210);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 224);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 332);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 340);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 354);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 360);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 366);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 376);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 386);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 402);
+        hint(compile_expr_stmt, this::compile_expr_stmt, 412);
+        hint(compile_factor_2, this::compile_factor_2, 0);
+        hint(compile_factor_2, this::compile_factor_2, 12);
+        hint(compile_factor_2, this::compile_factor_2, 40);
+        hint(compile_not_test_2, this::compile_not_test_2, 0);
+        hint(compile_not_test_2, this::compile_not_test_2, 10);
+        hint(compile_not_test_2, this::compile_not_test_2, 18);
+        hint(compile_or_and_test, this::compile_or_and_test, 0);
+        hint(compile_or_and_test, this::compile_or_and_test, 46);
+        hint(compile_or_and_test, this::compile_or_and_test, 60);
+        hint(compile_or_and_test, this::compile_or_and_test, 78);
+        hint(compile_comparison, this::compile_comparison, 0);
+        hint(compile_comparison, this::compile_comparison, 16);
+        hint(compile_comparison, this::compile_comparison, 60);
+        hint(compile_comparison, this::compile_comparison, 68);
+        hint(compile_comparison, this::compile_comparison, 76);
+        hint(compile_comparison, this::compile_comparison, 82);
+        hint(compile_comparison, this::compile_comparison, 88);
+        hint(compile_comparison, this::compile_comparison, 96);
+        hint(compile_comparison, this::compile_comparison, 108);
+        hint(compile_comparison, this::compile_comparison, 118);
+        hint(compile_comparison, this::compile_comparison, 124);
+        hint(compile_comparison, this::compile_comparison, 154);
+        hint(compile_comparison, this::compile_comparison, 168);
+        hint(compile_test_if_expr, this::compile_test_if_expr, 0);
+        hint(compile_test_if_expr, this::compile_test_if_expr, 28);
+        hint(compile_test_if_expr, this::compile_test_if_expr, 36);
+        hint(compile_test_if_expr, this::compile_test_if_expr, 44);
+        hint(compile_test_if_expr, this::compile_test_if_expr, 52);
+        hint(compile_test_if_expr, this::compile_test_if_expr, 62);
+        hint(compile_test_if_expr, this::compile_test_if_expr, 70);
+        hint(compile_test_if_expr, this::compile_test_if_expr, 78);
+        hint(compile_for_stmt, this::compile_for_stmt, 0);
+        hint(compile_for_stmt, this::compile_for_stmt, 98);
+        hint(compile_for_stmt, this::compile_for_stmt, 268);
+        hint(compile_for_stmt, this::compile_for_stmt, 276);
+        hint(compile_for_stmt, this::compile_for_stmt, 284);
+        hint(compile_for_stmt, this::compile_for_stmt, 292);
+        hint(compile_for_stmt, this::compile_for_stmt, 298);
+        hint(compile_for_stmt, this::compile_for_stmt, 308);
+        hint(compile_for_stmt, this::compile_for_stmt, 316);
+        hint(compile_for_stmt, this::compile_for_stmt, 324);
+        hint(compile_for_stmt, this::compile_for_stmt, 332);
+        hint(compile_for_stmt, this::compile_for_stmt, 340);
+        hint(compile_for_stmt, this::compile_for_stmt, 348);
+        hint(compile_for_stmt, this::compile_for_stmt, 360);
+        hint(compile_for_stmt, this::compile_for_stmt, 366);
+        hint(compile_for_stmt, this::compile_for_stmt, 382);
+        hint(compile_for_stmt, this::compile_for_stmt, 392);
+        hint(compile_for_stmt, this::compile_for_stmt, 416);
+        hint(compile_for_stmt, this::compile_for_stmt, 428);
+        hint(compile_for_stmt, this::compile_for_stmt, 436);
+        hint(compile_for_stmt, this::compile_for_stmt, 450);
+        hint(compile_for_stmt, this::compile_for_stmt, 462);
+        hint(compile_for_stmt, this::compile_for_stmt, 470);
+        hint(compile_for_stmt, this::compile_for_stmt, 476);
+        hint(compile_for_stmt, this::compile_for_stmt, 488);
+        hint(compile_for_stmt, this::compile_for_stmt, 504);
+        hint(compile_for_stmt, this::compile_for_stmt, 512);
+        hint(compile_for_stmt, this::compile_for_stmt, 558);
+        hint(compile_for_stmt, this::compile_for_stmt, 566);
+        hint(compile_for_stmt, this::compile_for_stmt, 574);
+        hint(compile_for_stmt, this::compile_for_stmt, 582);
+        hint(compile_for_stmt, this::compile_for_stmt, 592);
+        hint(compile_for_stmt, this::compile_for_stmt, 600);
+        hint(compile_for_stmt, this::compile_for_stmt, 606);
+        hint(compile_for_stmt, this::compile_for_stmt, 618);
+        hint(compile_for_stmt, this::compile_for_stmt, 626);
+        hint(compile_for_stmt, this::compile_for_stmt, 632);
+        hint(compile_for_stmt, this::compile_for_stmt, 652);
+        hint(compile_for_stmt, this::compile_for_stmt, 660);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 0);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 22);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 60);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 70);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 80);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 86);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 102);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 110);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 122);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 132);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 142);
+        hint(compile_with_stmt_helper, this::compile_with_stmt_helper, 148);
+        hint(compile_with_stmt, this::compile_with_stmt, 0);
+        hint(compile_with_stmt, this::compile_with_stmt, 18);
+        hint(compile_with_stmt, this::compile_with_stmt, 30);
+        hint(compile_try_except, this::compile_try_except, 0);
+        hint(compile_try_except, this::compile_try_except, 32);
+        hint(compile_try_except, this::compile_try_except, 38);
+        hint(compile_try_except, this::compile_try_except, 46);
+        hint(compile_try_except, this::compile_try_except, 52);
+        hint(compile_try_except, this::compile_try_except, 60);
+        hint(compile_try_except, this::compile_try_except, 68);
+        hint(compile_try_except, this::compile_try_except, 74);
+        hint(compile_try_except, this::compile_try_except, 108);
+        hint(compile_try_except, this::compile_try_except, 114);
+        hint(compile_try_except, this::compile_try_except, 122);
+        hint(compile_try_except, this::compile_try_except, 130);
+        hint(compile_try_except, this::compile_try_except, 138);
+        hint(compile_try_except, this::compile_try_except, 180);
+        hint(compile_try_except, this::compile_try_except, 192);
+        hint(compile_try_except, this::compile_try_except, 202);
+        hint(compile_try_except, this::compile_try_except, 208);
+        hint(compile_try_except, this::compile_try_except, 220);
+        hint(compile_try_except, this::compile_try_except, 228);
+        hint(compile_try_except, this::compile_try_except, 236);
+        hint(compile_try_except, this::compile_try_except, 244);
+        hint(compile_try_except, this::compile_try_except, 252);
+        hint(compile_try_except, this::compile_try_except, 264);
+        hint(compile_try_except, this::compile_try_except, 272);
+        hint(compile_try_except, this::compile_try_except, 280);
+        hint(compile_try_except, this::compile_try_except, 288);
+    }
+
+    private void gen_hints_3() {
+        hint(compile_try_except, this::compile_try_except, 302);
+        hint(compile_try_except, this::compile_try_except, 344);
+        hint(compile_try_except, this::compile_try_except, 352);
+        hint(compile_try_except, this::compile_try_except, 360);
+        hint(compile_try_except, this::compile_try_except, 370);
+        hint(compile_try_except, this::compile_try_except, 382);
+        hint(compile_try_except, this::compile_try_except, 398);
+        hint(compile_try_except, this::compile_try_except, 404);
+        hint(compile_try_finally, this::compile_try_finally, 0);
+        hint(compile_try_finally, this::compile_try_finally, 28);
+        hint(compile_try_finally, this::compile_try_finally, 34);
+        hint(compile_try_finally, this::compile_try_finally, 46);
+        hint(compile_try_finally, this::compile_try_finally, 54);
+        hint(compile_try_finally, this::compile_try_finally, 64);
+        hint(compile_try_finally, this::compile_try_finally, 70);
+        hint(compile_try_finally, this::compile_try_finally, 78);
+        hint(compile_try_finally, this::compile_try_finally, 86);
+        hint(compile_try_finally, this::compile_try_finally, 94);
+        hint(compile_try_finally, this::compile_try_finally, 106);
+        hint(compile_try_finally, this::compile_try_finally, 126);
+        hint(compile_try_stmt, this::compile_try_stmt, 0);
+        hint(compile_try_stmt, this::compile_try_stmt, 34);
+        hint(compile_try_stmt, this::compile_try_stmt, 52);
+        hint(compile_try_stmt, this::compile_try_stmt, 74);
+        hint(compile_try_stmt, this::compile_try_stmt, 100);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 0);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 22);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 78);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 84);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 92);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 102);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 112);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 118);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 126);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 142);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 152);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 158);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 166);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 172);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 180);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 188);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 194);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 204);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 212);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 222);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 228);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 234);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 240);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 250);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 256);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 262);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 268);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 278);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 284);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 292);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 308);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 314);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 324);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 330);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 338);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 346);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 354);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 362);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 368);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 374);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 382);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 392);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 400);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 406);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 412);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 424);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 430);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 436);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 446);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 454);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 466);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 476);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 482);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 490);
+        hint(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper, 496);
+        hint(compile_async_stmt, this::compile_async_stmt, 0);
+        hint(compile_async_stmt, this::compile_async_stmt, 22);
+        hint(compile_async_stmt, this::compile_async_stmt, 60);
+        hint(compile_async_stmt, this::compile_async_stmt, 68);
+        hint(compile_async_stmt, this::compile_async_stmt, 76);
+        hint(compile_async_stmt, this::compile_async_stmt, 112);
+        hint(compile_async_stmt, this::compile_async_stmt, 122);
+        hint(compile_async_stmt, this::compile_async_stmt, 128);
+        hint(compile_async_stmt, this::compile_async_stmt, 136);
+        hint(compile_async_stmt, this::compile_async_stmt, 144);
+        hint(compile_async_stmt, this::compile_async_stmt, 154);
+        hint(compile_async_stmt, this::compile_async_stmt, 160);
+        hint(compile_async_stmt, this::compile_async_stmt, 168);
+        hint(compile_async_stmt, this::compile_async_stmt, 176);
+        hint(compile_async_stmt, this::compile_async_stmt, 182);
+        hint(compile_async_stmt, this::compile_async_stmt, 188);
+        hint(compile_async_stmt, this::compile_async_stmt, 198);
+        hint(compile_async_stmt, this::compile_async_stmt, 206);
+        hint(compile_async_stmt, this::compile_async_stmt, 216);
+        hint(compile_async_stmt, this::compile_async_stmt, 222);
+        hint(compile_async_stmt, this::compile_async_stmt, 228);
+        hint(compile_async_stmt, this::compile_async_stmt, 236);
+        hint(compile_async_stmt, this::compile_async_stmt, 244);
+        hint(compile_async_stmt, this::compile_async_stmt, 252);
+        hint(compile_async_stmt, this::compile_async_stmt, 264);
+        hint(compile_async_stmt, this::compile_async_stmt, 270);
+        hint(compile_async_stmt, this::compile_async_stmt, 278);
+        hint(compile_async_stmt, this::compile_async_stmt, 286);
+        hint(compile_async_stmt, this::compile_async_stmt, 294);
+        hint(compile_async_stmt, this::compile_async_stmt, 314);
+        hint(compile_async_stmt, this::compile_async_stmt, 322);
+        hint(compile_async_stmt, this::compile_async_stmt, 330);
+        hint(compile_async_stmt, this::compile_async_stmt, 344);
+        hint(compile_async_stmt, this::compile_async_stmt, 356);
+        hint(compile_yield_expr, this::compile_yield_expr, 0);
+        hint(compile_yield_expr, this::compile_yield_expr, 22);
+        hint(compile_yield_expr, this::compile_yield_expr, 38);
+        hint(compile_yield_expr, this::compile_yield_expr, 46);
+        hint(compile_yield_expr, this::compile_yield_expr, 68);
+        hint(compile_yield_expr, this::compile_yield_expr, 76);
+        hint(compile_yield_expr, this::compile_yield_expr, 86);
+        hint(compile_return_stmt, this::compile_return_stmt, 0);
+        hint(compile_return_stmt, this::compile_return_stmt, 18);
+        hint(compile_return_stmt, this::compile_return_stmt, 34);
+        hint(compile_return_stmt, this::compile_return_stmt, 40);
+        hint(compile_return_stmt, this::compile_return_stmt, 72);
+        hint(compile_return_stmt, this::compile_return_stmt, 80);
+        hint(compile_return_stmt, this::compile_return_stmt, 86);
+        hint(compile_return_stmt, this::compile_return_stmt, 94);
+        hint(compile_return_stmt, this::compile_return_stmt, 102);
+        hint(compile_atom_paren, this::compile_atom_paren, 0);
+        hint(compile_atom_paren, this::compile_atom_paren, 34);
+        hint(compile_atom_paren, this::compile_atom_paren, 54);
+        hint(compile_atom_expr_await, this::compile_atom_expr_await, 0);
+        hint(compile_atom_expr_await, this::compile_atom_expr_await, 22);
+        hint(compile_atom_expr_await, this::compile_atom_expr_await, 30);
+        hint(compile_atom_expr_await, this::compile_atom_expr_await, 38);
+        hint(compile_assert_stmt, this::compile_assert_stmt, 0);
+        hint(compile_assert_stmt, this::compile_assert_stmt, 34);
+        hint(compile_assert_stmt, this::compile_assert_stmt, 44);
+        hint(compile_assert_stmt, this::compile_assert_stmt, 56);
+        hint(compile_assert_stmt, this::compile_assert_stmt, 68);
+        hint(compile_assert_stmt, this::compile_assert_stmt, 76);
+        hint(compile_assert_stmt, this::compile_assert_stmt, 84);
+        hint(compile_raise_stmt, this::compile_raise_stmt, 0);
+        hint(compile_raise_stmt, this::compile_raise_stmt, 28);
+        hint(compile_raise_stmt, this::compile_raise_stmt, 36);
+        hint(compile_raise_stmt, this::compile_raise_stmt, 44);
+        hint(compile_raise_stmt, this::compile_raise_stmt, 54);
+        hint(compile_global_nonlocal_stmt, this::compile_global_nonlocal_stmt, 0);
+        hint(compile_global_nonlocal_stmt, this::compile_global_nonlocal_stmt, 38);
+        hint(compile_global_nonlocal_stmt, this::compile_global_nonlocal_stmt, 54);
+        hint(compile_global_nonlocal_stmt, this::compile_global_nonlocal_stmt, 86);
+        hint(compile_global_nonlocal_stmt, this::compile_global_nonlocal_stmt, 122);
+        hint(compile_global_nonlocal_stmt, this::compile_global_nonlocal_stmt, 148);
+        hint(compile_global_nonlocal_stmt, this::compile_global_nonlocal_stmt, 164);
+        hint(do_import_name_isra_19, this::do_import_name_isra_19, 0);
+        hint(do_import_name_isra_19, this::do_import_name_isra_19, 72);
+        hint(do_import_name_isra_19, this::do_import_name_isra_19, 116);
+        hint(do_import_name_isra_19, this::do_import_name_isra_19, 136);
+        hint(do_import_name_isra_19, this::do_import_name_isra_19, 152);
+        hint(do_import_name_isra_19, this::do_import_name_isra_19, 182);
+        hint(do_import_name_isra_19, this::do_import_name_isra_19, 200);
+        hint(do_import_name_isra_19, this::do_import_name_isra_19, 232);
+        hint(do_import_name_isra_19, this::do_import_name_isra_19, 242);
+        hint(compile_import_from, this::compile_import_from, 0);
+        hint(compile_import_from, this::compile_import_from, 48);
+        hint(compile_import_from, this::compile_import_from, 76);
+        hint(compile_import_from, this::compile_import_from, 84);
+        hint(compile_import_from, this::compile_import_from, 94);
+        hint(compile_import_from, this::compile_import_from, 104);
+        hint(compile_import_from, this::compile_import_from, 114);
+        hint(compile_import_from, this::compile_import_from, 160);
+        hint(compile_import_from, this::compile_import_from, 172);
+        hint(compile_import_from, this::compile_import_from, 192);
+        hint(compile_import_from, this::compile_import_from, 202);
+        hint(compile_import_from, this::compile_import_from, 216);
+        hint(compile_import_from, this::compile_import_from, 234);
+        hint(compile_import_from, this::compile_import_from, 254);
+        hint(compile_import_from, this::compile_import_from, 268);
+        hint(compile_dotted_as_name, this::compile_dotted_as_name, 0);
+        hint(compile_dotted_as_name, this::compile_dotted_as_name, 14);
+        hint(compile_dotted_as_name, this::compile_dotted_as_name, 22);
+        hint(compile_dotted_as_name, this::compile_dotted_as_name, 34);
+        hint(compile_dotted_as_name, this::compile_dotted_as_name, 42);
+        hint(mp_compile, this::mp_compile, 0);
+        hint(mp_compile, this::mp_compile, 22);
+        hint(mp_compile, this::mp_compile, 48);
+        hint(mp_compile, this::mp_compile, 54);
+        hint(mp_compile, this::mp_compile, 94);
+        hint(mp_compile, this::mp_compile, 118);
+        hint(mp_compile, this::mp_compile, 134);
+        hint(mp_compile, this::mp_compile, 140);
+        hint(mp_compile, this::mp_compile, 146);
+        hint(mp_compile, this::mp_compile, 160);
+        hint(mp_compile, this::mp_compile, 178);
+        hint(mp_compile, this::mp_compile, 188);
+        hint(mp_compile, this::mp_compile, 548);
+        hint(mp_compile, this::mp_compile, 566);
+        hint(mp_compile, this::mp_compile, 584);
+        hint(mp_compile, this::mp_compile, 598);
+        hint(mp_emit_common_get_id_for_load, this::mp_emit_common_get_id_for_load, 0);
+        hint(mp_emit_common_get_id_for_load, this::mp_emit_common_get_id_for_load, 16);
+        hint(mp_emit_common_get_id_for_load, this::mp_emit_common_get_id_for_load, 32);
+        hint(mp_emit_common_get_id_for_modification, this::mp_emit_common_get_id_for_modification, 0);
+        hint(mp_emit_common_get_id_for_modification, this::mp_emit_common_get_id_for_modification, 14);
+        hint(mp_emit_common_id_op, this::mp_emit_common_id_op, 0);
+        hint(mp_emit_common_id_op, this::mp_emit_common_id_op, 16);
+        hint(mp_emit_common_id_op, this::mp_emit_common_id_op, 32);
+        hint(mp_emit_common_id_op, this::mp_emit_common_id_op, 54);
+        hint(emit_write_uint, this::emit_write_uint, 0);
+        hint(emit_write_uint, this::emit_write_uint, 32);
+        hint(emit_get_cur_to_write_code_info, this::emit_get_cur_to_write_code_info, 0);
+        hint(emit_write_code_info_byte, this::emit_write_code_info_byte, 0);
+        hint(emit_write_code_info_byte, this::emit_write_code_info_byte, 10);
+        hint(emit_get_cur_to_write_bytecode, this::emit_get_cur_to_write_bytecode, 0);
+        hint(emit_write_bytecode_byte, this::emit_write_bytecode_byte, 0);
+        hint(emit_write_bytecode_byte, this::emit_write_bytecode_byte, 10);
+        hint(emit_write_bytecode_byte_uint, this::emit_write_bytecode_byte_uint, 0);
+        hint(emit_write_bytecode_byte_uint, this::emit_write_bytecode_byte_uint, 10);
+        hint(emit_write_bytecode_byte_uint, this::emit_write_bytecode_byte_uint, 20);
+        hint(emit_write_bytecode_byte_raw_code, this::emit_write_bytecode_byte_raw_code, 0);
+        hint(emit_write_bytecode_byte_raw_code, this::emit_write_bytecode_byte_raw_code, 40);
+        hint(mp_emit_bc_delete_local, this::mp_emit_bc_delete_local, 0);
+        hint(mp_emit_bc_delete_local, this::mp_emit_bc_delete_local, 10);
+        hint(emit_write_bytecode_byte_qstr, this::emit_write_bytecode_byte_qstr, 0);
+        hint(emit_write_bytecode_byte_qstr, this::emit_write_bytecode_byte_qstr, 12);
+        hint(emit_write_bytecode_byte_unsigned_label, this::emit_write_bytecode_byte_unsigned_label, 0);
+        hint(emit_write_bytecode_byte_unsigned_label, this::emit_write_bytecode_byte_unsigned_label, 32);
+        hint(emit_write_bytecode_byte_signed_label, this::emit_write_bytecode_byte_signed_label, 0);
+        hint(emit_write_bytecode_byte_signed_label, this::emit_write_bytecode_byte_signed_label, 32);
+        hint(emit_write_bytecode_byte_obj_constprop_8, this::emit_write_bytecode_byte_obj_constprop_8, 0);
+        hint(emit_write_bytecode_byte_obj_constprop_8, this::emit_write_bytecode_byte_obj_constprop_8, 36);
+        hint(emit_bc_new, this::emit_bc_new, 0);
+        hint(emit_bc_new, this::emit_bc_new, 8);
+        hint(emit_bc_set_max_num_labels, this::emit_bc_set_max_num_labels, 0);
+        hint(emit_bc_set_max_num_labels, this::emit_bc_set_max_num_labels, 12);
+        hint(emit_bc_free, this::emit_bc_free, 0);
+        hint(emit_bc_free, this::emit_bc_free, 14);
+        hint(emit_bc_free, this::emit_bc_free, 22);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 0);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 50);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 60);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 70);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 80);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 90);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 100);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 118);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 128);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 144);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 166);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 208);
+        hint(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass, 230);
+        hint(mp_emit_bc_end_pass, this::mp_emit_bc_end_pass, 0);
+        hint(mp_emit_bc_end_pass, this::mp_emit_bc_end_pass, 16);
+        hint(mp_emit_bc_end_pass, this::mp_emit_bc_end_pass, 40);
+        hint(mp_emit_bc_end_pass, this::mp_emit_bc_end_pass, 64);
+        hint(mp_emit_bc_end_pass, this::mp_emit_bc_end_pass, 86);
+        hint(mp_emit_bc_last_emit_was_return_value, this::mp_emit_bc_last_emit_was_return_value, 0);
+        hint(mp_emit_bc_adjust_stack_size, this::mp_emit_bc_adjust_stack_size, 0);
+        hint(mp_emit_bc_load_local, this::mp_emit_bc_load_local, 0);
+        hint(mp_emit_bc_load_local, this::mp_emit_bc_load_local, 14);
+        hint(mp_emit_bc_load_local, this::mp_emit_bc_load_local, 34);
+        hint(mp_emit_bc_load_local, this::mp_emit_bc_load_local, 48);
+        hint(mp_emit_bc_load_global, this::mp_emit_bc_load_global, 0);
+        hint(mp_emit_bc_load_global, this::mp_emit_bc_load_global, 16);
+        hint(mp_emit_bc_load_global, this::mp_emit_bc_load_global, 26);
+        hint(mp_emit_bc_load_global, this::mp_emit_bc_load_global, 42);
+        hint(mp_emit_bc_store_local, this::mp_emit_bc_store_local, 0);
+        hint(mp_emit_bc_store_local, this::mp_emit_bc_store_local, 16);
+        hint(mp_emit_bc_store_local, this::mp_emit_bc_store_local, 36);
+        hint(mp_emit_bc_store_local, this::mp_emit_bc_store_local, 50);
+        hint(mp_emit_bc_store_global, this::mp_emit_bc_store_global, 0);
+        hint(mp_emit_bc_store_global, this::mp_emit_bc_store_global, 16);
+        hint(mp_emit_bc_store_global, this::mp_emit_bc_store_global, 30);
+        hint(mp_emit_bc_delete_global, this::mp_emit_bc_delete_global, 0);
+        hint(mp_emit_bc_delete_global, this::mp_emit_bc_delete_global, 16);
+        hint(mp_emit_bc_delete_global, this::mp_emit_bc_delete_global, 26);
+        hint(emit_bc_call_function_method_helper, this::emit_bc_call_function_method_helper, 0);
+        hint(emit_bc_call_function_method_helper, this::emit_bc_call_function_method_helper, 34);
+        hint(emit_bc_call_function_method_helper, this::emit_bc_call_function_method_helper, 46);
+        hint(emit_bc_call_function_method_helper, this::emit_bc_call_function_method_helper, 54);
+        hint(mp_emit_bc_set_source_line, this::mp_emit_bc_set_source_line, 0);
+        hint(mp_emit_bc_set_source_line, this::mp_emit_bc_set_source_line, 90);
+        hint(mp_emit_bc_set_source_line, this::mp_emit_bc_set_source_line, 124);
+        hint(mp_emit_bc_label_assign, this::mp_emit_bc_label_assign, 0);
+        hint(mp_emit_bc_label_assign, this::mp_emit_bc_label_assign, 12);
+        hint(mp_emit_bc_import, this::mp_emit_bc_import, 0);
+        hint(mp_emit_bc_import, this::mp_emit_bc_import, 18);
+        hint(mp_emit_bc_import, this::mp_emit_bc_import, 32);
+        hint(mp_emit_bc_import, this::mp_emit_bc_import, 42);
+        hint(mp_emit_bc_import, this::mp_emit_bc_import, 54);
+        hint(mp_emit_bc_load_const_tok, this::mp_emit_bc_load_const_tok, 0);
+        hint(mp_emit_bc_load_const_tok, this::mp_emit_bc_load_const_tok, 12);
+        hint(mp_emit_bc_load_const_tok, this::mp_emit_bc_load_const_tok, 34);
+        hint(mp_emit_bc_load_const_tok, this::mp_emit_bc_load_const_tok, 44);
+        hint(mp_emit_bc_load_const_small_int, this::mp_emit_bc_load_const_small_int, 0);
+        hint(mp_emit_bc_load_const_small_int, this::mp_emit_bc_load_const_small_int, 12);
+        hint(mp_emit_bc_load_const_small_int, this::mp_emit_bc_load_const_small_int, 32);
+        hint(mp_emit_bc_load_const_small_int, this::mp_emit_bc_load_const_small_int, 42);
+        hint(mp_emit_bc_load_const_small_int, this::mp_emit_bc_load_const_small_int, 96);
+        hint(mp_emit_bc_load_const_str, this::mp_emit_bc_load_const_str, 0);
+        hint(mp_emit_bc_load_const_str, this::mp_emit_bc_load_const_str, 12);
+        hint(mp_emit_bc_load_const_str, this::mp_emit_bc_load_const_str, 22);
+        hint(mp_emit_bc_load_const_obj, this::mp_emit_bc_load_const_obj, 0);
+        hint(mp_emit_bc_load_const_obj, this::mp_emit_bc_load_const_obj, 12);
+        hint(mp_emit_bc_load_const_obj, this::mp_emit_bc_load_const_obj, 20);
+        hint(mp_emit_bc_load_null, this::mp_emit_bc_load_null, 0);
+        hint(mp_emit_bc_load_null, this::mp_emit_bc_load_null, 10);
+        hint(mp_emit_bc_load_null, this::mp_emit_bc_load_null, 18);
+        hint(mp_emit_bc_load_method, this::mp_emit_bc_load_method, 0);
+        hint(mp_emit_bc_load_method, this::mp_emit_bc_load_method, 18);
+        hint(mp_emit_bc_load_method, this::mp_emit_bc_load_method, 34);
+        hint(mp_emit_bc_load_build_class, this::mp_emit_bc_load_build_class, 0);
+        hint(mp_emit_bc_load_build_class, this::mp_emit_bc_load_build_class, 10);
+        hint(mp_emit_bc_load_build_class, this::mp_emit_bc_load_build_class, 18);
+        hint(mp_emit_bc_dup_top, this::mp_emit_bc_dup_top, 0);
+        hint(mp_emit_bc_dup_top, this::mp_emit_bc_dup_top, 10);
+        hint(mp_emit_bc_dup_top, this::mp_emit_bc_dup_top, 18);
+        hint(mp_emit_bc_dup_top_two, this::mp_emit_bc_dup_top_two, 0);
+        hint(mp_emit_bc_dup_top_two, this::mp_emit_bc_dup_top_two, 10);
+        hint(mp_emit_bc_dup_top_two, this::mp_emit_bc_dup_top_two, 18);
+        hint(mp_emit_bc_pop_top, this::mp_emit_bc_pop_top, 0);
+        hint(mp_emit_bc_pop_top, this::mp_emit_bc_pop_top, 12);
+        hint(mp_emit_bc_pop_top, this::mp_emit_bc_pop_top, 20);
+        hint(mp_emit_bc_rot_two, this::mp_emit_bc_rot_two, 0);
+        hint(mp_emit_bc_rot_two, this::mp_emit_bc_rot_two, 10);
+        hint(mp_emit_bc_rot_two, this::mp_emit_bc_rot_two, 18);
+        hint(mp_emit_bc_attr, this::mp_emit_bc_attr, 0);
+        hint(mp_emit_bc_attr, this::mp_emit_bc_attr, 16);
+        hint(mp_emit_bc_attr, this::mp_emit_bc_attr, 26);
+        hint(mp_emit_bc_attr, this::mp_emit_bc_attr, 42);
+        hint(mp_emit_bc_attr, this::mp_emit_bc_attr, 52);
+        hint(mp_emit_bc_attr, this::mp_emit_bc_attr, 58);
+        hint(mp_emit_bc_attr, this::mp_emit_bc_attr, 68);
+        hint(mp_emit_bc_rot_three, this::mp_emit_bc_rot_three, 0);
+        hint(mp_emit_bc_rot_three, this::mp_emit_bc_rot_three, 10);
+        hint(mp_emit_bc_rot_three, this::mp_emit_bc_rot_three, 18);
+        hint(mp_emit_bc_subscr, this::mp_emit_bc_subscr, 0);
+        hint(mp_emit_bc_subscr, this::mp_emit_bc_subscr, 14);
+        hint(mp_emit_bc_subscr, this::mp_emit_bc_subscr, 22);
+        hint(mp_emit_bc_subscr, this::mp_emit_bc_subscr, 32);
+        hint(mp_emit_bc_subscr, this::mp_emit_bc_subscr, 38);
+        hint(mp_emit_bc_subscr, this::mp_emit_bc_subscr, 48);
+        hint(mp_emit_bc_jump, this::mp_emit_bc_jump, 0);
+        hint(mp_emit_bc_jump, this::mp_emit_bc_jump, 12);
+        hint(mp_emit_bc_jump, this::mp_emit_bc_jump, 22);
+        hint(mp_emit_bc_pop_jump_if, this::mp_emit_bc_pop_jump_if, 0);
+        hint(mp_emit_bc_pop_jump_if, this::mp_emit_bc_pop_jump_if, 16);
+        hint(mp_emit_bc_pop_jump_if, this::mp_emit_bc_pop_jump_if, 32);
+        hint(mp_emit_bc_jump_if_or_pop, this::mp_emit_bc_jump_if_or_pop, 0);
+        hint(mp_emit_bc_jump_if_or_pop, this::mp_emit_bc_jump_if_or_pop, 16);
+        hint(mp_emit_bc_jump_if_or_pop, this::mp_emit_bc_jump_if_or_pop, 32);
+        hint(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump, 0);
+        hint(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump, 22);
+        hint(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump, 34);
+        hint(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump, 42);
+        hint(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump, 50);
+        hint(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump, 58);
+        hint(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump, 68);
+        hint(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump, 78);
+        hint(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump, 94);
+        hint(mp_emit_bc_setup_block, this::mp_emit_bc_setup_block, 0);
+        hint(mp_emit_bc_setup_block, this::mp_emit_bc_setup_block, 24);
+        hint(mp_emit_bc_setup_block, this::mp_emit_bc_setup_block, 34);
+        hint(mp_emit_bc_end_finally, this::mp_emit_bc_end_finally, 0);
+        hint(mp_emit_bc_end_finally, this::mp_emit_bc_end_finally, 12);
+        hint(mp_emit_bc_end_finally, this::mp_emit_bc_end_finally, 20);
+        hint(mp_emit_bc_get_iter, this::mp_emit_bc_get_iter, 0);
+        hint(mp_emit_bc_get_iter, this::mp_emit_bc_get_iter, 22);
+        hint(mp_emit_bc_get_iter, this::mp_emit_bc_get_iter, 36);
+        hint(mp_emit_bc_for_iter, this::mp_emit_bc_for_iter, 0);
+        hint(mp_emit_bc_for_iter, this::mp_emit_bc_for_iter, 12);
+        hint(mp_emit_bc_for_iter, this::mp_emit_bc_for_iter, 22);
+        hint(mp_emit_bc_for_iter_end, this::mp_emit_bc_for_iter_end, 0);
+        hint(mp_emit_bc_for_iter_end, this::mp_emit_bc_for_iter_end, 10);
+        hint(mp_emit_bc_pop_block, this::mp_emit_bc_pop_block, 0);
+        hint(mp_emit_bc_pop_block, this::mp_emit_bc_pop_block, 10);
+        hint(mp_emit_bc_pop_block, this::mp_emit_bc_pop_block, 18);
+        hint(mp_emit_bc_with_cleanup, this::mp_emit_bc_with_cleanup, 0);
+        hint(mp_emit_bc_with_cleanup, this::mp_emit_bc_with_cleanup, 10);
+        hint(mp_emit_bc_with_cleanup, this::mp_emit_bc_with_cleanup, 18);
+        hint(mp_emit_bc_with_cleanup, this::mp_emit_bc_with_cleanup, 26);
+        hint(mp_emit_bc_with_cleanup, this::mp_emit_bc_with_cleanup, 34);
+        hint(mp_emit_bc_with_cleanup, this::mp_emit_bc_with_cleanup, 42);
+        hint(mp_emit_bc_with_cleanup, this::mp_emit_bc_with_cleanup, 52);
+        hint(mp_emit_bc_pop_except, this::mp_emit_bc_pop_except, 0);
+        hint(mp_emit_bc_pop_except, this::mp_emit_bc_pop_except, 10);
+        hint(mp_emit_bc_pop_except, this::mp_emit_bc_pop_except, 18);
+        hint(mp_emit_bc_unary_op, this::mp_emit_bc_unary_op, 0);
+        hint(mp_emit_bc_unary_op, this::mp_emit_bc_unary_op, 12);
+        hint(mp_emit_bc_unary_op, this::mp_emit_bc_unary_op, 24);
+        hint(mp_emit_bc_binary_op, this::mp_emit_bc_binary_op, 0);
+        hint(mp_emit_bc_binary_op, this::mp_emit_bc_binary_op, 32);
+        hint(mp_emit_bc_binary_op, this::mp_emit_bc_binary_op, 40);
+        hint(mp_emit_bc_binary_op, this::mp_emit_bc_binary_op, 52);
+        hint(mp_emit_bc_binary_op, this::mp_emit_bc_binary_op, 60);
+        hint(mp_emit_bc_build, this::mp_emit_bc_build, 0);
+        hint(mp_emit_bc_build, this::mp_emit_bc_build, 20);
+        hint(mp_emit_bc_build, this::mp_emit_bc_build, 34);
+        hint(mp_emit_bc_store_map, this::mp_emit_bc_store_map, 0);
+        hint(mp_emit_bc_store_map, this::mp_emit_bc_store_map, 12);
+        hint(mp_emit_bc_store_map, this::mp_emit_bc_store_map, 20);
+        hint(mp_emit_bc_store_comp, this::mp_emit_bc_store_comp, 0);
+        hint(mp_emit_bc_store_comp, this::mp_emit_bc_store_comp, 26);
+        hint(mp_emit_bc_store_comp, this::mp_emit_bc_store_comp, 40);
+        hint(mp_emit_bc_unpack_sequence, this::mp_emit_bc_unpack_sequence, 0);
+        hint(mp_emit_bc_unpack_sequence, this::mp_emit_bc_unpack_sequence, 12);
+        hint(mp_emit_bc_unpack_sequence, this::mp_emit_bc_unpack_sequence, 22);
+        hint(mp_emit_bc_unpack_ex, this::mp_emit_bc_unpack_ex, 0);
+        hint(mp_emit_bc_unpack_ex, this::mp_emit_bc_unpack_ex, 14);
+        hint(mp_emit_bc_unpack_ex, this::mp_emit_bc_unpack_ex, 26);
+        hint(mp_emit_bc_make_function, this::mp_emit_bc_make_function, 0);
+        hint(mp_emit_bc_make_function, this::mp_emit_bc_make_function, 18);
+        hint(mp_emit_bc_make_function, this::mp_emit_bc_make_function, 28);
+        hint(mp_emit_bc_make_function, this::mp_emit_bc_make_function, 36);
+        hint(mp_emit_bc_make_closure, this::mp_emit_bc_make_closure, 0);
+        hint(mp_emit_bc_make_closure, this::mp_emit_bc_make_closure, 22);
+        hint(mp_emit_bc_make_closure, this::mp_emit_bc_make_closure, 32);
+        hint(mp_emit_bc_make_closure, this::mp_emit_bc_make_closure, 40);
+        hint(mp_emit_bc_make_closure, this::mp_emit_bc_make_closure, 48);
+        hint(mp_emit_bc_call_function, this::mp_emit_bc_call_function, 0);
+        hint(mp_emit_bc_call_function, this::mp_emit_bc_call_function, 16);
+        hint(mp_emit_bc_call_method, this::mp_emit_bc_call_method, 0);
+        hint(mp_emit_bc_call_method, this::mp_emit_bc_call_method, 18);
+        hint(mp_emit_bc_return_value, this::mp_emit_bc_return_value, 0);
+        hint(mp_emit_bc_return_value, this::mp_emit_bc_return_value, 12);
+        hint(mp_emit_bc_return_value, this::mp_emit_bc_return_value, 24);
+        hint(mp_emit_bc_raise_varargs, this::mp_emit_bc_raise_varargs, 0);
+        hint(mp_emit_bc_raise_varargs, this::mp_emit_bc_raise_varargs, 12);
+        hint(mp_emit_bc_raise_varargs, this::mp_emit_bc_raise_varargs, 20);
+        hint(mp_emit_bc_yield, this::mp_emit_bc_yield, 0);
+        hint(mp_emit_bc_yield, this::mp_emit_bc_yield, 12);
+        hint(mp_emit_bc_yield, this::mp_emit_bc_yield, 32);
+        hint(mp_emit_bc_start_except_handler, this::mp_emit_bc_start_except_handler, 0);
+        hint(mp_emit_bc_start_except_handler, this::mp_emit_bc_start_except_handler, 8);
+        hint(mp_emit_bc_end_except_handler, this::mp_emit_bc_end_except_handler, 0);
+        hint(mp_emit_bc_end_except_handler, this::mp_emit_bc_end_except_handler, 10);
+        hint(mp_format_float, this::mp_format_float, 0);
+        hint(mp_format_float, this::mp_format_float, 74);
+        hint(mp_format_float, this::mp_format_float, 126);
+        hint(mp_format_float, this::mp_format_float, 138);
+        hint(mp_format_float, this::mp_format_float, 194);
+        hint(mp_format_float, this::mp_format_float, 316);
+        hint(mp_format_float, this::mp_format_float, 356);
+        hint(mp_format_float, this::mp_format_float, 364);
+        hint(mp_format_float, this::mp_format_float, 370);
+        hint(mp_format_float, this::mp_format_float, 426);
+        hint(mp_format_float, this::mp_format_float, 456);
+        hint(mp_format_float, this::mp_format_float, 476);
+        hint(mp_format_float, this::mp_format_float, 514);
+        hint(mp_format_float, this::mp_format_float, 538);
+        hint(mp_format_float, this::mp_format_float, 638);
+        hint(mp_format_float, this::mp_format_float, 644);
+        hint(mp_format_float, this::mp_format_float, 656);
+        hint(mp_format_float, this::mp_format_float, 770);
+        hint(mp_format_float, this::mp_format_float, 790);
+        hint(mp_format_float, this::mp_format_float, 814);
+        hint(mp_format_float, this::mp_format_float, 826);
+        hint(mp_format_float, this::mp_format_float, 1012);
+        hint(mp_format_float, this::mp_format_float, 1196);
+        hint(mp_parse_num_base, this::mp_parse_num_base, 0);
+        hint(unlikely_raise_exc, this::unlikely_raise_exc, 0);
+        hint(unlikely_raise_exc, this::unlikely_raise_exc, 22);
+        hint(unlikely_raise_exc, this::unlikely_raise_exc, 28);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 0);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 28);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 40);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 64);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 102);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 112);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 124);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 132);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 140);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 146);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 208);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 242);
+        hint(mp_parse_num_integer, this::mp_parse_num_integer, 272);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 0);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 24);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 222);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 228);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 302);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 312);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 320);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 328);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 362);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 374);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 382);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 388);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 514);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 540);
+        hint(mp_parse_num_decimal, this::mp_parse_num_decimal, 562);
+        hint(mp_emit_glue_new_raw_code, this::mp_emit_glue_new_raw_code, 0);
+        hint(mp_emit_glue_new_raw_code, this::mp_emit_glue_new_raw_code, 8);
+        hint(mp_emit_glue_assign_bytecode, this::mp_emit_glue_assign_bytecode, 0);
+        hint(mp_make_function_from_raw_code, this::mp_make_function_from_raw_code, 0);
+        hint(mp_make_function_from_raw_code, this::mp_make_function_from_raw_code, 16);
+        hint(mp_make_closure_from_raw_code, this::mp_make_closure_from_raw_code, 0);
+        hint(mp_make_closure_from_raw_code, this::mp_make_closure_from_raw_code, 24);
+    }
+
+    private void gen_hints_4() {
+        hint(mp_make_closure_from_raw_code, this::mp_make_closure_from_raw_code, 40);
+        hint(read_bytes, this::read_bytes, 0);
+        hint(read_bytes, this::read_bytes, 20);
+        hint(read_uint, this::read_uint, 0);
+        hint(read_uint, this::read_uint, 14);
+        hint(load_qstr, this::load_qstr, 0);
+        hint(load_qstr, this::load_qstr, 8);
+        hint(load_qstr, this::load_qstr, 14);
+        hint(load_qstr, this::load_qstr, 26);
+        hint(load_qstr, this::load_qstr, 34);
+        hint(load_qstr, this::load_qstr, 44);
+        hint(load_raw_code, this::load_raw_code, 0);
+        hint(load_raw_code, this::load_raw_code, 10);
+        hint(load_raw_code, this::load_raw_code, 16);
+        hint(load_raw_code, this::load_raw_code, 28);
+        hint(load_raw_code, this::load_raw_code, 38);
+        hint(load_raw_code, this::load_raw_code, 44);
+        hint(load_raw_code, this::load_raw_code, 80);
+        hint(load_raw_code, this::load_raw_code, 104);
+        hint(load_raw_code, this::load_raw_code, 112);
+        hint(load_raw_code, this::load_raw_code, 148);
+        hint(load_raw_code, this::load_raw_code, 156);
+        hint(load_raw_code, this::load_raw_code, 176);
+        hint(load_raw_code, this::load_raw_code, 224);
+        hint(load_raw_code, this::load_raw_code, 236);
+        hint(load_raw_code, this::load_raw_code, 250);
+        hint(load_raw_code, this::load_raw_code, 260);
+        hint(load_raw_code, this::load_raw_code, 278);
+        hint(load_raw_code, this::load_raw_code, 292);
+        hint(load_raw_code, this::load_raw_code, 306);
+        hint(load_raw_code, this::load_raw_code, 316);
+        hint(load_raw_code, this::load_raw_code, 326);
+        hint(load_raw_code, this::load_raw_code, 352);
+        hint(load_raw_code, this::load_raw_code, 362);
+        hint(load_raw_code, this::load_raw_code, 388);
+        hint(load_raw_code, this::load_raw_code, 396);
+        hint(mp_raw_code_load, this::mp_raw_code_load, 0);
+        hint(mp_raw_code_load, this::mp_raw_code_load, 14);
+        hint(mp_raw_code_load, this::mp_raw_code_load, 44);
+        hint(mp_raw_code_load, this::mp_raw_code_load, 50);
+        hint(mp_raw_code_load, this::mp_raw_code_load, 58);
+        hint(mp_raw_code_load_file, this::mp_raw_code_load_file, 0);
+        hint(mp_raw_code_load_file, this::mp_raw_code_load_file, 10);
+        hint(mp_raw_code_load_file, this::mp_raw_code_load_file, 16);
+        hint(mp_init, this::mp_init, 0);
+        hint(mp_init, this::mp_init, 6);
+        hint(mp_init, this::mp_init, 32);
+        hint(mp_init, this::mp_init, 58);
+        hint(mp_init, this::mp_init, 68);
+        hint(mp_init, this::mp_init, 78);
+        hint(mp_deinit, this::mp_deinit, 0);
+        hint(mp_load_global, this::mp_load_global, 0);
+        hint(mp_load_global, this::mp_load_global, 24);
+        hint(mp_load_global, this::mp_load_global, 46);
+        hint(mp_load_global, this::mp_load_global, 64);
+        hint(mp_load_global, this::mp_load_global, 78);
+        hint(mp_load_global, this::mp_load_global, 82);
+        hint(mp_load_name, this::mp_load_name, 0);
+        hint(mp_load_name, this::mp_load_name, 28);
+        hint(mp_load_name, this::mp_load_name, 42);
+        hint(mp_load_build_class, this::mp_load_build_class, 0);
+        hint(mp_load_build_class, this::mp_load_build_class, 28);
+        hint(mp_store_name, this::mp_store_name, 0);
+        hint(mp_store_name, this::mp_store_name, 18);
+        hint(mp_delete_name, this::mp_delete_name, 0);
+        hint(mp_delete_name, this::mp_delete_name, 16);
+        hint(mp_store_global, this::mp_store_global, 0);
+        hint(mp_store_global, this::mp_store_global, 18);
+        hint(mp_delete_global, this::mp_delete_global, 0);
+        hint(mp_delete_global, this::mp_delete_global, 16);
+        hint(mp_unary_op, this::mp_unary_op, 0);
+        hint(mp_unary_op, this::mp_unary_op, 16);
+        hint(mp_unary_op, this::mp_unary_op, 110);
+        hint(mp_unary_op, this::mp_unary_op, 170);
+        hint(mp_unary_op, this::mp_unary_op, 182);
+        hint(mp_unary_op, this::mp_unary_op, 188);
+        hint(mp_unary_op, this::mp_unary_op, 196);
+        hint(mp_unary_op, this::mp_unary_op, 212);
+        hint(mp_unary_op, this::mp_unary_op, 224);
+        hint(mp_unary_op, this::mp_unary_op, 228);
+        hint(mp_unary_op, this::mp_unary_op, 234);
+        hint(mp_call_function_n_kw, this::mp_call_function_n_kw, 0);
+        hint(mp_call_function_n_kw, this::mp_call_function_n_kw, 14);
+        hint(mp_call_function_n_kw, this::mp_call_function_n_kw, 26);
+        hint(mp_call_function_n_kw, this::mp_call_function_n_kw, 36);
+        hint(mp_call_function_n_kw, this::mp_call_function_n_kw, 40);
+        hint(mp_call_function_n_kw, this::mp_call_function_n_kw, 50);
+        hint(mp_call_function_0, this::mp_call_function_0, 0);
+        hint(mp_call_function_0, this::mp_call_function_0, 12);
+        hint(mp_call_function_1, this::mp_call_function_1, 0);
+        hint(mp_call_function_1, this::mp_call_function_1, 14);
+        hint(checked_fun_call, this::checked_fun_call, 0);
+        hint(checked_fun_call, this::checked_fun_call, 20);
+        hint(checked_fun_call, this::checked_fun_call, 38);
+        hint(checked_fun_call, this::checked_fun_call, 42);
+        hint(checked_fun_call, this::checked_fun_call, 54);
+        hint(mp_call_method_n_kw, this::mp_call_method_n_kw, 0);
+        hint(mp_call_method_n_kw, this::mp_call_method_n_kw, 28);
+        hint(mp_convert_member_lookup, this::mp_convert_member_lookup, 0);
+        hint(mp_convert_member_lookup, this::mp_convert_member_lookup, 40);
+        hint(mp_convert_member_lookup, this::mp_convert_member_lookup, 118);
+        hint(mp_load_method_maybe, this::mp_load_method_maybe, 0);
+        hint(mp_load_method_maybe, this::mp_load_method_maybe, 18);
+        hint(mp_load_method_maybe, this::mp_load_method_maybe, 58);
+        hint(mp_load_method_maybe, this::mp_load_method_maybe, 80);
+        hint(mp_load_method_maybe, this::mp_load_method_maybe, 96);
+        hint(mp_load_method, this::mp_load_method, 0);
+        hint(mp_load_method, this::mp_load_method, 12);
+        hint(mp_load_method, this::mp_load_method, 44);
+        hint(mp_load_method, this::mp_load_method, 48);
+        hint(mp_load_method, this::mp_load_method, 54);
+        hint(mp_load_attr, this::mp_load_attr, 0);
+        hint(mp_load_attr, this::mp_load_attr, 8);
+        hint(mp_load_attr, this::mp_load_attr, 22);
+        hint(mp_load_method_protected, this::mp_load_method_protected, 0);
+        hint(mp_load_method_protected, this::mp_load_method_protected, 18);
+        hint(mp_load_method_protected, this::mp_load_method_protected, 32);
+        hint(mp_load_method_protected, this::mp_load_method_protected, 36);
+        hint(mp_load_method_protected, this::mp_load_method_protected, 54);
+        hint(mp_load_method_protected, this::mp_load_method_protected, 64);
+        hint(mp_store_attr, this::mp_store_attr, 0);
+        hint(mp_store_attr, this::mp_store_attr, 12);
+        hint(mp_store_attr, this::mp_store_attr, 32);
+        hint(mp_store_attr, this::mp_store_attr, 44);
+        hint(mp_store_attr, this::mp_store_attr, 56);
+        hint(mp_store_attr, this::mp_store_attr, 60);
+        hint(mp_getiter, this::mp_getiter, 0);
+        hint(mp_getiter, this::mp_getiter, 10);
+        hint(mp_getiter, this::mp_getiter, 30);
+        hint(mp_getiter, this::mp_getiter, 48);
+        hint(mp_getiter, this::mp_getiter, 60);
+        hint(mp_getiter, this::mp_getiter, 70);
+        hint(mp_getiter, this::mp_getiter, 74);
+        hint(mp_getiter, this::mp_getiter, 80);
+        hint(mp_getiter, this::mp_getiter, 94);
+        hint(mp_iternext_allow_raise, this::mp_iternext_allow_raise, 0);
+        hint(mp_iternext_allow_raise, this::mp_iternext_allow_raise, 8);
+        hint(mp_iternext_allow_raise, this::mp_iternext_allow_raise, 18);
+        hint(mp_iternext_allow_raise, this::mp_iternext_allow_raise, 30);
+        hint(mp_iternext_allow_raise, this::mp_iternext_allow_raise, 46);
+        hint(mp_iternext_allow_raise, this::mp_iternext_allow_raise, 54);
+        hint(mp_iternext_allow_raise, this::mp_iternext_allow_raise, 64);
+        hint(mp_iternext_allow_raise, this::mp_iternext_allow_raise, 68);
+        hint(mp_iternext, this::mp_iternext, 0);
+        hint(mp_iternext, this::mp_iternext, 10);
+        hint(mp_iternext, this::mp_iternext, 16);
+        hint(mp_iternext, this::mp_iternext, 26);
+        hint(mp_iternext, this::mp_iternext, 44);
+        hint(mp_iternext, this::mp_iternext, 56);
+        hint(mp_iternext, this::mp_iternext, 68);
+        hint(mp_iternext, this::mp_iternext, 74);
+        hint(mp_iternext, this::mp_iternext, 86);
+        hint(mp_iternext, this::mp_iternext, 96);
+        hint(mp_iternext, this::mp_iternext, 102);
+        hint(mp_iternext, this::mp_iternext, 112);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 0);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 76);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 100);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 124);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 146);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 224);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 240);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 264);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 282);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 302);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 326);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 334);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 344);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 368);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 410);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 486);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 496);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 502);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 518);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 558);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 572);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 584);
+        hint(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var, 596);
+        hint(mp_call_method_n_kw_var, this::mp_call_method_n_kw_var, 0);
+        hint(mp_call_method_n_kw_var, this::mp_call_method_n_kw_var, 8);
+        hint(mp_call_method_n_kw_var, this::mp_call_method_n_kw_var, 20);
+        hint(mp_unpack_sequence, this::mp_unpack_sequence, 0);
+        hint(mp_unpack_sequence, this::mp_unpack_sequence, 34);
+        hint(mp_unpack_sequence, this::mp_unpack_sequence, 76);
+        hint(mp_unpack_sequence, this::mp_unpack_sequence, 94);
+        hint(mp_unpack_sequence, this::mp_unpack_sequence, 108);
+        hint(mp_unpack_sequence, this::mp_unpack_sequence, 140);
+        hint(mp_unpack_sequence, this::mp_unpack_sequence, 144);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 0);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 40);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 76);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 124);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 144);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 152);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 184);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 192);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 218);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 242);
+        hint(mp_unpack_ex, this::mp_unpack_ex, 246);
+        hint(mp_make_raise_obj, this::mp_make_raise_obj, 0);
+        hint(mp_make_raise_obj, this::mp_make_raise_obj, 8);
+        hint(mp_make_raise_obj, this::mp_make_raise_obj, 24);
+        hint(mp_make_raise_obj, this::mp_make_raise_obj, 36);
+        hint(mp_make_raise_obj, this::mp_make_raise_obj, 48);
+        hint(mp_resume, this::mp_resume, 0);
+        hint(mp_resume, this::mp_resume, 16);
+        hint(mp_resume, this::mp_resume, 34);
+        hint(mp_resume, this::mp_resume, 54);
+        hint(mp_resume, this::mp_resume, 78);
+        hint(mp_resume, this::mp_resume, 96);
+        hint(mp_resume, this::mp_resume, 108);
+        hint(mp_resume, this::mp_resume, 120);
+        hint(mp_resume, this::mp_resume, 132);
+        hint(mp_resume, this::mp_resume, 138);
+        hint(mp_resume, this::mp_resume, 158);
+        hint(mp_resume, this::mp_resume, 164);
+        hint(mp_resume, this::mp_resume, 178);
+        hint(mp_resume, this::mp_resume, 194);
+        hint(mp_resume, this::mp_resume, 208);
+        hint(mp_resume, this::mp_resume, 224);
+        hint(mp_import_name, this::mp_import_name, 0);
+        hint(mp_import_name, this::mp_import_name, 28);
+        hint(mp_import_from, this::mp_import_from, 0);
+        hint(mp_import_from, this::mp_import_from, 14);
+        hint(mp_import_from, this::mp_import_from, 32);
+        hint(mp_import_from, this::mp_import_from, 36);
+        hint(mp_import_from, this::mp_import_from, 48);
+        hint(mp_import_from, this::mp_import_from, 62);
+        hint(mp_import_from, this::mp_import_from, 70);
+        hint(mp_import_from, this::mp_import_from, 78);
+        hint(mp_import_from, this::mp_import_from, 90);
+        hint(mp_import_from, this::mp_import_from, 100);
+        hint(mp_import_from, this::mp_import_from, 120);
+        hint(mp_import_from, this::mp_import_from, 128);
+        hint(mp_import_from, this::mp_import_from, 138);
+        hint(mp_import_from, this::mp_import_from, 146);
+        hint(mp_import_from, this::mp_import_from, 180);
+        hint(mp_import_all, this::mp_import_all, 0);
+        hint(mp_import_all, this::mp_import_all, 36);
+        hint(mp_import_all, this::mp_import_all, 54);
+        hint(mp_parse_compile_execute, this::mp_parse_compile_execute, 0);
+        hint(mp_parse_compile_execute, this::mp_parse_compile_execute, 30);
+        hint(mp_parse_compile_execute, this::mp_parse_compile_execute, 48);
+        hint(mp_parse_compile_execute, this::mp_parse_compile_execute, 60);
+        hint(mp_parse_compile_execute, this::mp_parse_compile_execute, 70);
+        hint(mp_parse_compile_execute, this::mp_parse_compile_execute, 76);
+        hint(mp_parse_compile_execute, this::mp_parse_compile_execute, 104);
+        hint(mp_raise_msg, this::mp_raise_msg, 0);
+        hint(mp_raise_msg, this::mp_raise_msg, 10);
+        hint(mp_raise_msg, this::mp_raise_msg, 14);
+        hint(mp_raise_msg, this::mp_raise_msg, 18);
+        hint(m_malloc_fail, this::m_malloc_fail, 0);
+        hint(m_malloc_fail, this::m_malloc_fail, 8);
+        hint(m_malloc_fail, this::m_malloc_fail, 20);
+        hint(m_malloc_fail, this::m_malloc_fail, 28);
+        hint(m_malloc_fail, this::m_malloc_fail, 32);
+        hint(mp_raise_ValueError, this::mp_raise_ValueError, 0);
+        hint(mp_raise_ValueError, this::mp_raise_ValueError, 10);
+        hint(mp_binary_op, this::mp_binary_op, 0);
+        hint(mp_binary_op, this::mp_binary_op, 38);
+        hint(mp_binary_op, this::mp_binary_op, 66);
+        hint(mp_binary_op, this::mp_binary_op, 78);
+        hint(mp_binary_op, this::mp_binary_op, 108);
+        hint(mp_binary_op, this::mp_binary_op, 116);
+        hint(mp_binary_op, this::mp_binary_op, 130);
+        hint(mp_binary_op, this::mp_binary_op, 134);
+        hint(mp_binary_op, this::mp_binary_op, 146);
+        hint(mp_binary_op, this::mp_binary_op, 160);
+        hint(mp_binary_op, this::mp_binary_op, 276);
+        hint(mp_binary_op, this::mp_binary_op, 294);
+        hint(mp_binary_op, this::mp_binary_op, 308);
+        hint(mp_binary_op, this::mp_binary_op, 408);
+        hint(mp_binary_op, this::mp_binary_op, 418);
+        hint(mp_binary_op, this::mp_binary_op, 434);
+        hint(mp_binary_op, this::mp_binary_op, 532);
+        hint(mp_binary_op, this::mp_binary_op, 548);
+        hint(mp_binary_op, this::mp_binary_op, 556);
+        hint(mp_binary_op, this::mp_binary_op, 564);
+        hint(mp_binary_op, this::mp_binary_op, 568);
+        hint(mp_binary_op, this::mp_binary_op, 586);
+        hint(mp_binary_op, this::mp_binary_op, 602);
+        hint(mp_binary_op, this::mp_binary_op, 606);
+        hint(mp_binary_op, this::mp_binary_op, 614);
+        hint(mp_binary_op, this::mp_binary_op, 646);
+        hint(mp_binary_op, this::mp_binary_op, 654);
+        hint(mp_binary_op, this::mp_binary_op, 666);
+        hint(mp_binary_op, this::mp_binary_op, 718);
+        hint(mp_binary_op, this::mp_binary_op, 744);
+        hint(mp_binary_op, this::mp_binary_op, 790);
+        hint(mp_binary_op, this::mp_binary_op, 810);
+        hint(mp_binary_op, this::mp_binary_op, 820);
+        hint(mp_binary_op, this::mp_binary_op, 840);
+        hint(mp_binary_op, this::mp_binary_op, 852);
+        hint(mp_binary_op, this::mp_binary_op, 878);
+        hint(mp_binary_op, this::mp_binary_op, 926);
+        hint(mp_raise_TypeError, this::mp_raise_TypeError, 0);
+        hint(mp_raise_TypeError, this::mp_raise_TypeError, 10);
+        hint(mp_raise_OSError, this::mp_raise_OSError, 0);
+        hint(mp_raise_OSError, this::mp_raise_OSError, 14);
+        hint(mp_raise_OSError, this::mp_raise_OSError, 18);
+        hint(mp_raise_NotImplementedError, this::mp_raise_NotImplementedError, 0);
+        hint(mp_raise_NotImplementedError, this::mp_raise_NotImplementedError, 10);
+        hint(mp_raise_recursion_depth, this::mp_raise_recursion_depth, 0);
+        hint(mp_raise_recursion_depth, this::mp_raise_recursion_depth, 12);
+        hint(mp_raise_recursion_depth, this::mp_raise_recursion_depth, 16);
+        hint(mp_call_function_1_protected, this::mp_call_function_1_protected, 0);
+        hint(mp_call_function_1_protected, this::mp_call_function_1_protected, 14);
+        hint(mp_call_function_1_protected, this::mp_call_function_1_protected, 26);
+        hint(mp_call_function_1_protected, this::mp_call_function_1_protected, 32);
+        hint(mp_call_function_1_protected, this::mp_call_function_1_protected, 46);
+        hint(mp_sched_lock, this::mp_sched_lock, 0);
+        hint(mp_sched_unlock, this::mp_sched_unlock, 0);
+        hint(mp_handle_pending_tail, this::mp_handle_pending_tail, 0);
+        hint(mp_handle_pending_tail, this::mp_handle_pending_tail, 42);
+        hint(mp_handle_pending_tail, this::mp_handle_pending_tail, 46);
+        hint(mp_handle_pending, this::mp_handle_pending, 0);
+        hint(mp_handle_pending, this::mp_handle_pending, 46);
+        hint(mp_handle_pending, this::mp_handle_pending, 50);
+        hint(mp_sched_schedule, this::mp_sched_schedule, 0);
+        hint(mp_stack_set_top, this::mp_stack_set_top, 0);
+        hint(mp_stack_usage, this::mp_stack_usage, 0);
+        hint(mp_stack_set_limit, this::mp_stack_set_limit, 0);
+        hint(mp_stack_check, this::mp_stack_check, 0);
+        hint(mp_stack_check, this::mp_stack_check, 20);
+        hint(mp_arg_check_num, this::mp_arg_check_num, 0);
+        hint(mp_arg_check_num, this::mp_arg_check_num, 22);
+        hint(mp_arg_check_num, this::mp_arg_check_num, 40);
+        hint(mp_arg_check_num, this::mp_arg_check_num, 56);
+        hint(mp_arg_check_num, this::mp_arg_check_num, 60);
+        hint(mp_arg_parse_all, this::mp_arg_parse_all, 0);
+        hint(mp_arg_parse_all, this::mp_arg_parse_all, 40);
+        hint(mp_arg_parse_all, this::mp_arg_parse_all, 80);
+        hint(mp_arg_parse_all, this::mp_arg_parse_all, 102);
+        hint(mp_arg_parse_all, this::mp_arg_parse_all, 122);
+        hint(mp_arg_parse_all, this::mp_arg_parse_all, 126);
+        hint(mp_arg_parse_all, this::mp_arg_parse_all, 158);
+        hint(mp_arg_parse_all_kw_array, this::mp_arg_parse_all_kw_array, 0);
+        hint(mp_arg_parse_all_kw_array, this::mp_arg_parse_all_kw_array, 20);
+        hint(mp_arg_parse_all_kw_array, this::mp_arg_parse_all_kw_array, 40);
+        hint(mp_arg_error_unimpl_kw, this::mp_arg_error_unimpl_kw, 0);
+        hint(mp_arg_error_unimpl_kw, this::mp_arg_error_unimpl_kw, 8);
+        hint(mp_warning, this::mp_warning, 0);
+        hint(mp_warning, this::mp_warning, 20);
+        hint(mp_warning, this::mp_warning, 30);
+        hint(mp_warning, this::mp_warning, 38);
+        hint(mp_map_init, this::mp_map_init, 0);
+        hint(mp_map_init, this::mp_map_init, 24);
+        hint(mp_map_init_fixed_table, this::mp_map_init_fixed_table, 0);
+        hint(mp_map_deinit, this::mp_map_deinit, 0);
+        hint(mp_map_deinit, this::mp_map_deinit, 20);
+        hint(mp_map_clear, this::mp_map_clear, 0);
+        hint(mp_map_clear, this::mp_map_clear, 20);
+        hint(mp_map_lookup, this::mp_map_lookup, 0);
+        hint(mp_map_lookup, this::mp_map_lookup, 98);
+        hint(mp_map_lookup, this::mp_map_lookup, 120);
+        hint(mp_map_lookup, this::mp_map_lookup, 204);
+        hint(mp_map_lookup, this::mp_map_lookup, 238);
+        hint(mp_map_lookup, this::mp_map_lookup, 264);
+        hint(mp_map_lookup, this::mp_map_lookup, 280);
+        hint(mp_map_lookup, this::mp_map_lookup, 290);
+        hint(mp_map_lookup, this::mp_map_lookup, 362);
+        hint(mp_map_lookup, this::mp_map_lookup, 406);
+        hint(mp_map_lookup, this::mp_map_lookup, 432);
+        hint(mp_map_lookup, this::mp_map_lookup, 446);
+        hint(mp_map_lookup, this::mp_map_lookup, 502);
+        hint(mp_map_rehash, this::mp_map_rehash, 0);
+        hint(mp_map_rehash, this::mp_map_rehash, 44);
+        hint(mp_map_rehash, this::mp_map_rehash, 80);
+        hint(mp_map_rehash, this::mp_map_rehash, 100);
+        hint(mp_set_init, this::mp_set_init, 0);
+        hint(mp_set_init, this::mp_set_init, 16);
+        hint(mp_set_lookup, this::mp_set_lookup, 0);
+        hint(mp_set_lookup, this::mp_set_lookup, 26);
+        hint(mp_set_lookup, this::mp_set_lookup, 34);
+        hint(mp_set_lookup, this::mp_set_lookup, 46);
+        hint(mp_set_lookup, this::mp_set_lookup, 116);
+        hint(mp_set_lookup, this::mp_set_lookup, 154);
+        hint(mp_set_lookup, this::mp_set_lookup, 186);
+        hint(mp_set_lookup, this::mp_set_lookup, 212);
+        hint(mp_set_rehash, this::mp_set_rehash, 0);
+        hint(mp_set_rehash, this::mp_set_rehash, 48);
+        hint(mp_set_rehash, this::mp_set_rehash, 72);
+        hint(mp_set_rehash, this::mp_set_rehash, 92);
+        hint(mp_set_remove_first, this::mp_set_remove_first, 0);
+        hint(mp_set_remove_first, this::mp_set_remove_first, 44);
+        hint(mp_set_clear, this::mp_set_clear, 0);
+        hint(mp_set_clear, this::mp_set_clear, 14);
+        hint(mp_identity, this::mp_identity, 0);
+        hint(mp_obj_get_type, this::mp_obj_get_type, 0);
+        hint(mp_obj_get_type_str, this::mp_obj_get_type_str, 0);
+        hint(mp_obj_get_type_str, this::mp_obj_get_type_str, 6);
+        hint(mp_obj_get_type_str, this::mp_obj_get_type_str, 12);
+        hint(mp_obj_print_helper, this::mp_obj_print_helper, 0);
+        hint(mp_obj_print_helper, this::mp_obj_print_helper, 12);
+        hint(mp_obj_print_helper, this::mp_obj_print_helper, 18);
+        hint(mp_obj_print_helper, this::mp_obj_print_helper, 32);
+        hint(mp_obj_print_helper, this::mp_obj_print_helper, 44);
+        hint(mp_obj_print, this::mp_obj_print, 0);
+        hint(mp_obj_print, this::mp_obj_print, 12);
+        hint(mp_obj_print_exception, this::mp_obj_print_exception, 0);
+        hint(mp_obj_print_exception, this::mp_obj_print_exception, 12);
+        hint(mp_obj_print_exception, this::mp_obj_print_exception, 26);
+        hint(mp_obj_print_exception, this::mp_obj_print_exception, 40);
+        hint(mp_obj_print_exception, this::mp_obj_print_exception, 60);
+        hint(mp_obj_print_exception, this::mp_obj_print_exception, 68);
+        hint(mp_obj_print_exception, this::mp_obj_print_exception, 92);
+        hint(mp_obj_print_exception, this::mp_obj_print_exception, 112);
+        hint(mp_obj_print_exception, this::mp_obj_print_exception, 126);
+        hint(mp_obj_is_callable, this::mp_obj_is_callable, 0);
+        hint(mp_obj_is_callable, this::mp_obj_is_callable, 8);
+        hint(mp_obj_is_callable, this::mp_obj_is_callable, 30);
+        hint(mp_obj_equal, this::mp_obj_equal, 0);
+        hint(mp_obj_equal, this::mp_obj_equal, 108);
+        hint(mp_obj_equal, this::mp_obj_equal, 142);
+        hint(mp_obj_equal, this::mp_obj_equal, 156);
+        hint(mp_obj_equal, this::mp_obj_equal, 202);
+        hint(mp_obj_get_int, this::mp_obj_get_int, 0);
+        hint(mp_obj_get_int, this::mp_obj_get_int, 40);
+        hint(mp_obj_get_int, this::mp_obj_get_int, 46);
+        hint(mp_obj_get_int, this::mp_obj_get_int, 56);
+        hint(mp_obj_get_int, this::mp_obj_get_int, 60);
+        hint(mp_obj_get_int_truncated, this::mp_obj_get_int_truncated, 0);
+        hint(mp_obj_get_int_truncated, this::mp_obj_get_int_truncated, 22);
+        hint(mp_obj_get_int_truncated, this::mp_obj_get_int_truncated, 28);
+        hint(mp_obj_get_int_maybe, this::mp_obj_get_int_maybe, 0);
+        hint(mp_obj_get_int_maybe, this::mp_obj_get_int_maybe, 60);
+        hint(mp_obj_get_float_maybe, this::mp_obj_get_float_maybe, 0);
+        hint(mp_obj_get_float_maybe, this::mp_obj_get_float_maybe, 28);
+        hint(mp_obj_get_float_maybe, this::mp_obj_get_float_maybe, 54);
+        hint(mp_obj_get_float_maybe, this::mp_obj_get_float_maybe, 68);
+        hint(mp_obj_get_float, this::mp_obj_get_float, 0);
+        hint(mp_obj_get_float, this::mp_obj_get_float, 10);
+        hint(mp_obj_get_float, this::mp_obj_get_float, 20);
+        hint(mp_obj_get_float, this::mp_obj_get_float, 30);
+        hint(mp_obj_get_float, this::mp_obj_get_float, 34);
+        hint(mp_obj_get_complex, this::mp_obj_get_complex, 0);
+        hint(mp_obj_get_complex, this::mp_obj_get_complex, 46);
+        hint(mp_obj_get_complex, this::mp_obj_get_complex, 66);
+        hint(mp_obj_get_complex, this::mp_obj_get_complex, 78);
+        hint(mp_obj_get_complex, this::mp_obj_get_complex, 92);
+        hint(mp_obj_get_complex, this::mp_obj_get_complex, 98);
+        hint(mp_obj_get_complex, this::mp_obj_get_complex, 108);
+        hint(mp_obj_get_complex, this::mp_obj_get_complex, 112);
+        hint(mp_obj_get_array, this::mp_obj_get_array, 0);
+        hint(mp_obj_get_array, this::mp_obj_get_array, 18);
+        hint(mp_obj_get_array, this::mp_obj_get_array, 30);
+        hint(mp_obj_get_array, this::mp_obj_get_array, 36);
+        hint(mp_obj_get_array, this::mp_obj_get_array, 46);
+        hint(mp_obj_get_array, this::mp_obj_get_array, 50);
+        hint(mp_obj_get_array_fixed_n, this::mp_obj_get_array_fixed_n, 0);
+        hint(mp_obj_get_array_fixed_n, this::mp_obj_get_array_fixed_n, 10);
+        hint(mp_obj_get_array_fixed_n, this::mp_obj_get_array_fixed_n, 26);
+        hint(mp_obj_get_array_fixed_n, this::mp_obj_get_array_fixed_n, 30);
+        hint(mp_get_index, this::mp_get_index, 0);
+        hint(mp_get_index, this::mp_get_index, 52);
+        hint(mp_get_index, this::mp_get_index, 64);
+        hint(mp_get_index, this::mp_get_index, 76);
+        hint(mp_get_index, this::mp_get_index, 80);
+        hint(mp_get_index, this::mp_get_index, 112);
+        hint(mp_obj_id, this::mp_obj_id, 0);
+        hint(mp_obj_id, this::mp_obj_id, 10);
+        hint(mp_obj_id, this::mp_obj_id, 28);
+        hint(mp_obj_len_maybe, this::mp_obj_len_maybe, 0);
+        hint(mp_obj_len_maybe, this::mp_obj_len_maybe, 32);
+        hint(mp_obj_len_maybe, this::mp_obj_len_maybe, 44);
+        hint(mp_obj_is_true, this::mp_obj_is_true, 0);
+        hint(mp_obj_is_true, this::mp_obj_is_true, 42);
+        hint(mp_obj_is_true, this::mp_obj_is_true, 54);
+        hint(mp_obj_is_true, this::mp_obj_is_true, 74);
+        hint(mp_obj_len, this::mp_obj_len, 0);
+        hint(mp_obj_len, this::mp_obj_len, 8);
+        hint(mp_obj_len, this::mp_obj_len, 18);
+        hint(mp_obj_len, this::mp_obj_len, 28);
+        hint(mp_obj_len, this::mp_obj_len, 32);
+        hint(mp_obj_subscr, this::mp_obj_subscr, 0);
+        hint(mp_obj_subscr, this::mp_obj_subscr, 12);
+        hint(mp_obj_subscr, this::mp_obj_subscr, 26);
+        hint(mp_obj_subscr, this::mp_obj_subscr, 42);
+        hint(mp_obj_subscr, this::mp_obj_subscr, 52);
+        hint(mp_obj_subscr, this::mp_obj_subscr, 56);
+        hint(mp_obj_subscr, this::mp_obj_subscr, 64);
+        hint(mp_obj_subscr, this::mp_obj_subscr, 74);
+        hint(mp_identity_getiter, this::mp_identity_getiter, 0);
+        hint(mp_get_buffer, this::mp_get_buffer, 0);
+        hint(mp_get_buffer, this::mp_get_buffer, 12);
+        hint(mp_get_buffer, this::mp_get_buffer, 26);
+        hint(mp_get_buffer_raise, this::mp_get_buffer_raise, 0);
+        hint(mp_get_buffer_raise, this::mp_get_buffer_raise, 6);
+        hint(mp_get_buffer_raise, this::mp_get_buffer_raise, 16);
+        hint(mp_generic_unary_op, this::mp_generic_unary_op, 0);
+        hint(array_unary_op, this::array_unary_op, 0);
+        hint(array_iterator_new, this::array_iterator_new, 0);
+        hint(array_get_buffer, this::array_get_buffer, 0);
+        hint(array_get_buffer, this::array_get_buffer, 22);
+        hint(array_new, this::array_new, 0);
+        hint(array_new, this::array_new, 16);
+        hint(array_new, this::array_new, 24);
+        hint(array_new, this::array_new, 54);
+        hint(array_extend, this::array_extend, 0);
+        hint(array_extend, this::array_extend, 14);
+    }
+
+    private void gen_hints_5() {
+        hint(array_extend, this::array_extend, 24);
+        hint(array_extend, this::array_extend, 34);
+        hint(array_extend, this::array_extend, 60);
+        hint(array_extend, this::array_extend, 86);
+        hint(array_append, this::array_append, 0);
+        hint(array_append, this::array_append, 24);
+        hint(array_append, this::array_append, 52);
+        hint(array_append, this::array_append, 76);
+        hint(array_append, this::array_append, 88);
+        hint(array_it_iternext, this::array_it_iternext, 0);
+        hint(array_it_iternext, this::array_it_iternext, 36);
+        hint(array_subscr, this::array_subscr, 0);
+        hint(array_subscr, this::array_subscr, 46);
+        hint(array_subscr, this::array_subscr, 56);
+        hint(array_subscr, this::array_subscr, 76);
+        hint(array_subscr, this::array_subscr, 106);
+        hint(array_subscr, this::array_subscr, 116);
+        hint(array_subscr, this::array_subscr, 200);
+        hint(array_subscr, this::array_subscr, 230);
+        hint(array_subscr, this::array_subscr, 252);
+        hint(array_subscr, this::array_subscr, 274);
+        hint(array_subscr, this::array_subscr, 320);
+        hint(array_subscr, this::array_subscr, 360);
+        hint(array_subscr, this::array_subscr, 376);
+        hint(array_subscr, this::array_subscr, 394);
+        hint(array_subscr, this::array_subscr, 408);
+        hint(array_subscr, this::array_subscr, 466);
+        hint(array_subscr, this::array_subscr, 488);
+        hint(array_subscr, this::array_subscr, 502);
+        hint(array_subscr, this::array_subscr, 540);
+        hint(array_subscr, this::array_subscr, 556);
+        hint(array_binary_op, this::array_binary_op, 0);
+        hint(array_binary_op, this::array_binary_op, 44);
+        hint(array_binary_op, this::array_binary_op, 72);
+        hint(array_binary_op, this::array_binary_op, 88);
+        hint(array_binary_op, this::array_binary_op, 108);
+        hint(array_binary_op, this::array_binary_op, 118);
+        hint(array_binary_op, this::array_binary_op, 134);
+        hint(array_binary_op, this::array_binary_op, 144);
+        hint(array_binary_op, this::array_binary_op, 162);
+        hint(array_binary_op, this::array_binary_op, 178);
+        hint(array_binary_op, this::array_binary_op, 194);
+        hint(array_binary_op, this::array_binary_op, 216);
+        hint(array_binary_op, this::array_binary_op, 246);
+        hint(array_binary_op, this::array_binary_op, 256);
+        hint(array_binary_op, this::array_binary_op, 266);
+        hint(array_binary_op, this::array_binary_op, 286);
+        hint(array_construct, this::array_construct, 0);
+        hint(array_construct, this::array_construct, 40);
+        hint(array_construct, this::array_construct, 54);
+        hint(array_construct, this::array_construct, 64);
+        hint(array_construct, this::array_construct, 74);
+        hint(array_construct, this::array_construct, 88);
+        hint(array_construct, this::array_construct, 100);
+        hint(array_construct, this::array_construct, 114);
+        hint(array_construct, this::array_construct, 124);
+        hint(array_construct, this::array_construct, 134);
+        hint(array_construct, this::array_construct, 150);
+        hint(array_construct, this::array_construct, 166);
+        hint(array_make_new, this::array_make_new, 0);
+        hint(array_make_new, this::array_make_new, 22);
+        hint(array_make_new, this::array_make_new, 28);
+        hint(array_make_new, this::array_make_new, 40);
+        hint(array_make_new, this::array_make_new, 48);
+        hint(array_print, this::array_print, 0);
+        hint(array_print, this::array_print, 18);
+        hint(array_print, this::array_print, 30);
+        hint(array_print, this::array_print, 38);
+        hint(array_print, this::array_print, 48);
+        hint(array_print, this::array_print, 62);
+        hint(array_print, this::array_print, 78);
+        hint(array_print, this::array_print, 92);
+        hint(array_print, this::array_print, 102);
+        hint(array_print, this::array_print, 112);
+        hint(bytearray_make_new, this::bytearray_make_new, 0);
+        hint(bytearray_make_new, this::bytearray_make_new, 20);
+        hint(bytearray_make_new, this::bytearray_make_new, 32);
+        hint(bytearray_make_new, this::bytearray_make_new, 60);
+        hint(bytearray_make_new, this::bytearray_make_new, 70);
+        hint(bytearray_make_new, this::bytearray_make_new, 82);
+        hint(bytearray_make_new, this::bytearray_make_new, 92);
+        hint(mp_obj_new_memoryview, this::mp_obj_new_memoryview, 0);
+        hint(mp_obj_new_memoryview, this::mp_obj_new_memoryview, 14);
+        hint(memoryview_make_new, this::memoryview_make_new, 0);
+        hint(memoryview_make_new, this::memoryview_make_new, 22);
+        hint(memoryview_make_new, this::memoryview_make_new, 32);
+        hint(memoryview_make_new, this::memoryview_make_new, 52);
+        hint(memoryview_make_new, this::memoryview_make_new, 60);
+        hint(memoryview_make_new, this::memoryview_make_new, 70);
+        hint(memoryview_make_new, this::memoryview_make_new, 82);
+        hint(mp_obj_new_bytearray_by_ref, this::mp_obj_new_bytearray_by_ref, 0);
+        hint(mp_obj_new_bytearray_by_ref, this::mp_obj_new_bytearray_by_ref, 12);
+        hint(mp_obj_attrtuple_attr, this::mp_obj_attrtuple_attr, 0);
+        hint(mp_obj_attrtuple_print_helper, this::mp_obj_attrtuple_print_helper, 0);
+        hint(mp_obj_attrtuple_print_helper, this::mp_obj_attrtuple_print_helper, 16);
+        hint(mp_obj_attrtuple_print_helper, this::mp_obj_attrtuple_print_helper, 30);
+        hint(mp_obj_attrtuple_print_helper, this::mp_obj_attrtuple_print_helper, 44);
+        hint(mp_obj_attrtuple_print_helper, this::mp_obj_attrtuple_print_helper, 60);
+        hint(mp_obj_attrtuple_print_helper, this::mp_obj_attrtuple_print_helper, 70);
+        hint(mp_obj_attrtuple_print, this::mp_obj_attrtuple_print, 0);
+        hint(mp_obj_attrtuple_print, this::mp_obj_attrtuple_print, 16);
+        hint(bool_binary_op, this::bool_binary_op, 0);
+        hint(bool_binary_op, this::bool_binary_op, 14);
+        hint(bool_unary_op, this::bool_unary_op, 0);
+        hint(bool_unary_op, this::bool_unary_op, 20);
+        hint(bool_make_new, this::bool_make_new, 0);
+        hint(bool_make_new, this::bool_make_new, 20);
+        hint(bool_make_new, this::bool_make_new, 30);
+        hint(bool_print, this::bool_print, 0);
+        hint(bool_print, this::bool_print, 20);
+        hint(bound_meth_print, this::bound_meth_print, 0);
+        hint(bound_meth_print, this::bound_meth_print, 14);
+        hint(bound_meth_print, this::bound_meth_print, 24);
+        hint(bound_meth_print, this::bound_meth_print, 32);
+        hint(bound_meth_print, this::bound_meth_print, 42);
+        hint(bound_meth_print, this::bound_meth_print, 50);
+        hint(bound_meth_attr, this::bound_meth_attr, 0);
+        hint(bound_meth_attr, this::bound_meth_attr, 20);
+        hint(mp_call_method_self_n_kw, this::mp_call_method_self_n_kw, 0);
+        hint(mp_call_method_self_n_kw, this::mp_call_method_self_n_kw, 24);
+        hint(mp_call_method_self_n_kw, this::mp_call_method_self_n_kw, 38);
+        hint(mp_call_method_self_n_kw, this::mp_call_method_self_n_kw, 50);
+        hint(bound_meth_call, this::bound_meth_call, 0);
+        hint(bound_meth_call, this::bound_meth_call, 16);
+        hint(mp_obj_new_bound_meth, this::mp_obj_new_bound_meth, 0);
+        hint(mp_obj_new_bound_meth, this::mp_obj_new_bound_meth, 12);
+        hint(cell_print, this::cell_print, 0);
+        hint(cell_print, this::cell_print, 14);
+        hint(cell_print, this::cell_print, 28);
+        hint(cell_print, this::cell_print, 36);
+        hint(cell_print, this::cell_print, 46);
+        hint(mp_obj_cell_get, this::mp_obj_cell_get, 0);
+        hint(mp_obj_cell_set, this::mp_obj_cell_set, 0);
+        hint(mp_obj_new_cell, this::mp_obj_new_cell, 0);
+        hint(mp_obj_new_cell, this::mp_obj_new_cell, 10);
+        hint(closure_call, this::closure_call, 0);
+        hint(closure_call, this::closure_call, 50);
+        hint(closure_call, this::closure_call, 62);
+        hint(closure_call, this::closure_call, 74);
+        hint(closure_call, this::closure_call, 90);
+        hint(closure_call, this::closure_call, 102);
+        hint(closure_call, this::closure_call, 116);
+        hint(closure_call, this::closure_call, 136);
+        hint(closure_call, this::closure_call, 146);
+        hint(closure_print, this::closure_print, 0);
+        hint(closure_print, this::closure_print, 12);
+        hint(closure_print, this::closure_print, 22);
+        hint(closure_print, this::closure_print, 34);
+        hint(closure_print, this::closure_print, 50);
+        hint(closure_print, this::closure_print, 70);
+        hint(closure_print, this::closure_print, 78);
+        hint(closure_print, this::closure_print, 90);
+        hint(mp_obj_new_closure, this::mp_obj_new_closure, 0);
+        hint(mp_obj_new_closure, this::mp_obj_new_closure, 18);
+        hint(mp_obj_new_closure, this::mp_obj_new_closure, 40);
+        hint(complex_attr, this::complex_attr, 0);
+        hint(complex_attr, this::complex_attr, 24);
+        hint(complex_print, this::complex_print, 0);
+        hint(complex_print, this::complex_print, 18);
+        hint(complex_print, this::complex_print, 42);
+        hint(complex_print, this::complex_print, 52);
+        hint(complex_print, this::complex_print, 72);
+        hint(complex_print, this::complex_print, 82);
+        hint(complex_print, this::complex_print, 92);
+        hint(complex_print, this::complex_print, 104);
+        hint(complex_print, this::complex_print, 116);
+        hint(complex_print, this::complex_print, 136);
+        hint(mp_obj_new_complex, this::mp_obj_new_complex, 0);
+        hint(mp_obj_new_complex, this::mp_obj_new_complex, 12);
+        hint(complex_unary_op, this::complex_unary_op, 0);
+        hint(complex_unary_op, this::complex_unary_op, 42);
+        hint(complex_unary_op, this::complex_unary_op, 52);
+        hint(complex_unary_op, this::complex_unary_op, 60);
+        hint(complex_unary_op, this::complex_unary_op, 64);
+        hint(complex_unary_op, this::complex_unary_op, 68);
+        hint(complex_unary_op, this::complex_unary_op, 78);
+        hint(complex_unary_op, this::complex_unary_op, 90);
+        hint(complex_unary_op, this::complex_unary_op, 106);
+        hint(complex_unary_op, this::complex_unary_op, 114);
+        hint(complex_unary_op, this::complex_unary_op, 140);
+        hint(complex_make_new, this::complex_make_new, 0);
+        hint(complex_make_new, this::complex_make_new, 20);
+        hint(complex_make_new, this::complex_make_new, 70);
+        hint(complex_make_new, this::complex_make_new, 80);
+        hint(complex_make_new, this::complex_make_new, 94);
+        hint(complex_make_new, this::complex_make_new, 124);
+        hint(complex_make_new, this::complex_make_new, 138);
+        hint(complex_make_new, this::complex_make_new, 154);
+        hint(complex_make_new, this::complex_make_new, 164);
+        hint(complex_make_new, this::complex_make_new, 176);
+        hint(mp_obj_complex_get, this::mp_obj_complex_get, 0);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 0);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 20);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 74);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 88);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 104);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 114);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 140);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 150);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 160);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 182);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 192);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 200);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 204);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 212);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 224);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 238);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 250);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 270);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 280);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 288);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 294);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 306);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 326);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 336);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 344);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 354);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 368);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 384);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 394);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 402);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 412);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 422);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 434);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 440);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 450);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 464);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 476);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 484);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 494);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 504);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 512);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 516);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 524);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 530);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 538);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 544);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 554);
+        hint(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op, 566);
+        hint(complex_binary_op, this::complex_binary_op, 0);
+        hint(complex_binary_op, this::complex_binary_op, 12);
+        hint(deque_make_new, this::deque_make_new, 0);
+        hint(deque_make_new, this::deque_make_new, 26);
+        hint(deque_make_new, this::deque_make_new, 40);
+        hint(deque_make_new, this::deque_make_new, 46);
+        hint(deque_make_new, this::deque_make_new, 56);
+        hint(deque_make_new, this::deque_make_new, 76);
+        hint(deque_make_new, this::deque_make_new, 90);
+        hint(deque_unary_op, this::deque_unary_op, 0);
+        hint(deque_popleft, this::deque_popleft, 0);
+        hint(deque_popleft, this::deque_popleft, 20);
+        hint(mp_obj_deque_append, this::mp_obj_deque_append, 0);
+        hint(mp_obj_deque_append, this::mp_obj_deque_append, 34);
+        hint(dict_view_getiter, this::dict_view_getiter, 0);
+        hint(dict_getiter, this::dict_getiter, 0);
+        hint(dict_values, this::dict_values, 0);
+        hint(dict_values, this::dict_values, 10);
+        hint(mp_ensure_not_fixed, this::mp_ensure_not_fixed, 0);
+        hint(mp_ensure_not_fixed, this::mp_ensure_not_fixed, 14);
+        hint(dict_clear, this::dict_clear, 0);
+        hint(dict_clear, this::dict_clear, 8);
+        hint(dict_clear, this::dict_clear, 14);
+        hint(dict_unary_op, this::dict_unary_op, 0);
+        hint(dict_get_helper, this::dict_get_helper, 0);
+        hint(dict_get_helper, this::dict_get_helper, 18);
+        hint(dict_get_helper, this::dict_get_helper, 28);
+        hint(dict_get_helper, this::dict_get_helper, 56);
+        hint(dict_get_helper, this::dict_get_helper, 60);
+        hint(dict_setdefault, this::dict_setdefault, 0);
+        hint(dict_setdefault, this::dict_setdefault, 8);
+        hint(dict_pop, this::dict_pop, 0);
+        hint(dict_pop, this::dict_pop, 8);
+        hint(dict_get, this::dict_get, 0);
+        hint(dict_get, this::dict_get, 8);
+        hint(dict_iter_next, this::dict_iter_next, 0);
+        hint(dict_view_it_iternext, this::dict_view_it_iternext, 0);
+        hint(dict_view_it_iternext, this::dict_view_it_iternext, 14);
+        hint(dict_view_it_iternext, this::dict_view_it_iternext, 46);
+        hint(dict_view_print, this::dict_view_print, 0);
+        hint(dict_view_print, this::dict_view_print, 20);
+        hint(dict_view_print, this::dict_view_print, 28);
+        hint(dict_view_print, this::dict_view_print, 56);
+        hint(dict_view_print, this::dict_view_print, 68);
+        hint(dict_view_print, this::dict_view_print, 84);
+        hint(dict_view_print, this::dict_view_print, 94);
+        hint(dict_update, this::dict_update, 0);
+        hint(dict_update, this::dict_update, 18);
+        hint(dict_update, this::dict_update, 34);
+        hint(dict_update, this::dict_update, 72);
+        hint(dict_update, this::dict_update, 90);
+        hint(dict_update, this::dict_update, 102);
+        hint(dict_update, this::dict_update, 110);
+        hint(dict_update, this::dict_update, 120);
+        hint(dict_update, this::dict_update, 126);
+        hint(dict_update, this::dict_update, 134);
+        hint(dict_update, this::dict_update, 142);
+        hint(dict_update, this::dict_update, 162);
+        hint(dict_update, this::dict_update, 172);
+        hint(dict_update, this::dict_update, 202);
+        hint(dict_popitem, this::dict_popitem, 0);
+        hint(dict_popitem, this::dict_popitem, 12);
+        hint(dict_popitem, this::dict_popitem, 22);
+        hint(dict_popitem, this::dict_popitem, 34);
+        hint(dict_popitem, this::dict_popitem, 60);
+        hint(dict_binary_op, this::dict_binary_op, 0);
+        hint(dict_binary_op, this::dict_binary_op, 26);
+        hint(dict_binary_op, this::dict_binary_op, 78);
+        hint(dict_binary_op, this::dict_binary_op, 88);
+        hint(dict_binary_op, this::dict_binary_op, 106);
+        hint(dict_binary_op, this::dict_binary_op, 118);
+        hint(dict_binary_op, this::dict_binary_op, 158);
+        hint(dict_binary_op, this::dict_binary_op, 176);
+        hint(dict_binary_op, this::dict_binary_op, 188);
+        hint(dict_view_binary_op, this::dict_view_binary_op, 0);
+        hint(dict_view_binary_op, this::dict_view_binary_op, 20);
+        hint(dict_print, this::dict_print, 0);
+        hint(dict_print, this::dict_print, 34);
+        hint(dict_print, this::dict_print, 42);
+        hint(dict_print, this::dict_print, 58);
+        hint(dict_print, this::dict_print, 70);
+        hint(dict_print, this::dict_print, 86);
+        hint(dict_print, this::dict_print, 104);
+        hint(dict_print, this::dict_print, 114);
+        hint(dict_print, this::dict_print, 122);
+        hint(dict_print, this::dict_print, 132);
+        hint(dict_items, this::dict_items, 0);
+        hint(dict_items, this::dict_items, 10);
+        hint(dict_keys, this::dict_keys, 0);
+        hint(dict_keys, this::dict_keys, 10);
+        hint(mp_obj_dict_get, this::mp_obj_dict_get, 0);
+        hint(mp_obj_dict_get, this::mp_obj_dict_get, 12);
+        hint(mp_obj_dict_get, this::mp_obj_dict_get, 24);
+        hint(mp_obj_dict_get, this::mp_obj_dict_get, 28);
+        hint(mp_obj_dict_init, this::mp_obj_dict_init, 0);
+        hint(mp_obj_dict_init, this::mp_obj_dict_init, 10);
+        hint(mp_obj_new_dict, this::mp_obj_new_dict, 0);
+        hint(mp_obj_new_dict, this::mp_obj_new_dict, 10);
+        hint(mp_obj_new_dict, this::mp_obj_new_dict, 18);
+        hint(dict_fromkeys, this::dict_fromkeys, 0);
+        hint(dict_fromkeys, this::dict_fromkeys, 14);
+        hint(dict_fromkeys, this::dict_fromkeys, 30);
+        hint(dict_fromkeys, this::dict_fromkeys, 38);
+        hint(dict_fromkeys, this::dict_fromkeys, 46);
+        hint(dict_fromkeys, this::dict_fromkeys, 68);
+        hint(dict_copy, this::dict_copy, 0);
+        hint(dict_copy, this::dict_copy, 10);
+        hint(dict_copy, this::dict_copy, 82);
+        hint(dict_make_new, this::dict_make_new, 0);
+        hint(dict_make_new, this::dict_make_new, 18);
+        hint(dict_make_new, this::dict_make_new, 60);
+        hint(dict_make_new, this::dict_make_new, 70);
+        hint(mp_obj_dict_len, this::mp_obj_dict_len, 0);
+        hint(mp_obj_dict_store, this::mp_obj_dict_store, 0);
+        hint(mp_obj_dict_store, this::mp_obj_dict_store, 12);
+        hint(mp_obj_dict_store, this::mp_obj_dict_store, 22);
+        hint(mp_obj_dict_delete, this::mp_obj_dict_delete, 0);
+        hint(mp_obj_dict_delete, this::mp_obj_dict_delete, 18);
+        hint(dict_subscr, this::dict_subscr, 0);
+        hint(dict_subscr, this::dict_subscr, 12);
+        hint(dict_subscr, this::dict_subscr, 28);
+        hint(dict_subscr, this::dict_subscr, 40);
+        hint(dict_subscr, this::dict_subscr, 44);
+        hint(dict_subscr, this::dict_subscr, 52);
+        hint(enumerate_iternext, this::enumerate_iternext, 0);
+        hint(enumerate_iternext, this::enumerate_iternext, 10);
+        hint(enumerate_iternext, this::enumerate_iternext, 38);
+        hint(enumerate_make_new, this::enumerate_make_new, 0);
+        hint(enumerate_make_new, this::enumerate_make_new, 24);
+        hint(enumerate_make_new, this::enumerate_make_new, 30);
+        hint(enumerate_make_new, this::enumerate_make_new, 42);
+        hint(mp_obj_exception_print, this::mp_obj_exception_print, 0);
+        hint(mp_obj_exception_print, this::mp_obj_exception_print, 32);
+        hint(mp_obj_exception_print, this::mp_obj_exception_print, 40);
+        hint(mp_obj_exception_print, this::mp_obj_exception_print, 52);
+        hint(mp_obj_exception_print, this::mp_obj_exception_print, 72);
+        hint(mp_obj_exception_print, this::mp_obj_exception_print, 96);
+        hint(mp_obj_exception_print, this::mp_obj_exception_print, 114);
+        hint(mp_obj_exception_print, this::mp_obj_exception_print, 128);
+        hint(mp_obj_exception_print, this::mp_obj_exception_print, 144);
+        hint(mp_obj_exception_make_new, this::mp_obj_exception_make_new, 0);
+        hint(mp_obj_exception_make_new, this::mp_obj_exception_make_new, 26);
+        hint(mp_obj_exception_make_new, this::mp_obj_exception_make_new, 32);
+        hint(mp_obj_exception_make_new, this::mp_obj_exception_make_new, 68);
+        hint(mp_obj_exception_make_new, this::mp_obj_exception_make_new, 106);
+        hint(exc_add_strn, this::exc_add_strn, 0);
+        hint(exc_add_strn, this::exc_add_strn, 40);
+        hint(exc_add_strn, this::exc_add_strn, 68);
+        hint(mp_init_emergency_exception_buf, this::mp_init_emergency_exception_buf, 0);
+        hint(mp_obj_exception_get_value, this::mp_obj_exception_get_value, 0);
+        hint(mp_obj_exception_attr, this::mp_obj_exception_attr, 0);
+        hint(mp_obj_exception_attr, this::mp_obj_exception_attr, 56);
+        hint(mp_obj_new_exception_args, this::mp_obj_new_exception_args, 0);
+        hint(mp_obj_new_exception_args, this::mp_obj_new_exception_args, 10);
+        hint(mp_obj_new_exception, this::mp_obj_new_exception, 0);
+        hint(mp_obj_new_exception, this::mp_obj_new_exception, 10);
+        hint(mp_obj_new_exception_arg1, this::mp_obj_new_exception_arg1, 0);
+        hint(mp_obj_new_exception_arg1, this::mp_obj_new_exception_arg1, 12);
+        hint(mp_obj_new_exception_msg_varg, this::mp_obj_new_exception_msg_varg, 0);
+        hint(mp_obj_new_exception_msg_varg, this::mp_obj_new_exception_msg_varg, 14);
+        hint(mp_obj_new_exception_msg_varg, this::mp_obj_new_exception_msg_varg, 22);
+        hint(mp_obj_new_exception_msg_varg, this::mp_obj_new_exception_msg_varg, 30);
+        hint(mp_obj_new_exception_msg_varg, this::mp_obj_new_exception_msg_varg, 82);
+        hint(mp_obj_new_exception_msg_varg, this::mp_obj_new_exception_msg_varg, 104);
+        hint(mp_obj_new_exception_msg_varg, this::mp_obj_new_exception_msg_varg, 120);
+        hint(mp_obj_new_exception_msg, this::mp_obj_new_exception_msg, 0);
+        hint(mp_obj_new_exception_msg, this::mp_obj_new_exception_msg, 6);
+        hint(mp_obj_is_exception_type, this::mp_obj_is_exception_type, 0);
+        hint(mp_obj_is_exception_type, this::mp_obj_is_exception_type, 34);
+        hint(mp_obj_is_exception_instance, this::mp_obj_is_exception_instance, 0);
+        hint(mp_obj_is_exception_instance, this::mp_obj_is_exception_instance, 6);
+        hint(mp_obj_is_exception_instance, this::mp_obj_is_exception_instance, 10);
+        hint(mp_obj_exception_match, this::mp_obj_exception_match, 0);
+        hint(mp_obj_exception_match, this::mp_obj_exception_match, 10);
+        hint(mp_obj_exception_match, this::mp_obj_exception_match, 20);
+        hint(mp_obj_exception_match, this::mp_obj_exception_match, 30);
+        hint(mp_obj_exception_clear_traceback, this::mp_obj_exception_clear_traceback, 0);
+        hint(mp_obj_exception_clear_traceback, this::mp_obj_exception_clear_traceback, 8);
+        hint(mp_obj_exception_add_traceback, this::mp_obj_exception_add_traceback, 0);
+        hint(mp_obj_exception_add_traceback, this::mp_obj_exception_add_traceback, 14);
+        hint(mp_obj_exception_add_traceback, this::mp_obj_exception_add_traceback, 36);
+        hint(mp_obj_exception_add_traceback, this::mp_obj_exception_add_traceback, 104);
+        hint(mp_obj_exception_get_traceback, this::mp_obj_exception_get_traceback, 0);
+        hint(mp_obj_exception_get_traceback, this::mp_obj_exception_get_traceback, 12);
+        hint(filter_iternext, this::filter_iternext, 0);
+        hint(filter_iternext, this::filter_iternext, 10);
+        hint(filter_iternext, this::filter_iternext, 36);
+        hint(filter_iternext, this::filter_iternext, 40);
+        hint(filter_make_new, this::filter_make_new, 0);
+        hint(filter_make_new, this::filter_make_new, 22);
+        hint(filter_make_new, this::filter_make_new, 28);
+        hint(filter_make_new, this::filter_make_new, 44);
+        hint(float_print, this::float_print, 0);
+        hint(float_print, this::float_print, 28);
+        hint(float_print, this::float_print, 36);
+        hint(float_print, this::float_print, 44);
+        hint(float_print, this::float_print, 56);
+        hint(float_print, this::float_print, 68);
+        hint(float_print, this::float_print, 80);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 0);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 16);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 32);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 38);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 48);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 70);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 82);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 114);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 136);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 162);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 174);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 184);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 194);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 202);
+        hint(mp_obj_float_divmod, this::mp_obj_float_divmod, 216);
+        hint(mp_float_hash, this::mp_float_hash, 0);
+        hint(mp_obj_new_float, this::mp_obj_new_float, 0);
+        hint(mp_obj_new_float, this::mp_obj_new_float, 10);
+        hint(float_make_new, this::float_make_new, 0);
+        hint(float_make_new, this::float_make_new, 24);
+        hint(float_make_new, this::float_make_new, 40);
+        hint(float_make_new, this::float_make_new, 58);
+        hint(float_make_new, this::float_make_new, 80);
+        hint(float_make_new, this::float_make_new, 84);
+        hint(float_unary_op, this::float_unary_op, 0);
+        hint(float_unary_op, this::float_unary_op, 42);
+        hint(float_unary_op, this::float_unary_op, 56);
+        hint(float_unary_op, this::float_unary_op, 68);
+        hint(float_unary_op, this::float_unary_op, 84);
+        hint(mp_obj_float_get, this::mp_obj_float_get, 0);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 0);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 18);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 82);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 100);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 112);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 140);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 148);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 174);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 186);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 204);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 216);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 222);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 230);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 240);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 250);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 260);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 272);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 284);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 294);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 326);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 342);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 374);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 386);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 402);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 416);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 430);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 440);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 446);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 462);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 478);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 488);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 506);
+    }
+
+    private void gen_hints_6() {
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 516);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 526);
+        hint(mp_obj_float_binary_op, this::mp_obj_float_binary_op, 536);
+        hint(float_binary_op, this::float_binary_op, 0);
+        hint(float_binary_op, this::float_binary_op, 24);
+        hint(float_binary_op, this::float_binary_op, 30);
+        hint(fun_builtin_0_call, this::fun_builtin_0_call, 0);
+        hint(fun_builtin_0_call, this::fun_builtin_0_call, 18);
+        hint(fun_builtin_0_call, this::fun_builtin_0_call, 22);
+        hint(fun_builtin_1_call, this::fun_builtin_1_call, 0);
+        hint(fun_builtin_1_call, this::fun_builtin_1_call, 22);
+        hint(fun_builtin_1_call, this::fun_builtin_1_call, 28);
+        hint(fun_builtin_2_call, this::fun_builtin_2_call, 0);
+        hint(fun_builtin_2_call, this::fun_builtin_2_call, 22);
+        hint(fun_builtin_2_call, this::fun_builtin_2_call, 28);
+        hint(fun_builtin_3_call, this::fun_builtin_3_call, 0);
+        hint(fun_builtin_3_call, this::fun_builtin_3_call, 22);
+        hint(fun_builtin_3_call, this::fun_builtin_3_call, 28);
+        hint(fun_bc_call, this::fun_bc_call, 0);
+        hint(fun_bc_call, this::fun_bc_call, 16);
+        hint(fun_bc_call, this::fun_bc_call, 22);
+        hint(fun_bc_call, this::fun_bc_call, 30);
+        hint(fun_bc_call, this::fun_bc_call, 34);
+        hint(fun_bc_call, this::fun_bc_call, 54);
+        hint(fun_bc_call, this::fun_bc_call, 70);
+        hint(fun_bc_call, this::fun_bc_call, 88);
+        hint(fun_bc_call, this::fun_bc_call, 112);
+        hint(fun_builtin_var_call, this::fun_builtin_var_call, 0);
+        hint(fun_builtin_var_call, this::fun_builtin_var_call, 34);
+        hint(fun_builtin_var_call, this::fun_builtin_var_call, 52);
+        hint(fun_builtin_var_call, this::fun_builtin_var_call, 62);
+        hint(fun_builtin_var_call, this::fun_builtin_var_call, 74);
+        hint(mp_obj_code_get_name, this::mp_obj_code_get_name, 0);
+        hint(mp_obj_code_get_name, this::mp_obj_code_get_name, 6);
+        hint(mp_obj_fun_get_name, this::mp_obj_fun_get_name, 0);
+        hint(mp_obj_fun_get_name, this::mp_obj_fun_get_name, 8);
+        hint(mp_obj_fun_get_name, this::mp_obj_fun_get_name, 12);
+        hint(mp_obj_fun_get_name, this::mp_obj_fun_get_name, 18);
+        hint(mp_obj_fun_bc_attr, this::mp_obj_fun_bc_attr, 0);
+        hint(mp_obj_fun_bc_attr, this::mp_obj_fun_bc_attr, 18);
+        hint(fun_bc_print, this::fun_bc_print, 0);
+        hint(fun_bc_print, this::fun_bc_print, 12);
+        hint(fun_bc_print, this::fun_bc_print, 24);
+        hint(mp_obj_fun_bc_prepare_codestate, this::mp_obj_fun_bc_prepare_codestate, 0);
+        hint(mp_obj_fun_bc_prepare_codestate, this::mp_obj_fun_bc_prepare_codestate, 14);
+        hint(mp_obj_fun_bc_prepare_codestate, this::mp_obj_fun_bc_prepare_codestate, 20);
+        hint(mp_obj_fun_bc_prepare_codestate, this::mp_obj_fun_bc_prepare_codestate, 28);
+        hint(mp_obj_fun_bc_prepare_codestate, this::mp_obj_fun_bc_prepare_codestate, 32);
+        hint(mp_obj_fun_bc_prepare_codestate, this::mp_obj_fun_bc_prepare_codestate, 48);
+        hint(mp_obj_fun_bc_prepare_codestate, this::mp_obj_fun_bc_prepare_codestate, 66);
+        hint(mp_obj_new_fun_bc, this::mp_obj_new_fun_bc, 0);
+        hint(mp_obj_new_fun_bc, this::mp_obj_new_fun_bc, 32);
+        hint(mp_obj_new_fun_bc, this::mp_obj_new_fun_bc, 68);
+        hint(gen_wrap_call, this::gen_wrap_call, 0);
+        hint(gen_wrap_call, this::gen_wrap_call, 16);
+        hint(gen_wrap_call, this::gen_wrap_call, 24);
+        hint(gen_wrap_call, this::gen_wrap_call, 28);
+        hint(gen_wrap_call, this::gen_wrap_call, 44);
+        hint(gen_wrap_call, this::gen_wrap_call, 72);
+        hint(gen_instance_pend_throw, this::gen_instance_pend_throw, 0);
+        hint(gen_instance_pend_throw, this::gen_instance_pend_throw, 16);
+        hint(gen_instance_print, this::gen_instance_print, 0);
+        hint(gen_instance_print, this::gen_instance_print, 12);
+        hint(gen_instance_print, this::gen_instance_print, 24);
+        hint(unlikely_gen_instance_throw_part_0, this::unlikely_gen_instance_throw_part_0, 0);
+        hint(unlikely_gen_instance_throw_part_0, this::unlikely_gen_instance_throw_part_0, 8);
+        hint(unlikely_gen_instance_throw_part_0, this::unlikely_gen_instance_throw_part_0, 12);
+        hint(mp_obj_gen_resume, this::mp_obj_gen_resume, 0);
+        hint(mp_obj_gen_resume, this::mp_obj_gen_resume, 14);
+        hint(mp_obj_gen_resume, this::mp_obj_gen_resume, 50);
+        hint(mp_obj_gen_resume, this::mp_obj_gen_resume, 76);
+        hint(mp_obj_gen_resume, this::mp_obj_gen_resume, 102);
+        hint(mp_obj_gen_resume, this::mp_obj_gen_resume, 154);
+        hint(gen_resume_and_raise, this::gen_resume_and_raise, 0);
+        hint(gen_resume_and_raise, this::gen_resume_and_raise, 8);
+        hint(gen_resume_and_raise, this::gen_resume_and_raise, 38);
+        hint(gen_resume_and_raise, this::gen_resume_and_raise, 42);
+        hint(gen_resume_and_raise, this::gen_resume_and_raise, 52);
+        hint(gen_resume_and_raise, this::gen_resume_and_raise, 58);
+        hint(gen_resume_and_raise, this::gen_resume_and_raise, 72);
+        hint(gen_instance_throw, this::gen_instance_throw, 0);
+        hint(gen_instance_throw, this::gen_instance_throw, 18);
+        hint(gen_instance_throw, this::gen_instance_throw, 26);
+        hint(gen_instance_send, this::gen_instance_send, 0);
+        hint(gen_instance_send, this::gen_instance_send, 8);
+        hint(gen_instance_send, this::gen_instance_send, 16);
+        hint(gen_instance_iternext, this::gen_instance_iternext, 0);
+        hint(gen_instance_iternext, this::gen_instance_iternext, 10);
+        hint(gen_instance_close, this::gen_instance_close, 0);
+        hint(gen_instance_close, this::gen_instance_close, 14);
+        hint(gen_instance_close, this::gen_instance_close, 34);
+        hint(gen_instance_close, this::gen_instance_close, 40);
+        hint(gen_instance_close, this::gen_instance_close, 46);
+        hint(gen_instance_close, this::gen_instance_close, 56);
+        hint(gen_instance_close, this::gen_instance_close, 62);
+        hint(gen_instance_close, this::gen_instance_close, 72);
+        hint(it_iternext, this::it_iternext, 0);
+        hint(it_iternext, this::it_iternext, 12);
+        hint(it_iternext, this::it_iternext, 24);
+        hint(it_iternext, this::it_iternext, 44);
+        hint(it_iternext, this::it_iternext, 72);
+        hint(mp_obj_new_getitem_iter, this::mp_obj_new_getitem_iter, 0);
+        hint(int_to_bytes, this::int_to_bytes, 0);
+        hint(int_to_bytes, this::int_to_bytes, 12);
+        hint(int_to_bytes, this::int_to_bytes, 22);
+        hint(int_to_bytes, this::int_to_bytes, 42);
+        hint(int_to_bytes, this::int_to_bytes, 54);
+        hint(int_to_bytes, this::int_to_bytes, 72);
+        hint(int_to_bytes, this::int_to_bytes, 80);
+        hint(int_to_bytes, this::int_to_bytes, 114);
+        hint(int_from_bytes, this::int_from_bytes, 0);
+        hint(int_from_bytes, this::int_from_bytes, 16);
+        hint(int_from_bytes, this::int_from_bytes, 52);
+        hint(int_from_bytes, this::int_from_bytes, 82);
+        hint(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float, 0);
+        hint(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float, 16);
+        hint(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float, 28);
+        hint(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float, 40);
+        hint(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float, 44);
+        hint(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float, 50);
+        hint(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float, 76);
+        hint(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float, 86);
+        hint(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float, 102);
+        hint(mp_obj_int_make_new, this::mp_obj_int_make_new, 0);
+        hint(mp_obj_int_make_new, this::mp_obj_int_make_new, 24);
+        hint(mp_obj_int_make_new, this::mp_obj_int_make_new, 70);
+        hint(mp_obj_int_make_new, this::mp_obj_int_make_new, 80);
+        hint(mp_obj_int_make_new, this::mp_obj_int_make_new, 92);
+        hint(mp_obj_int_make_new, this::mp_obj_int_make_new, 96);
+        hint(mp_obj_int_make_new, this::mp_obj_int_make_new, 108);
+        hint(mp_obj_int_make_new, this::mp_obj_int_make_new, 118);
+        hint(mp_obj_int_make_new, this::mp_obj_int_make_new, 136);
+        hint(mp_int_format_size, this::mp_int_format_size, 0);
+        hint(mp_int_format_size, this::mp_int_format_size, 18);
+        hint(mp_int_format_size, this::mp_int_format_size, 34);
+        hint(mp_int_format_size, this::mp_int_format_size, 44);
+        hint(mp_obj_int_formatted, this::mp_obj_int_formatted, 0);
+        hint(mp_obj_int_formatted, this::mp_obj_int_formatted, 50);
+        hint(mp_obj_int_formatted, this::mp_obj_int_formatted, 62);
+        hint(mp_obj_int_formatted, this::mp_obj_int_formatted, 100);
+        hint(mp_obj_int_formatted, this::mp_obj_int_formatted, 178);
+        hint(mp_obj_int_formatted, this::mp_obj_int_formatted, 204);
+        hint(mp_obj_int_print, this::mp_obj_int_print, 0);
+        hint(mp_obj_int_print, this::mp_obj_int_print, 38);
+        hint(mp_obj_int_print, this::mp_obj_int_print, 46);
+        hint(mp_obj_int_print, this::mp_obj_int_print, 58);
+        hint(mp_obj_int_binary_op_extra_cases, this::mp_obj_int_binary_op_extra_cases, 0);
+        hint(mp_obj_int_binary_op_extra_cases, this::mp_obj_int_binary_op_extra_cases, 20);
+        hint(mp_obj_int_new_mpz, this::mp_obj_int_new_mpz, 0);
+        hint(mp_obj_int_new_mpz, this::mp_obj_int_new_mpz, 8);
+        hint(mp_obj_int_new_mpz, this::mp_obj_int_new_mpz, 18);
+        hint(mp_obj_int_formatted_impl, this::mp_obj_int_formatted_impl, 0);
+        hint(mp_obj_int_formatted_impl, this::mp_obj_int_formatted_impl, 38);
+        hint(mp_obj_int_formatted_impl, this::mp_obj_int_formatted_impl, 50);
+        hint(mp_obj_int_formatted_impl, this::mp_obj_int_formatted_impl, 74);
+        hint(mp_obj_int_from_bytes_impl, this::mp_obj_int_from_bytes_impl, 0);
+        hint(mp_obj_int_from_bytes_impl, this::mp_obj_int_from_bytes_impl, 12);
+        hint(mp_obj_int_from_bytes_impl, this::mp_obj_int_from_bytes_impl, 26);
+        hint(mp_obj_int_to_bytes_impl, this::mp_obj_int_to_bytes_impl, 0);
+        hint(mp_obj_int_to_bytes_impl, this::mp_obj_int_to_bytes_impl, 18);
+        hint(mp_obj_int_to_bytes_impl, this::mp_obj_int_to_bytes_impl, 30);
+        hint(mp_obj_int_sign, this::mp_obj_int_sign, 0);
+        hint(mp_obj_int_unary_op, this::mp_obj_int_unary_op, 0);
+        hint(mp_obj_int_unary_op, this::mp_obj_int_unary_op, 54);
+        hint(mp_obj_int_unary_op, this::mp_obj_int_unary_op, 66);
+        hint(mp_obj_int_unary_op, this::mp_obj_int_unary_op, 76);
+        hint(mp_obj_int_unary_op, this::mp_obj_int_unary_op, 84);
+        hint(mp_obj_int_unary_op, this::mp_obj_int_unary_op, 94);
+        hint(mp_obj_int_unary_op, this::mp_obj_int_unary_op, 106);
+        hint(mp_obj_int_unary_op, this::mp_obj_int_unary_op, 116);
+        hint(mp_obj_new_int_from_ll, this::mp_obj_new_int_from_ll, 0);
+        hint(mp_obj_new_int_from_ll, this::mp_obj_new_int_from_ll, 10);
+        hint(mp_obj_new_int_from_ll, this::mp_obj_new_int_from_ll, 26);
+        hint(mp_obj_new_int, this::mp_obj_new_int, 0);
+        hint(mp_obj_new_int, this::mp_obj_new_int, 22);
+        hint(mp_obj_new_int_from_ull, this::mp_obj_new_int_from_ull, 0);
+        hint(mp_obj_new_int_from_ull, this::mp_obj_new_int_from_ull, 10);
+        hint(mp_obj_new_int_from_ull, this::mp_obj_new_int_from_ull, 26);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 0);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 78);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 86);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 104);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 122);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 140);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 156);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 168);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 180);
+        hint(mp_obj_int_pow3, this::mp_obj_int_pow3, 192);
+        hint(mp_obj_new_int_from_uint, this::mp_obj_new_int_from_uint, 0);
+        hint(mp_obj_new_int_from_uint, this::mp_obj_new_int_from_uint, 20);
+        hint(mp_obj_new_int_from_str_len, this::mp_obj_new_int_from_str_len, 0);
+        hint(mp_obj_new_int_from_str_len, this::mp_obj_new_int_from_str_len, 16);
+        hint(mp_obj_new_int_from_str_len, this::mp_obj_new_int_from_str_len, 34);
+        hint(mp_obj_int_get_truncated, this::mp_obj_int_get_truncated, 0);
+        hint(mp_obj_int_get_truncated, this::mp_obj_int_get_truncated, 16);
+        hint(mp_obj_int_get_checked, this::mp_obj_int_get_checked, 0);
+        hint(mp_obj_int_get_checked, this::mp_obj_int_get_checked, 18);
+        hint(mp_obj_int_get_checked, this::mp_obj_int_get_checked, 34);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 0);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 28);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 50);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 74);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 82);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 90);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 94);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 130);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 140);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 154);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 166);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 184);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 200);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 240);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 254);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 266);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 292);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 314);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 354);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 380);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 414);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 426);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 442);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 448);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 460);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 466);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 478);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 490);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 498);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 508);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 524);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 530);
+        hint(mp_obj_int_binary_op, this::mp_obj_int_binary_op, 540);
+        hint(mp_obj_int_as_float_impl, this::mp_obj_int_as_float_impl, 0);
+        hint(mp_obj_int_as_float_impl, this::mp_obj_int_as_float_impl, 8);
+        hint(list_getiter, this::list_getiter, 0);
+        hint(list_reverse, this::list_reverse, 0);
+        hint(list_it_iternext, this::list_it_iternext, 0);
+        hint(mp_obj_list_append, this::mp_obj_list_append, 0);
+        hint(mp_obj_list_append, this::mp_obj_list_append, 24);
+        hint(mp_obj_list_append, this::mp_obj_list_append, 54);
+        hint(list_insert, this::list_insert, 0);
+        hint(list_insert, this::list_insert, 28);
+        hint(list_clear, this::list_clear, 0);
+        hint(list_clear, this::list_clear, 20);
+        hint(list_clear, this::list_clear, 34);
+        hint(mp_quicksort, this::mp_quicksort, 0);
+        hint(mp_quicksort, this::mp_quicksort, 16);
+        hint(mp_quicksort, this::mp_quicksort, 48);
+        hint(mp_quicksort, this::mp_quicksort, 76);
+        hint(mp_quicksort, this::mp_quicksort, 104);
+        hint(mp_quicksort, this::mp_quicksort, 128);
+        hint(mp_quicksort, this::mp_quicksort, 140);
+        hint(mp_quicksort, this::mp_quicksort, 184);
+        hint(mp_quicksort, this::mp_quicksort, 204);
+        hint(mp_obj_list_sort, this::mp_obj_list_sort, 0);
+        hint(mp_obj_list_sort, this::mp_obj_list_sort, 24);
+        hint(mp_obj_list_sort, this::mp_obj_list_sort, 66);
+        hint(list_index, this::list_index, 0);
+        hint(list_index, this::list_index, 16);
+        hint(list_pop, this::list_pop, 0);
+        hint(list_pop, this::list_pop, 22);
+        hint(list_pop, this::list_pop, 36);
+        hint(list_pop, this::list_pop, 64);
+        hint(list_pop, this::list_pop, 98);
+        hint(mp_obj_list_remove, this::mp_obj_list_remove, 0);
+        hint(mp_obj_list_remove, this::mp_obj_list_remove, 14);
+        hint(mp_obj_list_remove, this::mp_obj_list_remove, 24);
+        hint(list_extend_from_iter, this::list_extend_from_iter, 0);
+        hint(list_extend_from_iter, this::list_extend_from_iter, 12);
+        hint(list_extend_from_iter, this::list_extend_from_iter, 20);
+        hint(list_extend_from_iter, this::list_extend_from_iter, 34);
+        hint(list_count, this::list_count, 0);
+        hint(list_count, this::list_count, 12);
+        hint(list_print, this::list_print, 0);
+        hint(list_print, this::list_print, 22);
+        hint(list_print, this::list_print, 38);
+        hint(list_print, this::list_print, 52);
+        hint(list_print, this::list_print, 66);
+        hint(list_unary_op, this::list_unary_op, 0);
+        hint(list_extend, this::list_extend, 0);
+        hint(list_extend, this::list_extend, 44);
+        hint(list_extend, this::list_extend, 68);
+        hint(list_extend, this::list_extend, 86);
+        hint(list_extend, this::list_extend, 106);
+        hint(mp_obj_list_init, this::mp_obj_list_init, 0);
+        hint(mp_obj_list_init, this::mp_obj_list_init, 28);
+        hint(mp_obj_list_init, this::mp_obj_list_init, 46);
+        hint(list_new, this::list_new, 0);
+        hint(list_new, this::list_new, 10);
+        hint(list_new, this::list_new, 18);
+        hint(list_binary_op, this::list_binary_op, 0);
+        hint(list_binary_op, this::list_binary_op, 36);
+        hint(list_binary_op, this::list_binary_op, 60);
+        hint(list_binary_op, this::list_binary_op, 78);
+        hint(list_binary_op, this::list_binary_op, 110);
+        hint(list_binary_op, this::list_binary_op, 124);
+        hint(list_binary_op, this::list_binary_op, 142);
+        hint(list_binary_op, this::list_binary_op, 156);
+        hint(list_binary_op, this::list_binary_op, 194);
+        hint(list_make_new, this::list_make_new, 0);
+        hint(list_make_new, this::list_make_new, 22);
+        hint(list_make_new, this::list_make_new, 32);
+        hint(list_make_new, this::list_make_new, 40);
+        hint(list_make_new, this::list_make_new, 46);
+        hint(mp_obj_new_list, this::mp_obj_new_list, 0);
+        hint(mp_obj_new_list, this::mp_obj_new_list, 10);
+        hint(list_copy, this::list_copy, 0);
+        hint(list_copy, this::list_copy, 10);
+        hint(mp_obj_list_get, this::mp_obj_list_get, 0);
+        hint(mp_obj_list_set_len, this::mp_obj_list_set_len, 0);
+        hint(mp_obj_list_store, this::mp_obj_list_store, 0);
+        hint(mp_obj_list_store, this::mp_obj_list_store, 18);
+        hint(list_subscr, this::list_subscr, 0);
+        hint(list_subscr, this::list_subscr, 38);
+        hint(list_subscr, this::list_subscr, 48);
+        hint(list_subscr, this::list_subscr, 74);
+        hint(list_subscr, this::list_subscr, 94);
+        hint(list_subscr, this::list_subscr, 120);
+        hint(list_subscr, this::list_subscr, 146);
+        hint(list_subscr, this::list_subscr, 160);
+        hint(list_subscr, this::list_subscr, 174);
+        hint(list_subscr, this::list_subscr, 194);
+        hint(list_subscr, this::list_subscr, 208);
+        hint(list_subscr, this::list_subscr, 238);
+        hint(list_subscr, this::list_subscr, 248);
+        hint(list_subscr, this::list_subscr, 288);
+        hint(list_subscr, this::list_subscr, 326);
+        hint(list_subscr, this::list_subscr, 344);
+        hint(list_subscr, this::list_subscr, 364);
+        hint(list_subscr, this::list_subscr, 396);
+        hint(list_subscr, this::list_subscr, 416);
+        hint(list_subscr, this::list_subscr, 428);
+        hint(map_iternext, this::map_iternext, 0);
+        hint(map_iternext, this::map_iternext, 12);
+        hint(map_iternext, this::map_iternext, 32);
+        hint(map_iternext, this::map_iternext, 46);
+        hint(map_iternext, this::map_iternext, 60);
+        hint(map_make_new, this::map_make_new, 0);
+        hint(map_make_new, this::map_make_new, 26);
+        hint(map_make_new, this::map_make_new, 38);
+        hint(map_make_new, this::map_make_new, 76);
+        hint(module_print, this::module_print, 0);
+        hint(module_print, this::module_print, 18);
+        hint(module_print, this::module_print, 30);
+        hint(module_print, this::module_print, 44);
+        hint(module_print, this::module_print, 54);
+        hint(module_print, this::module_print, 66);
+        hint(module_print, this::module_print, 78);
+        hint(module_attr, this::module_attr, 0);
+        hint(module_attr, this::module_attr, 26);
+        hint(module_attr, this::module_attr, 66);
+        hint(module_attr, this::module_attr, 86);
+        hint(module_attr, this::module_attr, 94);
+        hint(mp_obj_new_module, this::mp_obj_new_module, 0);
+        hint(mp_obj_new_module, this::mp_obj_new_module, 18);
+        hint(mp_obj_new_module, this::mp_obj_new_module, 32);
+        hint(mp_obj_new_module, this::mp_obj_new_module, 44);
+        hint(mp_obj_new_module, this::mp_obj_new_module, 54);
+        hint(mp_module_register, this::mp_module_register, 0);
+        hint(mp_module_register, this::mp_module_register, 18);
+        hint(mp_module_call_init, this::mp_module_call_init, 0);
+        hint(mp_module_call_init, this::mp_module_call_init, 16);
+        hint(mp_module_call_init, this::mp_module_call_init, 32);
+        hint(mp_module_call_init, this::mp_module_call_init, 40);
+        hint(mp_module_get, this::mp_module_get, 0);
+        hint(mp_module_get, this::mp_module_get, 20);
+        hint(mp_module_get, this::mp_module_get, 34);
+        hint(mp_module_get, this::mp_module_get, 46);
+        hint(object___init__, this::object___init__, 0);
+        hint(object___new__, this::object___new__, 0);
+        hint(object___new__, this::object___new__, 28);
+        hint(object___new__, this::object___new__, 34);
+        hint(object_make_new, this::object_make_new, 0);
+        hint(object_make_new, this::object_make_new, 18);
+        hint(object_make_new, this::object_make_new, 24);
+        hint(polymorph_it_iternext, this::polymorph_it_iternext, 0);
+        hint(polymorph_it_iternext, this::polymorph_it_iternext, 6);
+        hint(property_deleter, this::property_deleter, 0);
+        hint(property_deleter, this::property_deleter, 12);
+        hint(property_setter, this::property_setter, 0);
+        hint(property_setter, this::property_setter, 12);
+        hint(property_getter, this::property_getter, 0);
+        hint(property_getter, this::property_getter, 12);
+        hint(property_make_new, this::property_make_new, 0);
+        hint(property_make_new, this::property_make_new, 26);
+        hint(property_make_new, this::property_make_new, 32);
+        hint(mp_obj_property_get, this::mp_obj_property_get, 0);
+        hint(none_print, this::none_print, 0);
+        hint(none_print, this::none_print, 14);
+        hint(namedtuple_asdict, this::namedtuple_asdict, 0);
+        hint(namedtuple_asdict, this::namedtuple_asdict, 16);
+        hint(namedtuple_asdict, this::namedtuple_asdict, 64);
+        hint(namedtuple_print, this::namedtuple_print, 0);
+        hint(namedtuple_print, this::namedtuple_print, 16);
+        hint(namedtuple_print, this::namedtuple_print, 28);
+        hint(mp_obj_namedtuple_find_field, this::mp_obj_namedtuple_find_field, 0);
+        hint(namedtuple_attr, this::namedtuple_attr, 0);
+        hint(namedtuple_attr, this::namedtuple_attr, 28);
+        hint(namedtuple_attr, this::namedtuple_attr, 50);
+        hint(namedtuple_make_new, this::namedtuple_make_new, 0);
+        hint(namedtuple_make_new, this::namedtuple_make_new, 32);
+        hint(namedtuple_make_new, this::namedtuple_make_new, 36);
+        hint(namedtuple_make_new, this::namedtuple_make_new, 44);
+        hint(namedtuple_make_new, this::namedtuple_make_new, 64);
+        hint(namedtuple_make_new, this::namedtuple_make_new, 78);
+        hint(namedtuple_make_new, this::namedtuple_make_new, 102);
+        hint(namedtuple_make_new, this::namedtuple_make_new, 112);
+        hint(namedtuple_make_new, this::namedtuple_make_new, 126);
+        hint(mp_obj_new_namedtuple_base, this::mp_obj_new_namedtuple_base, 0);
+        hint(mp_obj_new_namedtuple_base, this::mp_obj_new_namedtuple_base, 18);
+        hint(mp_obj_new_namedtuple_base, this::mp_obj_new_namedtuple_base, 28);
+        hint(mp_obj_new_namedtuple_base, this::mp_obj_new_namedtuple_base, 52);
+        hint(new_namedtuple_type, this::new_namedtuple_type, 0);
+        hint(new_namedtuple_type, this::new_namedtuple_type, 8);
+        hint(new_namedtuple_type, this::new_namedtuple_type, 40);
+        hint(new_namedtuple_type, this::new_namedtuple_type, 52);
+        hint(new_namedtuple_type, this::new_namedtuple_type, 60);
+        hint(range_it_iternext, this::range_it_iternext, 0);
+        hint(range_len, this::range_len, 0);
+        hint(range_len, this::range_len, 24);
+        hint(range_unary_op, this::range_unary_op, 0);
+        hint(range_unary_op, this::range_unary_op, 10);
+        hint(range_getiter, this::range_getiter, 0);
+        hint(range_subscr, this::range_subscr, 0);
+        hint(range_subscr, this::range_subscr, 20);
+        hint(range_subscr, this::range_subscr, 40);
+        hint(range_subscr, this::range_subscr, 46);
+        hint(range_subscr, this::range_subscr, 106);
+        hint(range_make_new, this::range_make_new, 0);
+        hint(range_make_new, this::range_make_new, 26);
+        hint(range_make_new, this::range_make_new, 32);
+        hint(range_make_new, this::range_make_new, 54);
+        hint(range_make_new, this::range_make_new, 66);
+        hint(range_make_new, this::range_make_new, 74);
+        hint(range_make_new, this::range_make_new, 86);
+        hint(range_make_new, this::range_make_new, 98);
+        hint(range_print, this::range_print, 0);
+        hint(range_print, this::range_print, 16);
+        hint(range_print, this::range_print, 30);
+        hint(range_print, this::range_print, 40);
+        hint(range_binary_op, this::range_binary_op, 0);
+        hint(range_binary_op, this::range_binary_op, 36);
+        hint(range_binary_op, this::range_binary_op, 44);
+        hint(range_attr, this::range_attr, 0);
+        hint(range_attr, this::range_attr, 24);
+        hint(reversed_iternext, this::reversed_iternext, 0);
+        hint(reversed_iternext, this::reversed_iternext, 28);
+        hint(reversed_make_new, this::reversed_make_new, 0);
+        hint(reversed_make_new, this::reversed_make_new, 22);
+        hint(reversed_make_new, this::reversed_make_new, 32);
+        hint(reversed_make_new, this::reversed_make_new, 48);
+        hint(reversed_make_new, this::reversed_make_new, 62);
+        hint(reversed_make_new, this::reversed_make_new, 76);
+        hint(reversed_make_new, this::reversed_make_new, 80);
+        hint(is_set_or_frozenset, this::is_set_or_frozenset, 0);
+        hint(set_getiter, this::set_getiter, 0);
+        hint(text_set_add, this::text_set_add, 0);
+        hint(text_set_add, this::text_set_add, 10);
+        hint(set_discard, this::set_discard, 0);
+        hint(set_discard, this::set_discard, 10);
+        hint(set_update_int, this::set_update_int, 0);
+        hint(set_update_int, this::set_update_int, 12);
+        hint(set_update_int, this::set_update_int, 20);
+        hint(set_update_int, this::set_update_int, 36);
+        hint(set_update, this::set_update, 0);
+        hint(set_update, this::set_update, 26);
+        hint(set_symmetric_difference_update, this::set_symmetric_difference_update, 0);
+        hint(set_symmetric_difference_update, this::set_symmetric_difference_update, 12);
+        hint(set_symmetric_difference_update, this::set_symmetric_difference_update, 20);
+        hint(set_symmetric_difference_update, this::set_symmetric_difference_update, 38);
+        hint(set_isdisjoint, this::set_isdisjoint, 0);
+        hint(set_isdisjoint, this::set_isdisjoint, 14);
+        hint(set_isdisjoint, this::set_isdisjoint, 22);
+        hint(set_isdisjoint, this::set_isdisjoint, 42);
+        hint(set_copy, this::set_copy, 0);
+        hint(set_copy, this::set_copy, 10);
+        hint(set_copy, this::set_copy, 22);
+        hint(set_copy, this::set_copy, 38);
+        hint(set_union, this::set_union, 0);
+        hint(set_union, this::set_union, 8);
+        hint(set_union, this::set_union, 16);
+        hint(set_symmetric_difference, this::set_symmetric_difference, 0);
+        hint(set_symmetric_difference, this::set_symmetric_difference, 8);
+        hint(set_symmetric_difference, this::set_symmetric_difference, 16);
+        hint(set_clear, this::set_clear, 0);
+        hint(set_clear, this::set_clear, 8);
+        hint(set_diff_int, this::set_diff_int, 0);
+        hint(set_diff_int, this::set_diff_int, 18);
+        hint(set_diff_int, this::set_diff_int, 48);
+        hint(set_diff_int, this::set_diff_int, 58);
+        hint(set_diff_int, this::set_diff_int, 66);
+        hint(set_diff_int, this::set_diff_int, 78);
+        hint(set_diff_update, this::set_diff_update, 0);
+        hint(set_diff_update, this::set_diff_update, 8);
+        hint(set_diff, this::set_diff, 0);
+        hint(set_diff, this::set_diff, 8);
+        hint(set_print, this::set_print, 0);
+        hint(set_print, this::set_print, 40);
+        hint(set_print, this::set_print, 48);
+        hint(set_print, this::set_print, 62);
+        hint(set_print, this::set_print, 70);
+    }
+
+    private void gen_hints_7() {
+        hint(set_print, this::set_print, 88);
+        hint(set_print, this::set_print, 126);
+        hint(set_print, this::set_print, 140);
+        hint(set_remove, this::set_remove, 0);
+        hint(set_remove, this::set_remove, 12);
+        hint(set_remove, this::set_remove, 24);
+        hint(set_remove, this::set_remove, 28);
+        hint(text_set_pop, this::text_set_pop, 0);
+        hint(text_set_pop, this::text_set_pop, 8);
+        hint(text_set_pop, this::text_set_pop, 20);
+        hint(set_it_iternext, this::set_it_iternext, 0);
+        hint(set_unary_op, this::set_unary_op, 0);
+        hint(set_unary_op, this::set_unary_op, 92);
+        hint(mp_obj_new_set, this::mp_obj_new_set, 0);
+        hint(mp_obj_new_set, this::mp_obj_new_set, 12);
+        hint(mp_obj_new_set, this::mp_obj_new_set, 28);
+        hint(mp_obj_new_set, this::mp_obj_new_set, 50);
+        hint(set_intersect_int_part_4, this::set_intersect_int_part_4, 0);
+        hint(set_intersect_int_part_4, this::set_intersect_int_part_4, 16);
+        hint(set_intersect_int_part_4, this::set_intersect_int_part_4, 26);
+        hint(set_intersect_int_part_4, this::set_intersect_int_part_4, 34);
+        hint(set_intersect_int_part_4, this::set_intersect_int_part_4, 54);
+        hint(set_intersect_int_part_4, this::set_intersect_int_part_4, 82);
+        hint(set_intersect_int_part_4, this::set_intersect_int_part_4, 94);
+        hint(set_intersect_update, this::set_intersect_update, 0);
+        hint(set_intersect_update, this::set_intersect_update, 14);
+        hint(set_intersect, this::set_intersect, 0);
+        hint(set_intersect, this::set_intersect, 10);
+        hint(set_intersect, this::set_intersect, 18);
+        hint(mp_obj_set_store, this::mp_obj_set_store, 0);
+        hint(mp_obj_set_store, this::mp_obj_set_store, 10);
+        hint(set_make_new, this::set_make_new, 0);
+        hint(set_make_new, this::set_make_new, 24);
+        hint(set_make_new, this::set_make_new, 36);
+        hint(set_make_new, this::set_make_new, 52);
+        hint(set_make_new, this::set_make_new, 62);
+        hint(set_make_new, this::set_make_new, 70);
+        hint(set_make_new, this::set_make_new, 80);
+        hint(set_issubset_internal, this::set_issubset_internal, 0);
+        hint(set_issubset_internal, this::set_issubset_internal, 18);
+        hint(set_issubset_internal, this::set_issubset_internal, 34);
+        hint(set_issubset_internal, this::set_issubset_internal, 48);
+        hint(set_issubset_internal, this::set_issubset_internal, 64);
+        hint(set_issubset_internal, this::set_issubset_internal, 106);
+        hint(set_issubset_internal, this::set_issubset_internal, 124);
+        hint(set_issubset_internal, this::set_issubset_internal, 134);
+        hint(set_issubset_internal, this::set_issubset_internal, 150);
+        hint(set_issuperset, this::set_issuperset, 0);
+        hint(set_issuperset, this::set_issuperset, 14);
+        hint(set_issubset, this::set_issubset, 0);
+        hint(set_issubset, this::set_issubset, 8);
+        hint(set_binary_op, this::set_binary_op, 0);
+        hint(set_binary_op, this::set_binary_op, 40);
+        hint(set_binary_op, this::set_binary_op, 96);
+        hint(set_binary_op, this::set_binary_op, 122);
+        hint(set_binary_op, this::set_binary_op, 142);
+        hint(set_binary_op, this::set_binary_op, 152);
+        hint(set_binary_op, this::set_binary_op, 162);
+        hint(set_binary_op, this::set_binary_op, 174);
+        hint(set_binary_op, this::set_binary_op, 188);
+        hint(set_binary_op, this::set_binary_op, 204);
+        hint(set_binary_op, this::set_binary_op, 214);
+        hint(set_binary_op, this::set_binary_op, 230);
+        hint(set_binary_op, this::set_binary_op, 256);
+        hint(set_binary_op, this::set_binary_op, 266);
+        hint(set_binary_op, this::set_binary_op, 278);
+        hint(singleton_print, this::singleton_print, 0);
+        hint(singleton_print, this::singleton_print, 10);
+        hint(slice_print, this::slice_print, 0);
+        hint(slice_print, this::slice_print, 12);
+        hint(slice_print, this::slice_print, 22);
+        hint(slice_print, this::slice_print, 32);
+        hint(slice_print, this::slice_print, 42);
+        hint(slice_print, this::slice_print, 50);
+        hint(slice_print, this::slice_print, 60);
+        hint(slice_print, this::slice_print, 68);
+        hint(slice_attr, this::slice_attr, 0);
+        hint(mp_obj_new_slice, this::mp_obj_new_slice, 0);
+        hint(mp_obj_new_slice, this::mp_obj_new_slice, 14);
+        hint(mp_obj_slice_get, this::mp_obj_slice_get, 0);
+        hint(arg_looks_integer, this::arg_looks_integer, 0);
+        hint(arg_looks_numeric, this::arg_looks_numeric, 0);
+        hint(arg_looks_numeric, this::arg_looks_numeric, 8);
+        hint(mp_obj_new_bytes_iterator, this::mp_obj_new_bytes_iterator, 0);
+        hint(bytes_it_iternext, this::bytes_it_iternext, 0);
+        hint(bytes_it_iternext, this::bytes_it_iternext, 22);
+        hint(unlikely_bad_implicit_conversion, this::unlikely_bad_implicit_conversion, 0);
+        hint(unlikely_bad_implicit_conversion, this::unlikely_bad_implicit_conversion, 6);
+        hint(unlikely_bad_implicit_conversion, this::unlikely_bad_implicit_conversion, 28);
+        hint(unlikely_bad_implicit_conversion, this::unlikely_bad_implicit_conversion, 32);
+        hint(str_count, this::str_count, 0);
+        hint(str_count, this::str_count, 14);
+        hint(str_count, this::str_count, 22);
+        hint(str_count, this::str_count, 34);
+        hint(str_count, this::str_count, 52);
+        hint(str_count, this::str_count, 72);
+        hint(str_count, this::str_count, 108);
+        hint(str_count, this::str_count, 138);
+        hint(str_count, this::str_count, 158);
+        hint(str_count, this::str_count, 196);
+        hint(str_count, this::str_count, 224);
+        hint(str_uni_istype, this::str_uni_istype, 0);
+        hint(str_uni_istype, this::str_uni_istype, 20);
+        hint(str_uni_istype, this::str_uni_istype, 86);
+        hint(str_uni_istype, this::str_uni_istype, 100);
+        hint(str_uni_istype, this::str_uni_istype, 108);
+        hint(str_isspace, this::str_isspace, 0);
+        hint(str_isspace, this::str_isspace, 10);
+        hint(str_isalpha, this::str_isalpha, 0);
+        hint(str_isalpha, this::str_isalpha, 10);
+        hint(str_isdigit, this::str_isdigit, 0);
+        hint(str_isdigit, this::str_isdigit, 10);
+        hint(str_isupper, this::str_isupper, 0);
+        hint(str_isupper, this::str_isupper, 10);
+        hint(str_islower, this::str_islower, 0);
+        hint(str_islower, this::str_islower, 10);
+        hint(str_to_int, this::str_to_int, 0);
+        hint(mp_obj_str_get_buffer, this::mp_obj_str_get_buffer, 0);
+        hint(mp_obj_str_get_buffer, this::mp_obj_str_get_buffer, 24);
+        hint(mp_str_print_quoted, this::mp_str_print_quoted, 0);
+        hint(mp_str_print_quoted, this::mp_str_print_quoted, 44);
+        hint(mp_str_print_quoted, this::mp_str_print_quoted, 60);
+        hint(mp_str_print_quoted, this::mp_str_print_quoted, 108);
+        hint(mp_str_print_quoted, this::mp_str_print_quoted, 164);
+        hint(mp_str_print_json, this::mp_str_print_json, 0);
+        hint(mp_str_print_json, this::mp_str_print_json, 16);
+        hint(mp_str_print_json, this::mp_str_print_json, 30);
+        hint(mp_str_print_json, this::mp_str_print_json, 50);
+        hint(mp_str_print_json, this::mp_str_print_json, 84);
+        hint(str_print, this::str_print, 0);
+        hint(str_print, this::str_print, 22);
+        hint(str_print, this::str_print, 38);
+        hint(str_print, this::str_print, 64);
+        hint(str_print, this::str_print, 74);
+        hint(str_print, this::str_print, 86);
+        hint(find_subbytes, this::find_subbytes, 0);
+        hint(find_subbytes, this::find_subbytes, 42);
+        hint(str_finder, this::str_finder, 0);
+        hint(str_finder, this::str_finder, 18);
+        hint(str_finder, this::str_finder, 26);
+        hint(str_finder, this::str_finder, 38);
+        hint(str_finder, this::str_finder, 56);
+        hint(str_finder, this::str_finder, 76);
+        hint(str_finder, this::str_finder, 112);
+        hint(str_finder, this::str_finder, 142);
+        hint(str_finder, this::str_finder, 166);
+        hint(str_finder, this::str_finder, 186);
+        hint(str_finder, this::str_finder, 218);
+        hint(str_find, this::str_find, 0);
+        hint(str_find, this::str_find, 10);
+        hint(str_rfind, this::str_rfind, 0);
+        hint(str_rfind, this::str_rfind, 12);
+        hint(str_index, this::str_index, 0);
+        hint(str_index, this::str_index, 10);
+        hint(str_rindex, this::str_rindex, 0);
+        hint(str_rindex, this::str_rindex, 12);
+        hint(mp_obj_new_str_copy, this::mp_obj_new_str_copy, 0);
+        hint(mp_obj_new_str_copy, this::mp_obj_new_str_copy, 14);
+        hint(mp_obj_new_str_copy, this::mp_obj_new_str_copy, 32);
+        hint(mp_obj_new_str_copy, this::mp_obj_new_str_copy, 40);
+        hint(mp_obj_new_str_copy, this::mp_obj_new_str_copy, 52);
+        hint(mp_obj_new_str_via_qstr, this::mp_obj_new_str_via_qstr, 0);
+        hint(mp_obj_new_str_via_qstr, this::mp_obj_new_str_via_qstr, 6);
+        hint(mp_obj_new_str_from_vstr, this::mp_obj_new_str_from_vstr, 0);
+        hint(mp_obj_new_str_from_vstr, this::mp_obj_new_str_from_vstr, 20);
+        hint(mp_obj_new_str_from_vstr, this::mp_obj_new_str_from_vstr, 30);
+        hint(mp_obj_new_str_from_vstr, this::mp_obj_new_str_from_vstr, 50);
+        hint(mp_obj_new_str_from_vstr, this::mp_obj_new_str_from_vstr, 64);
+        hint(mp_obj_new_str_from_vstr, this::mp_obj_new_str_from_vstr, 100);
+        hint(str_join, this::str_join, 0);
+        hint(str_join, this::str_join, 12);
+        hint(str_join, this::str_join, 30);
+        hint(str_join, this::str_join, 66);
+        hint(str_join, this::str_join, 80);
+        hint(str_join, this::str_join, 98);
+        hint(str_join, this::str_join, 114);
+        hint(str_join, this::str_join, 140);
+        hint(str_join, this::str_join, 150);
+        hint(str_join, this::str_join, 178);
+        hint(str_join, this::str_join, 202);
+        hint(str_join, this::str_join, 228);
+        hint(str_join, this::str_join, 238);
+        hint(str_center, this::str_center, 0);
+        hint(str_center, this::str_center, 24);
+        hint(str_center, this::str_center, 32);
+        hint(str_center, this::str_center, 48);
+        hint(str_center, this::str_center, 58);
+        hint(str_center, this::str_center, 78);
+        hint(str_center, this::str_center, 84);
+        hint(str_center, this::str_center, 90);
+        hint(str_replace, this::str_replace, 0);
+        hint(str_replace, this::str_replace, 16);
+        hint(str_replace, this::str_replace, 44);
+        hint(str_replace, this::str_replace, 52);
+        hint(str_replace, this::str_replace, 64);
+        hint(str_replace, this::str_replace, 70);
+        hint(str_replace, this::str_replace, 98);
+        hint(str_replace, this::str_replace, 118);
+        hint(str_replace, this::str_replace, 138);
+        hint(str_replace, this::str_replace, 172);
+        hint(str_replace, this::str_replace, 244);
+        hint(str_replace, this::str_replace, 262);
+        hint(str_replace, this::str_replace, 324);
+        hint(str_replace, this::str_replace, 346);
+        hint(str_replace, this::str_replace, 368);
+        hint(str_replace, this::str_replace, 388);
+        hint(str_caseconv, this::str_caseconv, 0);
+        hint(str_caseconv, this::str_caseconv, 24);
+        hint(str_caseconv, this::str_caseconv, 36);
+        hint(str_caseconv, this::str_caseconv, 52);
+        hint(str_caseconv, this::str_caseconv, 58);
+        hint(str_caseconv, this::str_caseconv, 74);
+        hint(str_lower, this::str_lower, 0);
+        hint(str_lower, this::str_lower, 10);
+        hint(str_upper, this::str_upper, 0);
+        hint(str_upper, this::str_upper, 10);
+        hint(mp_obj_new_str, this::mp_obj_new_str, 0);
+        hint(mp_obj_new_str, this::mp_obj_new_str, 10);
+        hint(mp_obj_new_str, this::mp_obj_new_str, 32);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 0);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 20);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 32);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 50);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 60);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 68);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 104);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 114);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 126);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 134);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 152);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 170);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 178);
+        hint(mp_obj_str_make_new, this::mp_obj_str_make_new, 190);
+        hint(bytes_decode, this::bytes_decode, 0);
+        hint(bytes_decode, this::bytes_decode, 32);
+        hint(mp_obj_new_bytes, this::mp_obj_new_bytes, 0);
+        hint(mp_obj_new_bytes, this::mp_obj_new_bytes, 12);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 0);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 50);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 68);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 82);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 92);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 144);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 158);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 166);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 174);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 186);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 194);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 208);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 216);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 224);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 236);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 246);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 254);
+        hint(bytes_make_new_part_4, this::bytes_make_new_part_4, 262);
+        hint(bytes_make_new, this::bytes_make_new, 0);
+        hint(bytes_make_new, this::bytes_make_new, 12);
+        hint(bytes_make_new, this::bytes_make_new, 26);
+        hint(str_encode, this::str_encode, 0);
+        hint(str_encode, this::str_encode, 30);
+        hint(mp_obj_new_str_of_type, this::mp_obj_new_str_of_type, 0);
+        hint(mp_obj_new_str_of_type, this::mp_obj_new_str_of_type, 18);
+        hint(mp_obj_new_str_of_type, this::mp_obj_new_str_of_type, 24);
+        hint(str_splitlines, this::str_splitlines, 0);
+        hint(str_splitlines, this::str_splitlines, 24);
+        hint(str_splitlines, this::str_splitlines, 30);
+        hint(str_splitlines, this::str_splitlines, 40);
+        hint(str_splitlines, this::str_splitlines, 60);
+        hint(str_splitlines, this::str_splitlines, 126);
+        hint(str_splitlines, this::str_splitlines, 134);
+        hint(str_uni_strip, this::str_uni_strip, 0);
+        hint(str_uni_strip, this::str_uni_strip, 16);
+        hint(str_uni_strip, this::str_uni_strip, 28);
+        hint(str_uni_strip, this::str_uni_strip, 40);
+        hint(str_uni_strip, this::str_uni_strip, 58);
+        hint(str_uni_strip, this::str_uni_strip, 82);
+        hint(str_uni_strip, this::str_uni_strip, 196);
+        hint(str_uni_strip, this::str_uni_strip, 276);
+        hint(str_strip, this::str_strip, 0);
+        hint(str_strip, this::str_strip, 12);
+        hint(str_lstrip, this::str_lstrip, 0);
+        hint(str_lstrip, this::str_lstrip, 12);
+        hint(str_rstrip, this::str_rstrip, 0);
+        hint(str_rstrip, this::str_rstrip, 12);
+        hint(str_partitioner, this::str_partitioner, 0);
+        hint(str_partitioner, this::str_partitioner, 14);
+        hint(str_partitioner, this::str_partitioner, 22);
+        hint(str_partitioner, this::str_partitioner, 34);
+        hint(str_partitioner, this::str_partitioner, 50);
+        hint(str_partitioner, this::str_partitioner, 68);
+        hint(str_partitioner, this::str_partitioner, 82);
+        hint(str_partitioner, this::str_partitioner, 132);
+        hint(str_partitioner, this::str_partitioner, 148);
+        hint(str_partitioner, this::str_partitioner, 170);
+        hint(str_partitioner, this::str_partitioner, 180);
+        hint(str_partition, this::str_partition, 0);
+        hint(str_partition, this::str_partition, 8);
+        hint(str_rpartition, this::str_rpartition, 0);
+        hint(str_rpartition, this::str_rpartition, 10);
+        hint(bytes_subscr, this::bytes_subscr, 0);
+        hint(bytes_subscr, this::bytes_subscr, 14);
+        hint(bytes_subscr, this::bytes_subscr, 32);
+        hint(bytes_subscr, this::bytes_subscr, 60);
+        hint(bytes_subscr, this::bytes_subscr, 70);
+        hint(bytes_subscr, this::bytes_subscr, 92);
+        hint(bytes_subscr, this::bytes_subscr, 108);
+        hint(mp_obj_str_equal, this::mp_obj_str_equal, 0);
+        hint(mp_obj_str_equal, this::mp_obj_str_equal, 42);
+        hint(mp_obj_str_equal, this::mp_obj_str_equal, 60);
+        hint(mp_obj_str_equal, this::mp_obj_str_equal, 92);
+        hint(mp_obj_str_equal, this::mp_obj_str_equal, 106);
+        hint(mp_obj_str_equal, this::mp_obj_str_equal, 122);
+        hint(mp_obj_str_get_qstr, this::mp_obj_str_get_qstr, 0);
+        hint(mp_obj_str_get_qstr, this::mp_obj_str_get_qstr, 34);
+        hint(mp_obj_str_get_qstr, this::mp_obj_str_get_qstr, 40);
+        hint(mp_obj_str_get_str, this::mp_obj_str_get_str, 0);
+        hint(mp_obj_str_get_str, this::mp_obj_str_get_str, 28);
+        hint(mp_obj_str_get_str, this::mp_obj_str_get_str, 36);
+        hint(mp_obj_str_get_data, this::mp_obj_str_get_data, 0);
+        hint(mp_obj_str_get_data, this::mp_obj_str_get_data, 30);
+        hint(mp_obj_str_get_data, this::mp_obj_str_get_data, 38);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 0);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 58);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 88);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 104);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 148);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 198);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 216);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 228);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 250);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 266);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 274);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 408);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 466);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 542);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 546);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 556);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 572);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 602);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 606);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 634);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 748);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 776);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 784);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 794);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 874);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 898);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 910);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 954);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 990);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 996);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1004);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1018);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1032);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1080);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1098);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1108);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1132);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1174);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1190);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1214);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1234);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1258);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1272);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1292);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1300);
+        hint(mp_obj_str_binary_op, this::mp_obj_str_binary_op, 1322);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 0);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 14);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 32);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 42);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 62);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 84);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 102);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 110);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 140);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 160);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 168);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 198);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 220);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 232);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 240);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 254);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 266);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 274);
+        hint(mp_obj_str_split, this::mp_obj_str_split, 316);
+        hint(str_rsplit, this::str_rsplit, 0);
+        hint(str_rsplit, this::str_rsplit, 20);
+        hint(str_rsplit, this::str_rsplit, 34);
+        hint(str_rsplit, this::str_rsplit, 56);
+        hint(str_rsplit, this::str_rsplit, 64);
+        hint(str_rsplit, this::str_rsplit, 80);
+        hint(str_rsplit, this::str_rsplit, 94);
+        hint(str_rsplit, this::str_rsplit, 112);
+        hint(str_rsplit, this::str_rsplit, 126);
+        hint(str_rsplit, this::str_rsplit, 166);
+        hint(str_rsplit, this::str_rsplit, 194);
+        hint(str_rsplit, this::str_rsplit, 218);
+        hint(str_rsplit, this::str_rsplit, 234);
+        hint(str_rsplit, this::str_rsplit, 262);
+        hint(str_startswith, this::str_startswith, 0);
+        hint(str_startswith, this::str_startswith, 14);
+        hint(str_startswith, this::str_startswith, 34);
+        hint(str_startswith, this::str_startswith, 44);
+        hint(str_startswith, this::str_startswith, 68);
+        hint(str_startswith, this::str_startswith, 88);
+        hint(str_endswith, this::str_endswith, 0);
+        hint(str_endswith, this::str_endswith, 24);
+        hint(str_endswith, this::str_endswith, 34);
+        hint(str_endswith, this::str_endswith, 46);
+        hint(str_endswith, this::str_endswith, 72);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 0);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 22);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 78);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 88);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 98);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 260);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 264);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 318);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 346);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 366);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 392);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 416);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 428);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 440);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 516);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 526);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 534);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 554);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 578);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 584);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 612);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 684);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 722);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 740);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 764);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 794);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 806);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 946);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 978);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 990);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 1032);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 1048);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 1080);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 1086);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 1144);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 1164);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 1228);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 1250);
+        hint(mp_obj_str_format_helper, this::mp_obj_str_format_helper, 1284);
+        hint(mp_obj_str_format, this::mp_obj_str_format, 0);
+        hint(mp_obj_str_format, this::mp_obj_str_format, 28);
+        hint(mp_obj_str_format, this::mp_obj_str_format, 52);
+        hint(mp_obj_str_format, this::mp_obj_str_format, 60);
+        hint(mp_obj_str_intern_checked, this::mp_obj_str_intern_checked, 0);
+        hint(mp_obj_str_intern_checked, this::mp_obj_str_intern_checked, 8);
+        hint(mp_obj_str_intern_checked, this::mp_obj_str_intern_checked, 14);
+        hint(mp_obj_new_str_iterator, this::mp_obj_new_str_iterator, 0);
+        hint(str_it_iternext, this::str_it_iternext, 0);
+        hint(str_it_iternext, this::str_it_iternext, 22);
+        hint(str_it_iternext, this::str_it_iternext, 42);
+        hint(str_it_iternext, this::str_it_iternext, 52);
+        hint(uni_unary_op, this::uni_unary_op, 0);
+        hint(uni_unary_op, this::uni_unary_op, 20);
+        hint(uni_unary_op, this::uni_unary_op, 58);
+        hint(uni_print, this::uni_print, 0);
+        hint(uni_print, this::uni_print, 24);
+        hint(uni_print, this::uni_print, 40);
+        hint(uni_print, this::uni_print, 66);
+        hint(uni_print, this::uni_print, 134);
+        hint(uni_print, this::uni_print, 142);
+        hint(uni_print, this::uni_print, 158);
+        hint(uni_print, this::uni_print, 202);
+        hint(uni_print, this::uni_print, 218);
+        hint(str_index_to_ptr, this::str_index_to_ptr, 0);
+        hint(str_index_to_ptr, this::str_index_to_ptr, 28);
+        hint(str_index_to_ptr, this::str_index_to_ptr, 80);
+        hint(str_index_to_ptr, this::str_index_to_ptr, 88);
+        hint(str_index_to_ptr, this::str_index_to_ptr, 98);
+        hint(str_index_to_ptr, this::str_index_to_ptr, 108);
+        hint(str_index_to_ptr, this::str_index_to_ptr, 112);
+        hint(str_subscr, this::str_subscr, 0);
+        hint(str_subscr, this::str_subscr, 14);
+        hint(str_subscr, this::str_subscr, 32);
+        hint(str_subscr, this::str_subscr, 62);
+        hint(str_subscr, this::str_subscr, 80);
+        hint(str_subscr, this::str_subscr, 110);
+        hint(str_subscr, this::str_subscr, 134);
+        hint(str_subscr, this::str_subscr, 152);
+        hint(str_subscr, this::str_subscr, 172);
+        hint(str_subscr, this::str_subscr, 200);
+        hint(stringio___exit__, this::stringio___exit__, 0);
+        hint(stringio___exit__, this::stringio___exit__, 8);
+        hint(stringio_print, this::stringio_print, 0);
+        hint(stringio_print, this::stringio_print, 22);
+        hint(stringio_write, this::stringio_write, 0);
+        hint(stringio_write, this::stringio_write, 24);
+        hint(stringio_write, this::stringio_write, 42);
+        hint(stringio_write, this::stringio_write, 56);
+        hint(stringio_write, this::stringio_write, 110);
+    }
+
+    private void gen_hints_8() {
+        hint(stringio_write, this::stringio_write, 130);
+        hint(stringio_write, this::stringio_write, 146);
+        hint(stringio_make_new, this::stringio_make_new, 0);
+        hint(stringio_make_new, this::stringio_make_new, 16);
+        hint(stringio_make_new, this::stringio_make_new, 52);
+        hint(stringio_make_new, this::stringio_make_new, 58);
+        hint(stringio_make_new, this::stringio_make_new, 76);
+        hint(stringio_make_new, this::stringio_make_new, 90);
+        hint(stringio_make_new, this::stringio_make_new, 120);
+        hint(stringio_make_new, this::stringio_make_new, 130);
+        hint(stringio_ioctl, this::stringio_ioctl, 0);
+        hint(stringio_ioctl, this::stringio_ioctl, 88);
+        hint(stringio_getvalue, this::stringio_getvalue, 0);
+        hint(stringio_getvalue, this::stringio_getvalue, 14);
+        hint(stringio_getvalue, this::stringio_getvalue, 34);
+        hint(stringio_read, this::stringio_read, 0);
+        hint(stringio_read, this::stringio_read, 18);
+        hint(stringio_read, this::stringio_read, 46);
+        hint(tuple_it_iternext, this::tuple_it_iternext, 0);
+        hint(mp_obj_tuple_getiter, this::mp_obj_tuple_getiter, 0);
+        hint(mp_obj_tuple_print, this::mp_obj_tuple_print, 0);
+        hint(mp_obj_tuple_print, this::mp_obj_tuple_print, 18);
+        hint(mp_obj_tuple_print, this::mp_obj_tuple_print, 44);
+        hint(mp_obj_tuple_print, this::mp_obj_tuple_print, 52);
+        hint(mp_obj_tuple_print, this::mp_obj_tuple_print, 60);
+        hint(mp_obj_tuple_print, this::mp_obj_tuple_print, 76);
+        hint(mp_obj_tuple_print, this::mp_obj_tuple_print, 90);
+        hint(tuple_index, this::tuple_index, 0);
+        hint(tuple_index, this::tuple_index, 18);
+        hint(tuple_count, this::tuple_count, 0);
+        hint(tuple_count, this::tuple_count, 14);
+        hint(mp_obj_tuple_unary_op, this::mp_obj_tuple_unary_op, 0);
+        hint(mp_obj_tuple_unary_op, this::mp_obj_tuple_unary_op, 58);
+        hint(mp_obj_new_tuple, this::mp_obj_new_tuple, 0);
+        hint(mp_obj_new_tuple, this::mp_obj_new_tuple, 22);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 0);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 44);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 50);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 66);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 86);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 104);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 118);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 142);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 164);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 172);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 188);
+        hint(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op, 220);
+        hint(mp_obj_tuple_subscr, this::mp_obj_tuple_subscr, 0);
+        hint(mp_obj_tuple_subscr, this::mp_obj_tuple_subscr, 32);
+        hint(mp_obj_tuple_subscr, this::mp_obj_tuple_subscr, 42);
+        hint(mp_obj_tuple_subscr, this::mp_obj_tuple_subscr, 54);
+        hint(mp_obj_tuple_subscr, this::mp_obj_tuple_subscr, 76);
+        hint(mp_obj_tuple_subscr, this::mp_obj_tuple_subscr, 94);
+        hint(mp_obj_tuple_make_new, this::mp_obj_tuple_make_new, 0);
+        hint(mp_obj_tuple_make_new, this::mp_obj_tuple_make_new, 22);
+        hint(mp_obj_tuple_make_new, this::mp_obj_tuple_make_new, 48);
+        hint(mp_obj_tuple_make_new, this::mp_obj_tuple_make_new, 58);
+        hint(mp_obj_tuple_make_new, this::mp_obj_tuple_make_new, 70);
+        hint(mp_obj_tuple_make_new, this::mp_obj_tuple_make_new, 86);
+        hint(mp_obj_tuple_make_new, this::mp_obj_tuple_make_new, 96);
+        hint(mp_obj_tuple_make_new, this::mp_obj_tuple_make_new, 116);
+        hint(mp_obj_tuple_get, this::mp_obj_tuple_get, 0);
+        hint(mp_obj_tuple_del, this::mp_obj_tuple_del, 0);
+        hint(mp_obj_tuple_del, this::mp_obj_tuple_del, 12);
+        hint(instance_count_native_bases, this::instance_count_native_bases, 0);
+        hint(instance_count_native_bases, this::instance_count_native_bases, 64);
+        hint(native_base_init_wrapper, this::native_base_init_wrapper, 0);
+        hint(native_base_init_wrapper, this::native_base_init_wrapper, 20);
+        hint(native_base_init_wrapper, this::native_base_init_wrapper, 32);
+        hint(mp_obj_class_lookup, this::mp_obj_class_lookup, 0);
+        hint(mp_obj_class_lookup, this::mp_obj_class_lookup, 56);
+        hint(mp_obj_class_lookup, this::mp_obj_class_lookup, 80);
+        hint(mp_obj_class_lookup, this::mp_obj_class_lookup, 188);
+        hint(mp_obj_class_lookup, this::mp_obj_class_lookup, 214);
+        hint(super_attr, this::super_attr, 0);
+        hint(super_attr, this::super_attr, 86);
+        hint(super_attr, this::super_attr, 110);
+        hint(super_attr, this::super_attr, 144);
+        hint(static_class_method_make_new, this::static_class_method_make_new, 0);
+        hint(static_class_method_make_new, this::static_class_method_make_new, 22);
+        hint(static_class_method_make_new, this::static_class_method_make_new, 28);
+        hint(super_make_new, this::super_make_new, 0);
+        hint(super_make_new, this::super_make_new, 22);
+        hint(super_make_new, this::super_make_new, 42);
+        hint(super_make_new, this::super_make_new, 48);
+        hint(type_print, this::type_print, 0);
+        hint(type_print, this::type_print, 10);
+        hint(instance_subscr, this::instance_subscr, 0);
+        hint(instance_subscr, this::instance_subscr, 20);
+        hint(instance_subscr, this::instance_subscr, 30);
+        hint(instance_subscr, this::instance_subscr, 62);
+        hint(instance_subscr, this::instance_subscr, 80);
+        hint(instance_subscr, this::instance_subscr, 94);
+        hint(instance_subscr, this::instance_subscr, 116);
+        hint(instance_binary_op, this::instance_binary_op, 0);
+        hint(instance_binary_op, this::instance_binary_op, 24);
+        hint(instance_binary_op, this::instance_binary_op, 48);
+        hint(instance_binary_op, this::instance_binary_op, 64);
+        hint(instance_binary_op, this::instance_binary_op, 92);
+        hint(instance_unary_op, this::instance_unary_op, 0);
+        hint(instance_unary_op, this::instance_unary_op, 20);
+        hint(instance_unary_op, this::instance_unary_op, 26);
+        hint(instance_unary_op, this::instance_unary_op, 60);
+        hint(instance_unary_op, this::instance_unary_op, 84);
+        hint(instance_unary_op, this::instance_unary_op, 98);
+        hint(instance_unary_op, this::instance_unary_op, 112);
+        hint(instance_unary_op, this::instance_unary_op, 120);
+        hint(instance_unary_op, this::instance_unary_op, 144);
+        hint(instance_print, this::instance_print, 0);
+        hint(instance_print, this::instance_print, 30);
+        hint(instance_print, this::instance_print, 58);
+        hint(instance_print, this::instance_print, 82);
+        hint(instance_print, this::instance_print, 94);
+        hint(instance_print, this::instance_print, 114);
+        hint(instance_print, this::instance_print, 122);
+        hint(instance_print, this::instance_print, 134);
+        hint(instance_print, this::instance_print, 152);
+        hint(instance_print, this::instance_print, 164);
+        hint(instance_print, this::instance_print, 176);
+        hint(super_print, this::super_print, 0);
+        hint(super_print, this::super_print, 12);
+        hint(super_print, this::super_print, 22);
+        hint(super_print, this::super_print, 30);
+        hint(super_print, this::super_print, 40);
+        hint(super_print, this::super_print, 48);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 0);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 34);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 56);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 94);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 116);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 152);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 168);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 178);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 192);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 208);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 220);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 244);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 286);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 308);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 334);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 362);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 394);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 416);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 436);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 452);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 478);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 516);
+        hint(mp_obj_instance_attr, this::mp_obj_instance_attr, 538);
+        hint(type_call, this::type_call, 0);
+        hint(type_call, this::type_call, 18);
+        hint(type_call, this::type_call, 22);
+        hint(type_call, this::type_call, 24);
+        hint(instance_get_buffer, this::instance_get_buffer, 0);
+        hint(instance_get_buffer, this::instance_get_buffer, 22);
+        hint(instance_get_buffer, this::instance_get_buffer, 46);
+        hint(instance_get_buffer, this::instance_get_buffer, 60);
+        hint(instance_get_buffer, this::instance_get_buffer, 70);
+        hint(instance_getiter, this::instance_getiter, 0);
+        hint(instance_getiter, this::instance_getiter, 20);
+        hint(instance_getiter, this::instance_getiter, 44);
+        hint(instance_getiter, this::instance_getiter, 62);
+        hint(instance_getiter, this::instance_getiter, 70);
+        hint(instance_getiter, this::instance_getiter, 84);
+        hint(check_for_special_accessors, this::check_for_special_accessors, 0);
+        hint(check_for_special_accessors, this::check_for_special_accessors, 42);
+        hint(type_attr, this::type_attr, 0);
+        hint(type_attr, this::type_attr, 50);
+        hint(type_attr, this::type_attr, 94);
+        hint(type_attr, this::type_attr, 116);
+        hint(type_attr, this::type_attr, 134);
+        hint(type_attr, this::type_attr, 148);
+        hint(mp_obj_instance_call, this::mp_obj_instance_call, 0);
+        hint(mp_obj_instance_call, this::mp_obj_instance_call, 42);
+        hint(mp_obj_instance_call, this::mp_obj_instance_call, 54);
+        hint(mp_obj_instance_call, this::mp_obj_instance_call, 64);
+        hint(mp_obj_instance_call, this::mp_obj_instance_call, 68);
+        hint(mp_obj_instance_call, this::mp_obj_instance_call, 84);
+        hint(mp_obj_instance_call, this::mp_obj_instance_call, 100);
+        hint(mp_obj_new_instance, this::mp_obj_new_instance, 0);
+        hint(mp_obj_new_instance, this::mp_obj_new_instance, 8);
+        hint(mp_obj_new_instance, this::mp_obj_new_instance, 18);
+        hint(mp_obj_new_instance, this::mp_obj_new_instance, 28);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 0);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 24);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 48);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 68);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 92);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 114);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 128);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 138);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 142);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 160);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 168);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 198);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 212);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 226);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 236);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 256);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 280);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 290);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 300);
+        hint(mp_obj_instance_make_new, this::mp_obj_instance_make_new, 326);
+        hint(mp_obj_instance_is_callable, this::mp_obj_instance_is_callable, 0);
+        hint(mp_obj_instance_is_callable, this::mp_obj_instance_is_callable, 36);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 0);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 22);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 54);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 80);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 162);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 206);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 210);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 272);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 298);
+        hint(mp_obj_new_type, this::mp_obj_new_type, 332);
+        hint(type_make_new, this::type_make_new, 0);
+        hint(type_make_new, this::type_make_new, 22);
+        hint(type_make_new, this::type_make_new, 36);
+        hint(type_make_new, this::type_make_new, 42);
+        hint(type_make_new, this::type_make_new, 50);
+        hint(type_make_new, this::type_make_new, 58);
+        hint(mp_load_super_method, this::mp_load_super_method, 0);
+        hint(mp_load_super_method, this::mp_load_super_method, 24);
+        hint(mp_obj_is_subclass_fast, this::mp_obj_is_subclass_fast, 0);
+        hint(mp_obj_is_subclass_fast, this::mp_obj_is_subclass_fast, 64);
+        hint(mp_obj_is_subclass, this::mp_obj_is_subclass, 0);
+        hint(mp_obj_is_subclass, this::mp_obj_is_subclass, 60);
+        hint(mp_obj_is_subclass, this::mp_obj_is_subclass, 68);
+        hint(mp_obj_is_subclass, this::mp_obj_is_subclass, 84);
+        hint(mp_builtin_issubclass, this::mp_builtin_issubclass, 0);
+        hint(mp_builtin_issubclass, this::mp_builtin_issubclass, 20);
+        hint(mp_builtin_issubclass, this::mp_builtin_issubclass, 24);
+        hint(mp_builtin_isinstance, this::mp_builtin_isinstance, 0);
+        hint(mp_builtin_isinstance, this::mp_builtin_isinstance, 8);
+        hint(mp_builtin_isinstance, this::mp_builtin_isinstance, 14);
+        hint(mp_instance_cast_to_native_base, this::mp_instance_cast_to_native_base, 0);
+        hint(mp_instance_cast_to_native_base, this::mp_instance_cast_to_native_base, 10);
+        hint(mp_instance_cast_to_native_base, this::mp_instance_cast_to_native_base, 16);
+        hint(zip_iternext, this::zip_iternext, 0);
+        hint(zip_iternext, this::zip_iternext, 16);
+        hint(zip_iternext, this::zip_iternext, 38);
+        hint(zip_iternext, this::zip_iternext, 48);
+        hint(zip_make_new, this::zip_make_new, 0);
+        hint(zip_make_new, this::zip_make_new, 28);
+        hint(zip_make_new, this::zip_make_new, 34);
+        hint(zip_make_new, this::zip_make_new, 68);
+        hint(op_getitem, this::op_getitem, 0);
+        hint(op_getitem, this::op_getitem, 10);
+        hint(op_getitem, this::op_getitem, 20);
+        hint(op_setitem, this::op_setitem, 0);
+        hint(op_setitem, this::op_setitem, 12);
+        hint(op_setitem, this::op_setitem, 22);
+        hint(op_delitem, this::op_delitem, 0);
+        hint(op_delitem, this::op_delitem, 10);
+        hint(op_delitem, this::op_delitem, 20);
+        hint(op_contains, this::op_contains, 0);
+        hint(op_contains, this::op_contains, 10);
+        hint(op_contains, this::op_contains, 20);
+        hint(mp_seq_multiply, this::mp_seq_multiply, 0);
+        hint(mp_seq_multiply, this::mp_seq_multiply, 28);
+        hint(mp_seq_get_fast_slice_indexes, this::mp_seq_get_fast_slice_indexes, 0);
+        hint(mp_seq_get_fast_slice_indexes, this::mp_seq_get_fast_slice_indexes, 20);
+        hint(mp_seq_get_fast_slice_indexes, this::mp_seq_get_fast_slice_indexes, 36);
+        hint(mp_seq_get_fast_slice_indexes, this::mp_seq_get_fast_slice_indexes, 48);
+        hint(mp_seq_get_fast_slice_indexes, this::mp_seq_get_fast_slice_indexes, 146);
+        hint(mp_seq_get_fast_slice_indexes, this::mp_seq_get_fast_slice_indexes, 154);
+        hint(mp_seq_extract_slice, this::mp_seq_extract_slice, 0);
+        hint(mp_seq_extract_slice, this::mp_seq_extract_slice, 20);
+        hint(mp_seq_extract_slice, this::mp_seq_extract_slice, 46);
+        hint(mp_seq_extract_slice, this::mp_seq_extract_slice, 60);
+        hint(mp_seq_cmp_bytes, this::mp_seq_cmp_bytes, 0);
+        hint(mp_seq_cmp_bytes, this::mp_seq_cmp_bytes, 38);
+        hint(mp_seq_cmp_objs, this::mp_seq_cmp_objs, 0);
+        hint(mp_seq_cmp_objs, this::mp_seq_cmp_objs, 102);
+        hint(mp_seq_cmp_objs, this::mp_seq_cmp_objs, 130);
+        hint(mp_seq_index_obj, this::mp_seq_index_obj, 0);
+        hint(mp_seq_index_obj, this::mp_seq_index_obj, 18);
+        hint(mp_seq_index_obj, this::mp_seq_index_obj, 40);
+        hint(mp_seq_index_obj, this::mp_seq_index_obj, 58);
+        hint(mp_seq_index_obj, this::mp_seq_index_obj, 70);
+        hint(mp_seq_index_obj, this::mp_seq_index_obj, 82);
+        hint(mp_seq_count_obj, this::mp_seq_count_obj, 0);
+        hint(mp_seq_count_obj, this::mp_seq_count_obj, 32);
+        hint(mp_stream_close, this::mp_stream_close, 0);
+        hint(mp_stream_close, this::mp_stream_close, 16);
+        hint(mp_stream_close, this::mp_stream_close, 26);
+        hint(stream_flush, this::stream_flush, 0);
+        hint(stream_flush, this::stream_flush, 16);
+        hint(stream_flush, this::stream_flush, 26);
+        hint(stream_unbuffered_readline, this::stream_unbuffered_readline, 0);
+        hint(stream_unbuffered_readline, this::stream_unbuffered_readline, 32);
+        hint(stream_unbuffered_readline, this::stream_unbuffered_readline, 52);
+        hint(stream_unbuffered_readline, this::stream_unbuffered_readline, 66);
+        hint(stream_unbuffered_readline, this::stream_unbuffered_readline, 76);
+        hint(stream_unbuffered_readline, this::stream_unbuffered_readline, 86);
+        hint(stream_unbuffered_readline, this::stream_unbuffered_readline, 102);
+        hint(stream_unbuffered_readline, this::stream_unbuffered_readline, 118);
+        hint(stream_unbuffered_readlines, this::stream_unbuffered_readlines, 0);
+        hint(stream_unbuffered_readlines, this::stream_unbuffered_readlines, 12);
+        hint(stream_unbuffered_readlines, this::stream_unbuffered_readlines, 22);
+        hint(stream_unbuffered_readlines, this::stream_unbuffered_readlines, 28);
+        hint(stream_unbuffered_readlines, this::stream_unbuffered_readlines, 40);
+        hint(stream_seek, this::stream_seek, 0);
+        hint(stream_seek, this::stream_seek, 14);
+        hint(stream_seek, this::stream_seek, 30);
+        hint(stream_seek, this::stream_seek, 64);
+        hint(stream_seek, this::stream_seek, 74);
+        hint(stream_seek, this::stream_seek, 80);
+        hint(stream_tell, this::stream_tell, 0);
+        hint(stream_tell, this::stream_tell, 18);
+        hint(mp_stream_rw, this::mp_stream_rw, 0);
+        hint(mp_stream_rw, this::mp_stream_rw, 62);
+        hint(stream_read_generic, this::stream_read_generic, 0);
+        hint(stream_read_generic, this::stream_read_generic, 32);
+        hint(stream_read_generic, this::stream_read_generic, 52);
+        hint(stream_read_generic, this::stream_read_generic, 62);
+        hint(stream_read_generic, this::stream_read_generic, 68);
+        hint(stream_read_generic, this::stream_read_generic, 104);
+        hint(stream_read_generic, this::stream_read_generic, 118);
+        hint(stream_read_generic, this::stream_read_generic, 134);
+        hint(stream_read_generic, this::stream_read_generic, 150);
+        hint(stream_read_generic, this::stream_read_generic, 182);
+        hint(stream_read_generic, this::stream_read_generic, 296);
+        hint(stream_read_generic, this::stream_read_generic, 308);
+        hint(stream_read_generic, this::stream_read_generic, 332);
+        hint(stream_read_generic, this::stream_read_generic, 348);
+        hint(stream_read_generic, this::stream_read_generic, 360);
+        hint(stream_read, this::stream_read, 0);
+        hint(stream_read, this::stream_read, 8);
+        hint(stream_readinto, this::stream_readinto, 0);
+        hint(stream_readinto, this::stream_readinto, 18);
+        hint(stream_readinto, this::stream_readinto, 30);
+        hint(stream_readinto, this::stream_readinto, 52);
+        hint(stream_readinto, this::stream_readinto, 64);
+        hint(mp_get_stream_raise, this::mp_get_stream_raise, 0);
+        hint(mp_get_stream_raise, this::mp_get_stream_raise, 8);
+        hint(mp_get_stream_raise, this::mp_get_stream_raise, 52);
+        hint(mp_stream_write, this::mp_stream_write, 0);
+        hint(mp_stream_write, this::mp_stream_write, 10);
+        hint(mp_stream_write, this::mp_stream_write, 22);
+        hint(stream_write_method, this::stream_write_method, 0);
+        hint(stream_write_method, this::stream_write_method, 18);
+        hint(stream_write_method, this::stream_write_method, 28);
+        hint(stream_write_method, this::stream_write_method, 56);
+        hint(stream_write_method, this::stream_write_method, 70);
+        hint(stream_write_method, this::stream_write_method, 78);
+        hint(mp_stream_write_adaptor, this::mp_stream_write_adaptor, 0);
+        hint(mp_stream_write_adaptor, this::mp_stream_write_adaptor, 8);
+        hint(mp_stream_unbuffered_iter, this::mp_stream_unbuffered_iter, 0);
+        hint(mp_stream_unbuffered_iter, this::mp_stream_unbuffered_iter, 12);
+        hint(mp_stream_unbuffered_iter, this::mp_stream_unbuffered_iter, 18);
+        hint(mp_binary_get_size, this::mp_binary_get_size, 0);
+        hint(mp_binary_get_size, this::mp_binary_get_size, 60);
+        hint(mp_binary_get_val_array, this::mp_binary_get_val_array, 0);
+        hint(mp_binary_get_val_array, this::mp_binary_get_val_array, 92);
+        hint(mp_binary_get_val_array, this::mp_binary_get_val_array, 114);
+        hint(mp_binary_get_val_array, this::mp_binary_get_val_array, 128);
+        hint(mp_binary_get_val_array, this::mp_binary_get_val_array, 142);
+        hint(mp_binary_get_val_array, this::mp_binary_get_val_array, 152);
+        hint(mp_binary_get_val_array, this::mp_binary_get_val_array, 166);
+        hint(mp_binary_get_int, this::mp_binary_get_int, 0);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 0);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 16);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 58);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 74);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 82);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 96);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 100);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 128);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 136);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 152);
+        hint(mp_binary_get_val, this::mp_binary_get_val, 160);
+        hint(mp_binary_set_int, this::mp_binary_set_int, 0);
+        hint(mp_binary_set_int, this::mp_binary_set_int, 24);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 0);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 20);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 92);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 100);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 110);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 114);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 140);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 184);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 194);
+        hint(mp_binary_set_val, this::mp_binary_set_val, 220);
+        hint(mp_binary_set_val_array_from_int, this::mp_binary_set_val_array_from_int, 0);
+        hint(mp_binary_set_val_array_from_int, this::mp_binary_set_val_array_from_int, 106);
+        hint(mp_binary_set_val_array_from_int, this::mp_binary_set_val_array_from_int, 120);
+        hint(mp_binary_set_val_array, this::mp_binary_set_val_array, 0);
+        hint(mp_binary_set_val_array, this::mp_binary_set_val_array, 38);
+        hint(mp_binary_set_val_array, this::mp_binary_set_val_array, 48);
+        hint(mp_binary_set_val_array, this::mp_binary_set_val_array, 52);
+        hint(mp_binary_set_val_array, this::mp_binary_set_val_array, 88);
+        hint(mp_binary_set_val_array, this::mp_binary_set_val_array, 104);
+        hint(mp_binary_set_val_array, this::mp_binary_set_val_array, 112);
+        hint(mp_binary_set_val_array, this::mp_binary_set_val_array, 124);
+        hint(mp_import_stat_any, this::mp_import_stat_any, 0);
+        hint(mp_import_stat_any, this::mp_import_stat_any, 8);
+        hint(mp_import_stat_any, this::mp_import_stat_any, 18);
+        hint(do_execute_raw_code, this::do_execute_raw_code, 0);
+        hint(do_execute_raw_code, this::do_execute_raw_code, 28);
+        hint(do_execute_raw_code, this::do_execute_raw_code, 40);
+        hint(do_execute_raw_code, this::do_execute_raw_code, 44);
+        hint(do_execute_raw_code, this::do_execute_raw_code, 48);
+        hint(do_execute_raw_code, this::do_execute_raw_code, 74);
+        hint(do_load_from_lexer, this::do_load_from_lexer, 0);
+        hint(do_load_from_lexer, this::do_load_from_lexer, 20);
+        hint(do_load_from_lexer, this::do_load_from_lexer, 32);
+        hint(text_do_load, this::text_do_load, 0);
+        hint(text_do_load, this::text_do_load, 12);
+        hint(text_do_load, this::text_do_load, 22);
+        hint(text_do_load, this::text_do_load, 52);
+        hint(text_do_load, this::text_do_load, 60);
+        hint(text_do_load, this::text_do_load, 66);
+        hint(text_do_load, this::text_do_load, 74);
+        hint(stat_file_py_or_mpy, this::stat_file_py_or_mpy, 0);
+        hint(stat_file_py_or_mpy, this::stat_file_py_or_mpy, 8);
+        hint(stat_file_py_or_mpy, this::stat_file_py_or_mpy, 12);
+        hint(stat_file_py_or_mpy, this::stat_file_py_or_mpy, 28);
+        hint(stat_file_py_or_mpy, this::stat_file_py_or_mpy, 34);
+        hint(stat_file_py_or_mpy, this::stat_file_py_or_mpy, 38);
+        hint(stat_dir_or_file, this::stat_dir_or_file, 0);
+        hint(stat_dir_or_file, this::stat_dir_or_file, 8);
+        hint(stat_dir_or_file, this::stat_dir_or_file, 12);
+        hint(stat_dir_or_file, this::stat_dir_or_file, 24);
+        hint(stat_dir_or_file, this::stat_dir_or_file, 30);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 0);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 36);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 52);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 70);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 84);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 94);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 130);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 178);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 188);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 210);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 218);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 230);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 242);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 246);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 258);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 280);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 284);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 310);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 354);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 372);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 388);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 394);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 404);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 422);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 436);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 444);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 454);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 460);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 496);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 510);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 520);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 550);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 560);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 576);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 584);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 594);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 616);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 620);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 632);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 642);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 652);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 660);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 666);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 678);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 702);
+        hint(mp_builtin___import__, this::mp_builtin___import__, 712);
+        hint(mp_obj_is_package, this::mp_obj_is_package, 0);
+        hint(mp_obj_is_package, this::mp_obj_is_package, 10);
+        hint(mp_builtin_compile, this::mp_builtin_compile, 0);
+        hint(mp_builtin_compile, this::mp_builtin_compile, 12);
+        hint(mp_builtin_compile, this::mp_builtin_compile, 20);
+        hint(mp_builtin_compile, this::mp_builtin_compile, 30);
+        hint(mp_builtin_compile, this::mp_builtin_compile, 38);
+        hint(mp_builtin_compile, this::mp_builtin_compile, 72);
+        hint(mp_builtin_compile, this::mp_builtin_compile, 90);
+        hint(mp_builtin_compile, this::mp_builtin_compile, 102);
+        hint(eval_exec_helper, this::eval_exec_helper, 0);
+        hint(eval_exec_helper, this::eval_exec_helper, 48);
+        hint(eval_exec_helper, this::eval_exec_helper, 120);
+        hint(eval_exec_helper, this::eval_exec_helper, 130);
+        hint(eval_exec_helper, this::eval_exec_helper, 136);
+        hint(eval_exec_helper, this::eval_exec_helper, 170);
+        hint(eval_exec_helper, this::eval_exec_helper, 178);
+        hint(eval_exec_helper, this::eval_exec_helper, 188);
+        hint(eval_exec_helper, this::eval_exec_helper, 202);
+        hint(eval_exec_helper, this::eval_exec_helper, 218);
+        hint(mp_builtin_eval, this::mp_builtin_eval, 0);
+        hint(mp_builtin_eval, this::mp_builtin_eval, 8);
+        hint(mp_builtin_exec, this::mp_builtin_exec, 0);
+        hint(mp_builtin_exec, this::mp_builtin_exec, 8);
+        hint(mp_builtin_execfile, this::mp_builtin_execfile, 0);
+        hint(mp_builtin_execfile, this::mp_builtin_execfile, 8);
+        hint(mp_help_add_from_names, this::mp_help_add_from_names, 0);
+        hint(mp_help_add_from_names, this::mp_help_add_from_names, 20);
+        hint(mp_help_add_from_names, this::mp_help_add_from_names, 30);
+        hint(mp_help_add_from_names, this::mp_help_add_from_names, 40);
+    }
+
+    private void gen_hints_9() {
+        hint(mp_help_add_from_map, this::mp_help_add_from_map, 0);
+        hint(mp_help_add_from_map, this::mp_help_add_from_map, 36);
+        hint(mp_builtin_help, this::mp_builtin_help, 0);
+        hint(mp_builtin_help, this::mp_builtin_help, 18);
+        hint(mp_builtin_help, this::mp_builtin_help, 40);
+        hint(mp_builtin_help, this::mp_builtin_help, 50);
+        hint(mp_builtin_help, this::mp_builtin_help, 58);
+        hint(mp_builtin_help, this::mp_builtin_help, 66);
+        hint(mp_builtin_help, this::mp_builtin_help, 74);
+        hint(mp_builtin_help, this::mp_builtin_help, 84);
+        hint(mp_builtin_help, this::mp_builtin_help, 94);
+        hint(mp_builtin_help, this::mp_builtin_help, 132);
+        hint(mp_builtin_help, this::mp_builtin_help, 140);
+        hint(mp_builtin_help, this::mp_builtin_help, 186);
+        hint(mp_builtin_help, this::mp_builtin_help, 196);
+        hint(mp_builtin_help, this::mp_builtin_help, 206);
+        hint(mp_builtin_help, this::mp_builtin_help, 216);
+        hint(mp_builtin_help, this::mp_builtin_help, 224);
+        hint(mp_builtin_help, this::mp_builtin_help, 234);
+        hint(mp_builtin_help, this::mp_builtin_help, 298);
+        hint(mp_builtin_help, this::mp_builtin_help, 306);
+        hint(mp_builtin_help, this::mp_builtin_help, 314);
+        hint(mp_builtin_help, this::mp_builtin_help, 322);
+        hint(mp_builtin_help, this::mp_builtin_help, 330);
+        hint(mp_builtin_globals, this::mp_builtin_globals, 0);
+        hint(mp_builtin_locals, this::mp_builtin_locals, 0);
+        hint(mp_builtin___build_class__, this::mp_builtin___build_class__, 0);
+        hint(mp_builtin___build_class__, this::mp_builtin___build_class__, 20);
+        hint(mp_builtin___build_class__, this::mp_builtin___build_class__, 30);
+        hint(mp_builtin___build_class__, this::mp_builtin___build_class__, 48);
+        hint(mp_builtin___build_class__, this::mp_builtin___build_class__, 64);
+        hint(mp_builtin___build_class__, this::mp_builtin___build_class__, 82);
+        hint(mp_builtin___build_class__, this::mp_builtin___build_class__, 98);
+        hint(mp_builtin_abs, this::mp_builtin_abs, 0);
+        hint(mp_builtin_abs, this::mp_builtin_abs, 10);
+        hint(mp_builtin_hash, this::mp_builtin_hash, 0);
+        hint(mp_builtin_hash, this::mp_builtin_hash, 10);
+        hint(mp_builtin_iter, this::mp_builtin_iter, 0);
+        hint(mp_builtin_iter, this::mp_builtin_iter, 8);
+        hint(mp_builtin_all, this::mp_builtin_all, 0);
+        hint(mp_builtin_all, this::mp_builtin_all, 8);
+        hint(mp_builtin_all, this::mp_builtin_all, 16);
+        hint(mp_builtin_all, this::mp_builtin_all, 30);
+        hint(mp_builtin_any, this::mp_builtin_any, 0);
+        hint(mp_builtin_any, this::mp_builtin_any, 8);
+        hint(mp_builtin_any, this::mp_builtin_any, 16);
+        hint(mp_builtin_any, this::mp_builtin_any, 30);
+        hint(mp_builtin_bin, this::mp_builtin_bin, 0);
+        hint(mp_builtin_bin, this::mp_builtin_bin, 20);
+        hint(mp_builtin_callable, this::mp_builtin_callable, 0);
+        hint(mp_builtin_callable, this::mp_builtin_callable, 6);
+        hint(mp_builtin_chr, this::mp_builtin_chr, 0);
+        hint(mp_builtin_chr, this::mp_builtin_chr, 6);
+        hint(mp_builtin_chr, this::mp_builtin_chr, 22);
+        hint(mp_builtin_chr, this::mp_builtin_chr, 144);
+        hint(mp_builtin_divmod, this::mp_builtin_divmod, 0);
+        hint(mp_builtin_divmod, this::mp_builtin_divmod, 12);
+        hint(mp_builtin_hex, this::mp_builtin_hex, 0);
+        hint(mp_builtin_hex, this::mp_builtin_hex, 14);
+        hint(mp_builtin_oct, this::mp_builtin_oct, 0);
+        hint(mp_builtin_oct, this::mp_builtin_oct, 14);
+        hint(mp_builtin_sum, this::mp_builtin_sum, 0);
+        hint(mp_builtin_sum, this::mp_builtin_sum, 22);
+        hint(mp_builtin_sum, this::mp_builtin_sum, 30);
+        hint(mp_builtin_sum, this::mp_builtin_sum, 48);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 0);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 22);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 68);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 92);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 102);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 120);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 148);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 166);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 188);
+        hint(mp_builtin_min_max, this::mp_builtin_min_max, 200);
+        hint(mp_builtin_max, this::mp_builtin_max, 0);
+        hint(mp_builtin_max, this::mp_builtin_max, 8);
+        hint(mp_builtin_min, this::mp_builtin_min, 0);
+        hint(mp_builtin_min, this::mp_builtin_min, 8);
+        hint(mp_builtin_ord, this::mp_builtin_ord, 0);
+        hint(mp_builtin_ord, this::mp_builtin_ord, 10);
+        hint(mp_builtin_ord, this::mp_builtin_ord, 40);
+        hint(mp_builtin_ord, this::mp_builtin_ord, 52);
+        hint(mp_builtin_ord, this::mp_builtin_ord, 56);
+        hint(mp_builtin_ord, this::mp_builtin_ord, 82);
+        hint(mp_builtin_ord, this::mp_builtin_ord, 86);
+        hint(mp_builtin_print, this::mp_builtin_print, 0);
+        hint(mp_builtin_print, this::mp_builtin_print, 26);
+        hint(mp_builtin_print, this::mp_builtin_print, 34);
+        hint(mp_builtin_print, this::mp_builtin_print, 52);
+        hint(mp_builtin_print, this::mp_builtin_print, 62);
+        hint(mp_builtin_print, this::mp_builtin_print, 82);
+        hint(mp_builtin_print, this::mp_builtin_print, 102);
+        hint(mp_builtin_print, this::mp_builtin_print, 114);
+        hint(mp_builtin_repr, this::mp_builtin_repr, 0);
+        hint(mp_builtin_repr, this::mp_builtin_repr, 16);
+        hint(mp_builtin_repr, this::mp_builtin_repr, 26);
+        hint(mp_builtin_repr, this::mp_builtin_repr, 34);
+        hint(mp_builtin_round, this::mp_builtin_round, 0);
+        hint(mp_builtin_round, this::mp_builtin_round, 34);
+        hint(mp_builtin_round, this::mp_builtin_round, 38);
+        hint(mp_builtin_round, this::mp_builtin_round, 50);
+        hint(mp_builtin_round, this::mp_builtin_round, 54);
+        hint(mp_builtin_round, this::mp_builtin_round, 62);
+        hint(mp_builtin_round, this::mp_builtin_round, 72);
+        hint(mp_builtin_round, this::mp_builtin_round, 76);
+        hint(mp_builtin_round, this::mp_builtin_round, 82);
+        hint(mp_builtin_round, this::mp_builtin_round, 86);
+        hint(mp_builtin_round, this::mp_builtin_round, 92);
+        hint(mp_builtin_round, this::mp_builtin_round, 96);
+        hint(mp_builtin_sorted, this::mp_builtin_sorted, 0);
+        hint(mp_builtin_sorted, this::mp_builtin_sorted, 18);
+        hint(mp_builtin_sorted, this::mp_builtin_sorted, 32);
+        hint(mp_builtin_sorted, this::mp_builtin_sorted, 44);
+        hint(mp_builtin_hasattr, this::mp_builtin_hasattr, 0);
+        hint(mp_builtin_hasattr, this::mp_builtin_hasattr, 10);
+        hint(mp_builtin_hasattr, this::mp_builtin_hasattr, 22);
+        hint(mp_builtin_getattr, this::mp_builtin_getattr, 0);
+        hint(mp_builtin_getattr, this::mp_builtin_getattr, 18);
+        hint(mp_builtin_getattr, this::mp_builtin_getattr, 34);
+        hint(mp_builtin_getattr, this::mp_builtin_getattr, 54);
+        hint(mp_builtin_setattr, this::mp_builtin_setattr, 0);
+        hint(mp_builtin_setattr, this::mp_builtin_setattr, 12);
+        hint(mp_builtin_setattr, this::mp_builtin_setattr, 22);
+        hint(mp_builtin_delattr, this::mp_builtin_delattr, 0);
+        hint(mp_builtin_delattr, this::mp_builtin_delattr, 8);
+        hint(mp_builtin_dir, this::mp_builtin_dir, 0);
+        hint(mp_builtin_dir, this::mp_builtin_dir, 16);
+        hint(mp_builtin_dir, this::mp_builtin_dir, 58);
+        hint(mp_builtin_dir, this::mp_builtin_dir, 94);
+        hint(mp_builtin_dir, this::mp_builtin_dir, 122);
+        hint(mp_builtin_dir, this::mp_builtin_dir, 136);
+        hint(mp_builtin_next, this::mp_builtin_next, 0);
+        hint(mp_builtin_next, this::mp_builtin_next, 6);
+        hint(mp_builtin_next, this::mp_builtin_next, 16);
+        hint(mp_builtin_next, this::mp_builtin_next, 20);
+        hint(mp_builtin_pow, this::mp_builtin_pow, 0);
+        hint(mp_builtin_pow, this::mp_builtin_pow, 24);
+        hint(mp_builtin_pow, this::mp_builtin_pow, 32);
+        hint(mp_builtin___repl_print__, this::mp_builtin___repl_print__, 0);
+        hint(mp_builtin___repl_print__, this::mp_builtin___repl_print__, 22);
+        hint(mp_builtin___repl_print__, this::mp_builtin___repl_print__, 30);
+        hint(mp_builtin___repl_print__, this::mp_builtin___repl_print__, 50);
+        hint(gc_disable, this::gc_disable, 0);
+        hint(gc_enable, this::gc_enable, 0);
+        hint(gc_isenabled, this::gc_isenabled, 0);
+        hint(py_gc_collect, this::py_gc_collect, 0);
+        hint(py_gc_collect, this::py_gc_collect, 6);
+        hint(gc_mem_free, this::gc_mem_free, 0);
+        hint(gc_mem_free, this::gc_mem_free, 10);
+        hint(gc_mem_alloc, this::gc_mem_alloc, 0);
+        hint(gc_mem_alloc, this::gc_mem_alloc, 10);
+        hint(gc_threshold, this::gc_threshold, 0);
+        hint(gc_threshold, this::gc_threshold, 26);
+        hint(gc_threshold, this::gc_threshold, 34);
+        hint(resource_stream, this::resource_stream, 0);
+        hint(resource_stream, this::resource_stream, 22);
+        hint(resource_stream, this::resource_stream, 50);
+        hint(resource_stream, this::resource_stream, 58);
+        hint(resource_stream, this::resource_stream, 68);
+        hint(resource_stream, this::resource_stream, 74);
+        hint(resource_stream, this::resource_stream, 84);
+        hint(resource_stream, this::resource_stream, 92);
+        hint(resource_stream, this::resource_stream, 100);
+        hint(resource_stream, this::resource_stream, 110);
+        hint(resource_stream, this::resource_stream, 124);
+        hint(resource_stream, this::resource_stream, 134);
+        hint(resource_stream, this::resource_stream, 146);
+        hint(resource_stream, this::resource_stream, 158);
+        hint(resource_stream, this::resource_stream, 186);
+        hint(resource_stream, this::resource_stream, 198);
+        hint(fabs_funcf, this::fabs_funcf, 0);
+        hint(log2f, this::log2f, 0);
+        hint(log2f, this::log2f, 6);
+        hint(log2f, this::log2f, 12);
+        hint(mp_math_isnan, this::mp_math_isnan, 0);
+        hint(mp_math_isnan, this::mp_math_isnan, 6);
+        hint(mp_math_isnan, this::mp_math_isnan, 12);
+        hint(mp_math_isfinite, this::mp_math_isfinite, 0);
+        hint(mp_math_isfinite, this::mp_math_isfinite, 6);
+        hint(mp_math_isfinite, this::mp_math_isfinite, 18);
+        hint(mp_math_isfinite, this::mp_math_isfinite, 30);
+        hint(mp_math_isinf, this::mp_math_isinf, 0);
+        hint(mp_math_isinf, this::mp_math_isinf, 6);
+        hint(mp_math_isinf, this::mp_math_isinf, 18);
+        hint(mp_math_isinf, this::mp_math_isinf, 30);
+        hint(mp_math_degrees, this::mp_math_degrees, 0);
+        hint(mp_math_degrees, this::mp_math_degrees, 6);
+        hint(mp_math_degrees, this::mp_math_degrees, 12);
+        hint(mp_math_degrees, this::mp_math_degrees, 16);
+        hint(mp_math_radians, this::mp_math_radians, 0);
+        hint(mp_math_radians, this::mp_math_radians, 6);
+        hint(mp_math_radians, this::mp_math_radians, 12);
+        hint(mp_math_radians, this::mp_math_radians, 16);
+        hint(mp_math_trunc, this::mp_math_trunc, 0);
+        hint(mp_math_trunc, this::mp_math_trunc, 6);
+        hint(mp_math_trunc, this::mp_math_trunc, 10);
+        hint(mp_math_trunc, this::mp_math_trunc, 14);
+        hint(mp_math_modf, this::mp_math_modf, 0);
+        hint(mp_math_modf, this::mp_math_modf, 10);
+        hint(mp_math_modf, this::mp_math_modf, 16);
+        hint(mp_math_modf, this::mp_math_modf, 20);
+        hint(mp_math_modf, this::mp_math_modf, 28);
+        hint(mp_math_modf, this::mp_math_modf, 38);
+        hint(mp_math_ldexp, this::mp_math_ldexp, 0);
+        hint(mp_math_ldexp, this::mp_math_ldexp, 8);
+        hint(mp_math_ldexp, this::mp_math_ldexp, 16);
+        hint(mp_math_ldexp, this::mp_math_ldexp, 24);
+        hint(mp_math_ldexp, this::mp_math_ldexp, 28);
+        hint(mp_math_frexp, this::mp_math_frexp, 0);
+        hint(mp_math_frexp, this::mp_math_frexp, 10);
+        hint(mp_math_frexp, this::mp_math_frexp, 16);
+        hint(mp_math_frexp, this::mp_math_frexp, 20);
+        hint(mp_math_frexp, this::mp_math_frexp, 28);
+        hint(mp_math_frexp, this::mp_math_frexp, 38);
+        hint(mp_math_floor, this::mp_math_floor, 0);
+        hint(mp_math_floor, this::mp_math_floor, 6);
+        hint(mp_math_floor, this::mp_math_floor, 10);
+        hint(mp_math_floor, this::mp_math_floor, 14);
+        hint(copysign_funcf, this::copysign_funcf, 0);
+        hint(mp_math_ceil, this::mp_math_ceil, 0);
+        hint(mp_math_ceil, this::mp_math_ceil, 6);
+        hint(mp_math_ceil, this::mp_math_ceil, 10);
+        hint(mp_math_ceil, this::mp_math_ceil, 14);
+        hint(math_generic_1, this::math_generic_1, 0);
+        hint(math_generic_1, this::math_generic_1, 8);
+        hint(math_generic_1, this::math_generic_1, 12);
+        hint(math_generic_1, this::math_generic_1, 20);
+        hint(math_generic_1, this::math_generic_1, 32);
+        hint(math_generic_1, this::math_generic_1, 48);
+        hint(math_generic_1, this::math_generic_1, 60);
+        hint(math_generic_1, this::math_generic_1, 76);
+        hint(math_generic_1, this::math_generic_1, 88);
+        hint(math_generic_1, this::math_generic_1, 98);
+        hint(math_generic_1, this::math_generic_1, 104);
+        hint(mp_math_lgamma, this::mp_math_lgamma, 0);
+        hint(mp_math_lgamma, this::mp_math_lgamma, 8);
+        hint(mp_math_gamma, this::mp_math_gamma, 0);
+        hint(mp_math_gamma, this::mp_math_gamma, 8);
+        hint(mp_math_erfc, this::mp_math_erfc, 0);
+        hint(mp_math_erfc, this::mp_math_erfc, 8);
+        hint(mp_math_erf, this::mp_math_erf, 0);
+        hint(mp_math_erf, this::mp_math_erf, 8);
+        hint(mp_math_fabs, this::mp_math_fabs, 0);
+        hint(mp_math_fabs, this::mp_math_fabs, 8);
+        hint(mp_math_atan, this::mp_math_atan, 0);
+        hint(mp_math_atan, this::mp_math_atan, 8);
+        hint(mp_math_asin, this::mp_math_asin, 0);
+        hint(mp_math_asin, this::mp_math_asin, 8);
+        hint(mp_math_acos, this::mp_math_acos, 0);
+        hint(mp_math_acos, this::mp_math_acos, 8);
+        hint(mp_math_tan, this::mp_math_tan, 0);
+        hint(mp_math_tan, this::mp_math_tan, 8);
+        hint(mp_math_sin, this::mp_math_sin, 0);
+        hint(mp_math_sin, this::mp_math_sin, 8);
+        hint(mp_math_cos, this::mp_math_cos, 0);
+        hint(mp_math_cos, this::mp_math_cos, 8);
+        hint(mp_math_atanh, this::mp_math_atanh, 0);
+        hint(mp_math_atanh, this::mp_math_atanh, 8);
+        hint(mp_math_asinh, this::mp_math_asinh, 0);
+        hint(mp_math_asinh, this::mp_math_asinh, 8);
+        hint(mp_math_acosh, this::mp_math_acosh, 0);
+        hint(mp_math_acosh, this::mp_math_acosh, 8);
+        hint(mp_math_tanh, this::mp_math_tanh, 0);
+        hint(mp_math_tanh, this::mp_math_tanh, 8);
+        hint(mp_math_sinh, this::mp_math_sinh, 0);
+        hint(mp_math_sinh, this::mp_math_sinh, 8);
+        hint(mp_math_cosh, this::mp_math_cosh, 0);
+        hint(mp_math_cosh, this::mp_math_cosh, 8);
+        hint(mp_math_log10, this::mp_math_log10, 0);
+        hint(mp_math_log10, this::mp_math_log10, 8);
+        hint(mp_math_log2, this::mp_math_log2, 0);
+        hint(mp_math_log2, this::mp_math_log2, 8);
+        hint(mp_math_expm1, this::mp_math_expm1, 0);
+        hint(mp_math_expm1, this::mp_math_expm1, 8);
+        hint(mp_math_exp, this::mp_math_exp, 0);
+        hint(mp_math_exp, this::mp_math_exp, 8);
+        hint(mp_math_sqrt, this::mp_math_sqrt, 0);
+        hint(mp_math_sqrt, this::mp_math_sqrt, 8);
+        hint(math_generic_2, this::math_generic_2, 0);
+        hint(math_generic_2, this::math_generic_2, 10);
+        hint(math_generic_2, this::math_generic_2, 18);
+        hint(math_generic_2, this::math_generic_2, 26);
+        hint(math_generic_2, this::math_generic_2, 34);
+        hint(math_generic_2, this::math_generic_2, 46);
+        hint(math_generic_2, this::math_generic_2, 58);
+        hint(math_generic_2, this::math_generic_2, 74);
+        hint(math_generic_2, this::math_generic_2, 86);
+        hint(math_generic_2, this::math_generic_2, 102);
+        hint(math_generic_2, this::math_generic_2, 114);
+        hint(math_generic_2, this::math_generic_2, 124);
+        hint(math_generic_2, this::math_generic_2, 130);
+        hint(mp_math_fmod, this::mp_math_fmod, 0);
+        hint(mp_math_fmod, this::mp_math_fmod, 8);
+        hint(mp_math_copysign, this::mp_math_copysign, 0);
+        hint(mp_math_copysign, this::mp_math_copysign, 8);
+        hint(mp_math_atan2, this::mp_math_atan2, 0);
+        hint(mp_math_atan2, this::mp_math_atan2, 8);
+        hint(mp_math_pow, this::mp_math_pow, 0);
+        hint(mp_math_pow, this::mp_math_pow, 8);
+        hint(mp_math_log, this::mp_math_log, 0);
+        hint(mp_math_log, this::mp_math_log, 12);
+        hint(mp_math_log, this::mp_math_log, 20);
+        hint(mp_math_log, this::mp_math_log, 30);
+        hint(mp_math_log, this::mp_math_log, 36);
+        hint(mp_math_log, this::mp_math_log, 48);
+        hint(mp_math_log, this::mp_math_log, 56);
+        hint(mp_math_log, this::mp_math_log, 70);
+        hint(mp_math_log, this::mp_math_log, 82);
+        hint(mp_math_log, this::mp_math_log, 88);
+        hint(mp_math_log, this::mp_math_log, 96);
+        hint(mp_math_log, this::mp_math_log, 100);
+        hint(mp_cmath_sin, this::mp_cmath_sin, 0);
+        hint(mp_cmath_sin, this::mp_cmath_sin, 10);
+        hint(mp_cmath_sin, this::mp_cmath_sin, 16);
+        hint(mp_cmath_sin, this::mp_cmath_sin, 24);
+        hint(mp_cmath_sin, this::mp_cmath_sin, 32);
+        hint(mp_cmath_sin, this::mp_cmath_sin, 40);
+        hint(mp_cmath_sin, this::mp_cmath_sin, 48);
+        hint(mp_cmath_sin, this::mp_cmath_sin, 58);
+        hint(mp_cmath_sin, this::mp_cmath_sin, 64);
+        hint(mp_cmath_cos, this::mp_cmath_cos, 0);
+        hint(mp_cmath_cos, this::mp_cmath_cos, 10);
+        hint(mp_cmath_cos, this::mp_cmath_cos, 16);
+        hint(mp_cmath_cos, this::mp_cmath_cos, 24);
+        hint(mp_cmath_cos, this::mp_cmath_cos, 32);
+        hint(mp_cmath_cos, this::mp_cmath_cos, 40);
+        hint(mp_cmath_cos, this::mp_cmath_cos, 52);
+        hint(mp_cmath_cos, this::mp_cmath_cos, 62);
+        hint(mp_cmath_cos, this::mp_cmath_cos, 68);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 0);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 10);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 20);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 30);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 38);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 46);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 56);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 64);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 70);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 78);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 84);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 94);
+        hint(mp_cmath_sqrt, this::mp_cmath_sqrt, 100);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 0);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 10);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 20);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 30);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 38);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 42);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 52);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 58);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 70);
+        hint(mp_cmath_log10, this::mp_cmath_log10, 76);
+        hint(mp_cmath_log, this::mp_cmath_log, 0);
+        hint(mp_cmath_log, this::mp_cmath_log, 10);
+        hint(mp_cmath_log, this::mp_cmath_log, 20);
+        hint(mp_cmath_log, this::mp_cmath_log, 30);
+        hint(mp_cmath_log, this::mp_cmath_log, 38);
+        hint(mp_cmath_log, this::mp_cmath_log, 42);
+        hint(mp_cmath_log, this::mp_cmath_log, 52);
+        hint(mp_cmath_log, this::mp_cmath_log, 64);
+        hint(mp_cmath_log, this::mp_cmath_log, 70);
+        hint(mp_cmath_exp, this::mp_cmath_exp, 0);
+        hint(mp_cmath_exp, this::mp_cmath_exp, 10);
+        hint(mp_cmath_exp, this::mp_cmath_exp, 16);
+        hint(mp_cmath_exp, this::mp_cmath_exp, 26);
+        hint(mp_cmath_exp, this::mp_cmath_exp, 34);
+        hint(mp_cmath_exp, this::mp_cmath_exp, 40);
+        hint(mp_cmath_exp, this::mp_cmath_exp, 50);
+        hint(mp_cmath_exp, this::mp_cmath_exp, 56);
+        hint(mp_cmath_rect, this::mp_cmath_rect, 0);
+        hint(mp_cmath_rect, this::mp_cmath_rect, 8);
+        hint(mp_cmath_rect, this::mp_cmath_rect, 16);
+        hint(mp_cmath_rect, this::mp_cmath_rect, 22);
+        hint(mp_cmath_rect, this::mp_cmath_rect, 30);
+        hint(mp_cmath_rect, this::mp_cmath_rect, 36);
+        hint(mp_cmath_rect, this::mp_cmath_rect, 46);
+        hint(mp_cmath_rect, this::mp_cmath_rect, 52);
+        hint(mp_cmath_phase, this::mp_cmath_phase, 0);
+        hint(mp_cmath_phase, this::mp_cmath_phase, 10);
+        hint(mp_cmath_phase, this::mp_cmath_phase, 18);
+        hint(mp_cmath_phase, this::mp_cmath_phase, 22);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 0);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 12);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 22);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 32);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 40);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 44);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 48);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 58);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 62);
+        hint(mp_cmath_polar, this::mp_cmath_polar, 72);
+        hint(mp_micropython_pystack_use, this::mp_micropython_pystack_use, 0);
+        hint(mp_micropython_mem_total, this::mp_micropython_mem_total, 0);
+        hint(mp_micropython_mem_total, this::mp_micropython_mem_total, 6);
+        hint(mp_micropython_mem_current, this::mp_micropython_mem_current, 0);
+        hint(mp_micropython_mem_current, this::mp_micropython_mem_current, 6);
+        hint(mp_micropython_mem_peak, this::mp_micropython_mem_peak, 0);
+        hint(mp_micropython_mem_peak, this::mp_micropython_mem_peak, 6);
+        hint(mp_micropython_stack_use, this::mp_micropython_stack_use, 0);
+        hint(mp_micropython_stack_use, this::mp_micropython_stack_use, 6);
+        hint(mp_micropython_mem_info, this::mp_micropython_mem_info, 0);
+        hint(mp_micropython_mem_info, this::mp_micropython_mem_info, 8);
+        hint(mp_micropython_mem_info, this::mp_micropython_mem_info, 14);
+        hint(mp_micropython_mem_info, this::mp_micropython_mem_info, 20);
+        hint(mp_micropython_mem_info, this::mp_micropython_mem_info, 36);
+        hint(mp_micropython_mem_info, this::mp_micropython_mem_info, 40);
+        hint(mp_micropython_mem_info, this::mp_micropython_mem_info, 54);
+        hint(mp_micropython_mem_info, this::mp_micropython_mem_info, 58);
+        hint(mp_micropython_mem_info, this::mp_micropython_mem_info, 66);
+        hint(mp_micropython_kbd_intr, this::mp_micropython_kbd_intr, 0);
+        hint(mp_micropython_kbd_intr, this::mp_micropython_kbd_intr, 6);
+        hint(mp_micropython_kbd_intr, this::mp_micropython_kbd_intr, 10);
+        hint(mp_micropython_heap_unlock, this::mp_micropython_heap_unlock, 0);
+        hint(mp_micropython_heap_unlock, this::mp_micropython_heap_unlock, 6);
+        hint(mp_micropython_heap_lock, this::mp_micropython_heap_lock, 0);
+        hint(mp_micropython_heap_lock, this::mp_micropython_heap_lock, 6);
+        hint(mp_micropython_qstr_info, this::mp_micropython_qstr_info, 0);
+        hint(mp_micropython_qstr_info, this::mp_micropython_qstr_info, 18);
+        hint(mp_micropython_qstr_info, this::mp_micropython_qstr_info, 38);
+        hint(mp_micropython_qstr_info, this::mp_micropython_qstr_info, 46);
+        hint(mp_micropython_schedule, this::mp_micropython_schedule, 0);
+        hint(mp_micropython_schedule, this::mp_micropython_schedule, 6);
+        hint(mp_micropython_schedule, this::mp_micropython_schedule, 18);
+        hint(mp_micropython_opt_level, this::mp_micropython_opt_level, 0);
+        hint(mp_micropython_opt_level, this::mp_micropython_opt_level, 28);
+        hint(get_fmt_type, this::get_fmt_type, 0);
+        hint(get_fmt_num, this::get_fmt_num, 0);
+        hint(get_fmt_num, this::get_fmt_num, 16);
+        hint(get_fmt_num, this::get_fmt_num, 36);
+        hint(calc_size_items, this::calc_size_items, 0);
+        hint(calc_size_items, this::calc_size_items, 16);
+        hint(calc_size_items, this::calc_size_items, 40);
+        hint(calc_size_items, this::calc_size_items, 52);
+        hint(calc_size_items, this::calc_size_items, 82);
+        hint(struct_calcsize, this::struct_calcsize, 0);
+        hint(struct_calcsize, this::struct_calcsize, 6);
+        hint(struct_calcsize, this::struct_calcsize, 12);
+        hint(struct_unpack_from, this::struct_unpack_from, 0);
+        hint(struct_unpack_from, this::struct_unpack_from, 14);
+        hint(struct_unpack_from, this::struct_unpack_from, 22);
+        hint(struct_unpack_from, this::struct_unpack_from, 30);
+        hint(struct_unpack_from, this::struct_unpack_from, 40);
+        hint(struct_unpack_from, this::struct_unpack_from, 52);
+        hint(struct_unpack_from, this::struct_unpack_from, 72);
+        hint(struct_unpack_from, this::struct_unpack_from, 88);
+        hint(struct_unpack_from, this::struct_unpack_from, 128);
+        hint(struct_unpack_from, this::struct_unpack_from, 138);
+        hint(struct_unpack_from, this::struct_unpack_from, 170);
+        hint(struct_unpack_from, this::struct_unpack_from, 190);
+        hint(struct_pack_into_internal, this::struct_pack_into_internal, 0);
+        hint(struct_pack_into_internal, this::struct_pack_into_internal, 14);
+        hint(struct_pack_into_internal, this::struct_pack_into_internal, 22);
+        hint(struct_pack_into_internal, this::struct_pack_into_internal, 46);
+        hint(struct_pack_into_internal, this::struct_pack_into_internal, 58);
+        hint(struct_pack_into_internal, this::struct_pack_into_internal, 94);
+        hint(struct_pack_into_internal, this::struct_pack_into_internal, 114);
+        hint(struct_pack_into_internal, this::struct_pack_into_internal, 132);
+        hint(struct_pack_into_internal, this::struct_pack_into_internal, 144);
+        hint(struct_pack, this::struct_pack, 0);
+        hint(struct_pack, this::struct_pack, 16);
+        hint(struct_pack, this::struct_pack, 26);
+        hint(struct_pack, this::struct_pack, 38);
+        hint(struct_pack, this::struct_pack, 52);
+        hint(struct_pack, this::struct_pack, 60);
+        hint(struct_pack_into, this::struct_pack_into, 0);
+        hint(struct_pack_into, this::struct_pack_into, 18);
+        hint(struct_pack_into, this::struct_pack_into, 24);
+        hint(struct_pack_into, this::struct_pack_into, 42);
+        hint(struct_pack_into, this::struct_pack_into, 56);
+        hint(struct_pack_into, this::struct_pack_into, 78);
+        hint(mp_sys_exit, this::mp_sys_exit, 0);
+        hint(mp_sys_exit, this::mp_sys_exit, 14);
+        hint(mp_sys_exit, this::mp_sys_exit, 18);
+        hint(mp_sys_exit, this::mp_sys_exit, 24);
+        hint(mp_sys_print_exception, this::mp_sys_print_exception, 0);
+        hint(mp_sys_print_exception, this::mp_sys_print_exception, 18);
+        hint(mp_sys_print_exception, this::mp_sys_print_exception, 34);
+        hint(mp_sys_exc_info, this::mp_sys_exc_info, 0);
+        hint(mp_sys_exc_info, this::mp_sys_exc_info, 16);
+        hint(mp_sys_exc_info, this::mp_sys_exc_info, 40);
+        hint(mp_sys_getsizeof, this::mp_sys_getsizeof, 0);
+        hint(mp_sys_getsizeof, this::mp_sys_getsizeof, 10);
+        hint(mp_errno_to_str, this::mp_errno_to_str, 0);
+        hint(mp_errno_to_str, this::mp_errno_to_str, 14);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 0);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 36);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 72);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 110);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 116);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 140);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 166);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 256);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 300);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 304);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 320);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 328);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 436);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 542);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 556);
+    }
+
+    private void gen_hints_10() {
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 578);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 648);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 686);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 690);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 710);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 738);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 742);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 750);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 770);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 778);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 782);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 798);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 852);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 858);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 874);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 890);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 930);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 950);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 962);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 966);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1016);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1034);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1040);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1058);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1066);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1088);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1108);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1124);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1132);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1152);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1162);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1174);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1182);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1240);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1260);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1264);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1286);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1298);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1316);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1334);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1342);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1346);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1362);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1380);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1396);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1398);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1414);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1416);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1450);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1460);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1480);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1514);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1522);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1578);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1614);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1636);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1642);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1656);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1658);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1672);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1674);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1716);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1736);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1776);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1784);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1792);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1810);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1826);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1830);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1850);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1854);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1872);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1874);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1892);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1894);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1934);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 1952);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2006);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2020);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2024);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2028);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2034);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2052);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2076);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2094);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2098);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2132);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2210);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2266);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2278);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2290);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2308);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2318);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2380);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2392);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2394);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2426);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2444);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2482);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2484);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2522);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2524);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2574);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2594);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2642);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2644);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2688);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2726);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2738);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2776);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2792);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2850);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2868);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2916);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2934);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2972);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2974);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2982);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2988);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 2998);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3024);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3038);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3044);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3066);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3084);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3104);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3112);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3116);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3132);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3134);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3156);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3158);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3178);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3182);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3266);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3302);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3358);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3382);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3386);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3440);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3458);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3462);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3522);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3546);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3550);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3604);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3620);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3688);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3728);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3732);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3746);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3768);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3802);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3806);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3844);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3926);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3942);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3946);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 3990);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4000);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4012);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4026);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4034);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4042);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4046);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4060);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4066);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4072);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4100);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4106);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4162);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4170);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4212);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4224);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4234);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4240);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4346);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4370);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4378);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4384);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4388);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4404);
+        hint(mp_execute_bytecode, this::mp_execute_bytecode, 4418);
+        hint(unlikely_fun_pos_args_mismatch, this::unlikely_fun_pos_args_mismatch, 0);
+        hint(unlikely_fun_pos_args_mismatch, this::unlikely_fun_pos_args_mismatch, 10);
+        hint(unlikely_fun_pos_args_mismatch, this::unlikely_fun_pos_args_mismatch, 24);
+        hint(unlikely_fun_pos_args_mismatch, this::unlikely_fun_pos_args_mismatch, 28);
+        hint(mp_decode_uint, this::mp_decode_uint, 0);
+        hint(mp_decode_uint_value, this::mp_decode_uint_value, 0);
+        hint(mp_decode_uint_value, this::mp_decode_uint_value, 10);
+        hint(mp_decode_uint_skip, this::mp_decode_uint_skip, 0);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 0);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 38);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 46);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 116);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 166);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 184);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 230);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 322);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 498);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 502);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 524);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 616);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 648);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 662);
+        hint(mp_setup_code_state, this::mp_setup_code_state, 682);
+        hint(mp_opcode_format, this::mp_opcode_format, 0);
+        hint(str_startswith_word, this::str_startswith_word, 0);
+        hint(str_startswith_word, this::str_startswith_word, 40);
+        hint(mp_repl_continue_with_input, this::mp_repl_continue_with_input, 0);
+        hint(mp_repl_continue_with_input, this::mp_repl_continue_with_input, 96);
+        hint(mp_repl_continue_with_input, this::mp_repl_continue_with_input, 108);
+        hint(mp_repl_continue_with_input, this::mp_repl_continue_with_input, 120);
+        hint(mp_repl_continue_with_input, this::mp_repl_continue_with_input, 132);
+        hint(mp_repl_continue_with_input, this::mp_repl_continue_with_input, 144);
+        hint(mp_repl_continue_with_input, this::mp_repl_continue_with_input, 156);
+        hint(mp_repl_continue_with_input, this::mp_repl_continue_with_input, 168);
+        hint(mp_repl_continue_with_input, this::mp_repl_continue_with_input, 180);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 0);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 32);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 46);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 102);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 126);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 146);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 164);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 180);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 248);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 342);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 360);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 378);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 428);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 440);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 460);
+        hint(mp_repl_autocomplete, this::mp_repl_autocomplete, 488);
+        hint(mp_small_int_mul_overflow, this::mp_small_int_mul_overflow, 0);
+        hint(mp_small_int_mul_overflow, this::mp_small_int_mul_overflow, 20);
+        hint(mp_small_int_mul_overflow, this::mp_small_int_mul_overflow, 40);
+        hint(mp_small_int_mul_overflow, this::mp_small_int_mul_overflow, 64);
+        hint(mp_small_int_mul_overflow, this::mp_small_int_mul_overflow, 86);
+        hint(mp_small_int_modulo, this::mp_small_int_modulo, 0);
+        hint(mp_small_int_modulo, this::mp_small_int_modulo, 8);
+        hint(mp_small_int_floor_divide, this::mp_small_int_floor_divide, 0);
+        hint(mp_small_int_floor_divide, this::mp_small_int_floor_divide, 18);
+        hint(mp_frozen_stat_helper, this::mp_frozen_stat_helper, 0);
+        hint(mp_frozen_stat_helper, this::mp_frozen_stat_helper, 12);
+        hint(mp_frozen_stat_helper, this::mp_frozen_stat_helper, 28);
+        hint(mp_frozen_stat_helper, this::mp_frozen_stat_helper, 44);
+        hint(mp_find_frozen_str, this::mp_find_frozen_str, 0);
+        hint(mp_find_frozen_str, this::mp_find_frozen_str, 26);
+        hint(mp_find_frozen_str, this::mp_find_frozen_str, 46);
+        hint(mp_frozen_stat, this::mp_frozen_stat, 0);
+        hint(mp_frozen_stat, this::mp_frozen_stat, 12);
+        hint(mp_frozen_stat, this::mp_frozen_stat, 24);
+        hint(mp_find_frozen_module, this::mp_find_frozen_module, 0);
+        hint(mp_find_frozen_module, this::mp_find_frozen_module, 18);
+        hint(mp_find_frozen_module, this::mp_find_frozen_module, 40);
+        hint(mp_find_frozen_module, this::mp_find_frozen_module, 56);
+        hint(mp_find_frozen_module, this::mp_find_frozen_module, 86);
+        hint(mp_find_frozen_module, this::mp_find_frozen_module, 96);
+        hint(uctypes_struct_addressof, this::uctypes_struct_addressof, 0);
+        hint(uctypes_struct_addressof, this::uctypes_struct_addressof, 10);
+        hint(uctypes_struct_addressof, this::uctypes_struct_addressof, 16);
+        hint(uctypes_struct_bytearray_at, this::uctypes_struct_bytearray_at, 0);
+        hint(uctypes_struct_bytearray_at, this::uctypes_struct_bytearray_at, 10);
+        hint(uctypes_struct_bytearray_at, this::uctypes_struct_bytearray_at, 18);
+        hint(uctypes_struct_bytearray_at, this::uctypes_struct_bytearray_at, 26);
+        hint(uctypes_struct_bytes_at, this::uctypes_struct_bytes_at, 0);
+        hint(uctypes_struct_bytes_at, this::uctypes_struct_bytes_at, 8);
+        hint(uctypes_struct_bytes_at, this::uctypes_struct_bytes_at, 16);
+        hint(uctypes_struct_bytes_at, this::uctypes_struct_bytes_at, 24);
+        hint(get_aligned, this::get_aligned, 0);
+        hint(get_aligned, this::get_aligned, 54);
+        hint(get_aligned, this::get_aligned, 76);
+        hint(get_aligned, this::get_aligned, 114);
+        hint(get_aligned, this::get_aligned, 124);
+        hint(get_aligned, this::get_aligned, 138);
+        hint(get_aligned, this::get_aligned, 148);
+        hint(uctypes_struct_make_new, this::uctypes_struct_make_new, 0);
+        hint(uctypes_struct_make_new, this::uctypes_struct_make_new, 24);
+        hint(uctypes_struct_make_new, this::uctypes_struct_make_new, 30);
+        hint(uctypes_struct_make_new, this::uctypes_struct_make_new, 40);
+        hint(uctypes_struct_make_new, this::uctypes_struct_make_new, 60);
+        hint(uctypes_struct_print, this::uctypes_struct_print, 0);
+        hint(uctypes_struct_print, this::uctypes_struct_print, 54);
+        hint(set_aligned, this::set_aligned, 0);
+        hint(set_aligned, this::set_aligned, 24);
+        hint(set_aligned, this::set_aligned, 38);
+        hint(set_aligned, this::set_aligned, 52);
+        hint(set_aligned, this::set_aligned, 96);
+        hint(uctypes_struct_size, this::uctypes_struct_size, 0);
+        hint(uctypes_struct_size, this::uctypes_struct_size, 160);
+        hint(uctypes_struct_size, this::uctypes_struct_size, 174);
+        hint(uctypes_struct_size, this::uctypes_struct_size, 206);
+        hint(uctypes_struct_sizeof, this::uctypes_struct_sizeof, 0);
+        hint(uctypes_struct_sizeof, this::uctypes_struct_sizeof, 22);
+        hint(uctypes_struct_sizeof, this::uctypes_struct_sizeof, 42);
+        hint(uctypes_struct_agg_size, this::uctypes_struct_agg_size, 0);
+        hint(uctypes_struct_agg_size, this::uctypes_struct_agg_size, 28);
+        hint(uctypes_struct_agg_size, this::uctypes_struct_agg_size, 78);
+        hint(uctypes_get_buffer, this::uctypes_get_buffer, 0);
+        hint(uctypes_get_buffer, this::uctypes_get_buffer, 20);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 0);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 32);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 60);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 64);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 92);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 130);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 158);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 176);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 184);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 240);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 252);
+        hint(uctypes_struct_subscr, this::uctypes_struct_subscr, 260);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 0);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 36);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 46);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 100);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 114);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 146);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 172);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 254);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 288);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 298);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 382);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 448);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 456);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 464);
+        hint(uctypes_struct_attr_op, this::uctypes_struct_attr_op, 492);
+        hint(uctypes_struct_attr, this::uctypes_struct_attr, 0);
+        hint(uctypes_struct_attr, this::uctypes_struct_attr, 14);
+        hint(uctypes_struct_attr, this::uctypes_struct_attr, 24);
+        hint(ujson_stream_next, this::ujson_stream_next, 0);
+        hint(ujson_stream_next, this::ujson_stream_next, 20);
+        hint(ujson_stream_next, this::ujson_stream_next, 32);
+        hint(mod_ujson_load, this::mod_ujson_load, 0);
+        hint(mod_ujson_load, this::mod_ujson_load, 12);
+        hint(mod_ujson_load, this::mod_ujson_load, 36);
+        hint(mod_ujson_load, this::mod_ujson_load, 46);
+        hint(mod_ujson_load, this::mod_ujson_load, 64);
+        hint(mod_ujson_load, this::mod_ujson_load, 98);
+        hint(mod_ujson_load, this::mod_ujson_load, 134);
+        hint(mod_ujson_load, this::mod_ujson_load, 142);
+        hint(mod_ujson_load, this::mod_ujson_load, 188);
+        hint(mod_ujson_load, this::mod_ujson_load, 198);
+        hint(mod_ujson_load, this::mod_ujson_load, 208);
+        hint(mod_ujson_load, this::mod_ujson_load, 236);
+        hint(mod_ujson_load, this::mod_ujson_load, 258);
+        hint(mod_ujson_load, this::mod_ujson_load, 302);
+        hint(mod_ujson_load, this::mod_ujson_load, 318);
+        hint(mod_ujson_load, this::mod_ujson_load, 328);
+        hint(mod_ujson_load, this::mod_ujson_load, 338);
+        hint(mod_ujson_load, this::mod_ujson_load, 348);
+        hint(mod_ujson_load, this::mod_ujson_load, 366);
+        hint(mod_ujson_load, this::mod_ujson_load, 378);
+        hint(mod_ujson_load, this::mod_ujson_load, 390);
+        hint(mod_ujson_load, this::mod_ujson_load, 404);
+        hint(mod_ujson_load, this::mod_ujson_load, 426);
+        hint(mod_ujson_load, this::mod_ujson_load, 466);
+        hint(mod_ujson_load, this::mod_ujson_load, 504);
+        hint(mod_ujson_load, this::mod_ujson_load, 510);
+        hint(mod_ujson_load, this::mod_ujson_load, 528);
+        hint(mod_ujson_load, this::mod_ujson_load, 554);
+        hint(mod_ujson_load, this::mod_ujson_load, 574);
+        hint(mod_ujson_load, this::mod_ujson_load, 586);
+        hint(mod_ujson_load, this::mod_ujson_load, 596);
+        hint(mod_ujson_load, this::mod_ujson_load, 606);
+        hint(mod_ujson_load, this::mod_ujson_load, 622);
+        hint(mod_ujson_load, this::mod_ujson_load, 634);
+        hint(mod_ujson_load, this::mod_ujson_load, 662);
+        hint(mod_ujson_load, this::mod_ujson_load, 676);
+        hint(mod_ujson_load, this::mod_ujson_load, 684);
+        hint(mod_ujson_load, this::mod_ujson_load, 690);
+        hint(mod_ujson_load, this::mod_ujson_load, 722);
+        hint(mod_ujson_load, this::mod_ujson_load, 734);
+        hint(mod_ujson_loads, this::mod_ujson_loads, 0);
+        hint(mod_ujson_loads, this::mod_ujson_loads, 10);
+        hint(mod_ujson_loads, this::mod_ujson_loads, 46);
+        hint(mod_ujson_dump, this::mod_ujson_dump, 0);
+        hint(mod_ujson_dump, this::mod_ujson_dump, 14);
+        hint(mod_ujson_dump, this::mod_ujson_dump, 30);
+        hint(mod_ujson_dumps, this::mod_ujson_dumps, 0);
+        hint(mod_ujson_dumps, this::mod_ujson_dumps, 16);
+        hint(mod_ujson_dumps, this::mod_ujson_dumps, 26);
+        hint(mod_ujson_dumps, this::mod_ujson_dumps, 34);
+        hint(match_print, this::match_print, 0);
+        hint(match_print, this::match_print, 10);
+        hint(re_print, this::re_print, 0);
+        hint(re_print, this::re_print, 10);
+        hint(_compilecode, this::_compilecode, 0);
+        hint(_compilecode, this::_compilecode, 282);
+        hint(_compilecode, this::_compilecode, 480);
+        hint(_compilecode, this::_compilecode, 604);
+        hint(_compilecode, this::_compilecode, 678);
+        hint(match_group, this::match_group, 0);
+        hint(match_group, this::match_group, 12);
+        hint(match_group, this::match_group, 30);
+        hint(match_group, this::match_group, 34);
+        hint(match_group, this::match_group, 52);
+        hint(match_group, this::match_group, 62);
+        hint(re1_5_sizecode, this::re1_5_sizecode, 0);
+        hint(re1_5_sizecode, this::re1_5_sizecode, 14);
+        hint(re1_5_sizecode, this::re1_5_sizecode, 28);
+        hint(re1_5_compilecode, this::re1_5_compilecode, 0);
+        hint(re1_5_compilecode, this::re1_5_compilecode, 34);
+        hint(re1_5_dumpcode, this::re1_5_dumpcode, 0);
+        hint(re1_5_dumpcode, this::re1_5_dumpcode, 26);
+        hint(re1_5_dumpcode, this::re1_5_dumpcode, 38);
+        hint(re1_5_dumpcode, this::re1_5_dumpcode, 82);
+        hint(re1_5_dumpcode, this::re1_5_dumpcode, 138);
+        hint(re1_5_dumpcode, this::re1_5_dumpcode, 160);
+        hint(re1_5_dumpcode, this::re1_5_dumpcode, 190);
+        hint(re1_5_dumpcode, this::re1_5_dumpcode, 218);
+        hint(re1_5_dumpcode, this::re1_5_dumpcode, 230);
+        hint(mod_re_compile, this::mod_re_compile, 0);
+        hint(mod_re_compile, this::mod_re_compile, 12);
+        hint(mod_re_compile, this::mod_re_compile, 18);
+        hint(mod_re_compile, this::mod_re_compile, 28);
+        hint(mod_re_compile, this::mod_re_compile, 34);
+        hint(mod_re_compile, this::mod_re_compile, 54);
+        hint(mod_re_compile, this::mod_re_compile, 66);
+        hint(mod_re_compile, this::mod_re_compile, 80);
+        hint(_re1_5_classmatch, this::_re1_5_classmatch, 0);
+        hint(_re1_5_namedclassmatch, this::_re1_5_namedclassmatch, 0);
+        hint(recursiveloop, this::recursiveloop, 0);
+        hint(recursiveloop, this::recursiveloop, 16);
+        hint(recursiveloop, this::recursiveloop, 72);
+        hint(recursiveloop, this::recursiveloop, 138);
+        hint(recursiveloop, this::recursiveloop, 164);
+        hint(recursiveloop, this::recursiveloop, 202);
+        hint(recursiveloop, this::recursiveloop, 254);
+        hint(re1_5_recursiveloopprog, this::re1_5_recursiveloopprog, 0);
+        hint(re1_5_recursiveloopprog, this::re1_5_recursiveloopprog, 24);
+        hint(ure_exec_isra_2, this::ure_exec_isra_2, 0);
+        hint(ure_exec_isra_2, this::ure_exec_isra_2, 18);
+        hint(ure_exec_isra_2, this::ure_exec_isra_2, 44);
+        hint(ure_exec_isra_2, this::ure_exec_isra_2, 62);
+        hint(ure_exec_isra_2, this::ure_exec_isra_2, 78);
+        hint(ure_exec_isra_2, this::ure_exec_isra_2, 90);
+        hint(re_match, this::re_match, 0);
+        hint(re_match, this::re_match, 8);
+        hint(re_search, this::re_search, 0);
+        hint(re_search, this::re_search, 8);
+        hint(mod_re_match, this::mod_re_match, 0);
+        hint(mod_re_match, this::mod_re_match, 10);
+        hint(mod_re_match, this::mod_re_match, 26);
+        hint(mod_re_search, this::mod_re_search, 0);
+        hint(mod_re_search, this::mod_re_search, 10);
+        hint(mod_re_search, this::mod_re_search, 26);
+        hint(re_split, this::re_split, 0);
+        hint(re_split, this::re_split, 16);
+        hint(re_split, this::re_split, 26);
+        hint(re_split, this::re_split, 54);
+        hint(re_split, this::re_split, 64);
+        hint(re_split, this::re_split, 78);
+        hint(re_split, this::re_split, 90);
+        hint(re_split, this::re_split, 106);
+        hint(re_split, this::re_split, 128);
+        hint(re_split, this::re_split, 136);
+        hint(re_split, this::re_split, 148);
+        hint(re_split, this::re_split, 180);
+        hint(re_split, this::re_split, 188);
+        hint(tinf_build_tree, this::tinf_build_tree, 0);
+        hint(read_src_stream, this::read_src_stream, 0);
+        hint(read_src_stream, this::read_src_stream, 24);
+        hint(read_src_stream, this::read_src_stream, 34);
+        hint(read_src_stream, this::read_src_stream, 44);
+        hint(read_src_stream, this::read_src_stream, 48);
+        hint(uzlib_get_byte, this::uzlib_get_byte, 0);
+        hint(uzlib_get_byte, this::uzlib_get_byte, 20);
+        hint(tinf_getbit, this::tinf_getbit, 0);
+        hint(tinf_getbit, this::tinf_getbit, 18);
+        hint(tinf_read_bits, this::tinf_read_bits, 0);
+        hint(tinf_read_bits, this::tinf_read_bits, 34);
+        hint(tinf_decode_symbol, this::tinf_decode_symbol, 0);
+        hint(tinf_decode_symbol, this::tinf_decode_symbol, 18);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 0);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 20);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 32);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 44);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 76);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 98);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 114);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 128);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 148);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 180);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 208);
+        hint(tinf_decode_trees, this::tinf_decode_trees, 236);
+        hint(tinf_get_le_uint32, this::tinf_get_le_uint32, 0);
+        hint(tinf_get_le_uint32, this::tinf_get_le_uint32, 24);
+        hint(tinf_get_be_uint32, this::tinf_get_be_uint32, 0);
+        hint(tinf_get_be_uint32, this::tinf_get_be_uint32, 24);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 0);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 22);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 34);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 258);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 292);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 324);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 332);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 340);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 350);
+    }
+
+    private void gen_hints_11() {
+        hint(uzlib_uncompress, this::uzlib_uncompress, 386);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 458);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 472);
+        hint(uzlib_uncompress, this::uzlib_uncompress, 488);
+        hint(uzlib_zlib_parse_header, this::uzlib_zlib_parse_header, 0);
+        hint(uzlib_zlib_parse_header, this::uzlib_zlib_parse_header, 8);
+        hint(uzlib_zlib_parse_header, this::uzlib_zlib_parse_header, 16);
+        hint(uzlib_zlib_parse_header, this::uzlib_zlib_parse_header, 28);
+        hint(tinf_skip_bytes, this::tinf_skip_bytes, 0);
+        hint(tinf_skip_bytes, this::tinf_skip_bytes, 18);
+        hint(tinf_get_uint16, this::tinf_get_uint16, 0);
+        hint(tinf_get_uint16, this::tinf_get_uint16, 8);
+        hint(tinf_get_uint16, this::tinf_get_uint16, 16);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 0);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 8);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 26);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 36);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 46);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 66);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 76);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 84);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 94);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 108);
+        hint(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header, 124);
+        hint(decompio_make_new, this::decompio_make_new, 0);
+        hint(decompio_make_new, this::decompio_make_new, 26);
+        hint(decompio_make_new, this::decompio_make_new, 34);
+        hint(decompio_make_new, this::decompio_make_new, 42);
+        hint(decompio_make_new, this::decompio_make_new, 60);
+        hint(decompio_make_new, this::decompio_make_new, 84);
+        hint(decompio_make_new, this::decompio_make_new, 94);
+        hint(decompio_make_new, this::decompio_make_new, 100);
+        hint(decompio_make_new, this::decompio_make_new, 112);
+        hint(decompio_make_new, this::decompio_make_new, 142);
+        hint(uzlib_adler32, this::uzlib_adler32, 0);
+        hint(uzlib_adler32, this::uzlib_adler32, 66);
+        hint(uzlib_adler32, this::uzlib_adler32, 76);
+        hint(uzlib_crc32, this::uzlib_crc32, 0);
+        hint(uzlib_uncompress_chksum, this::uzlib_uncompress_chksum, 0);
+        hint(uzlib_uncompress_chksum, this::uzlib_uncompress_chksum, 10);
+        hint(uzlib_uncompress_chksum, this::uzlib_uncompress_chksum, 42);
+        hint(uzlib_uncompress_chksum, this::uzlib_uncompress_chksum, 54);
+        hint(uzlib_uncompress_chksum, this::uzlib_uncompress_chksum, 78);
+        hint(uzlib_uncompress_chksum, this::uzlib_uncompress_chksum, 90);
+        hint(uzlib_uncompress_chksum, this::uzlib_uncompress_chksum, 104);
+        hint(decompio_read, this::decompio_read, 0);
+        hint(decompio_read, this::decompio_read, 30);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 0);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 18);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 24);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 34);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 54);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 82);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 92);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 120);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 148);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 152);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 162);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 170);
+        hint(mod_uzlib_decompress, this::mod_uzlib_decompress, 180);
+        hint(get_heap, this::get_heap, 0);
+        hint(get_heap, this::get_heap, 20);
+        hint(heap_siftdown_isra_0, this::heap_siftdown_isra_0, 0);
+        hint(heap_siftdown_isra_0, this::heap_siftdown_isra_0, 44);
+        hint(heap_siftup, this::heap_siftup, 0);
+        hint(heap_siftup, this::heap_siftup, 54);
+        hint(heap_siftup, this::heap_siftup, 80);
+        hint(mod_uheapq_heapify, this::mod_uheapq_heapify, 0);
+        hint(mod_uheapq_heapify, this::mod_uheapq_heapify, 6);
+        hint(mod_uheapq_heapify, this::mod_uheapq_heapify, 30);
+        hint(mod_uheapq_heappush, this::mod_uheapq_heappush, 0);
+        hint(mod_uheapq_heappush, this::mod_uheapq_heappush, 10);
+        hint(mod_uheapq_heappush, this::mod_uheapq_heappush, 20);
+        hint(mod_uheapq_heappush, this::mod_uheapq_heappush, 34);
+        hint(mod_uheapq_heappop, this::mod_uheapq_heappop, 0);
+        hint(mod_uheapq_heappop, this::mod_uheapq_heappop, 6);
+        hint(mod_uheapq_heappop, this::mod_uheapq_heappop, 20);
+        hint(mod_uheapq_heappop, this::mod_uheapq_heappop, 24);
+        hint(mod_uheapq_heappop, this::mod_uheapq_heappop, 52);
+        hint(utimeq_unary_op, this::utimeq_unary_op, 0);
+        hint(utimeq_make_new, this::utimeq_make_new, 0);
+        hint(utimeq_make_new, this::utimeq_make_new, 24);
+        hint(utimeq_make_new, this::utimeq_make_new, 30);
+        hint(utimeq_make_new, this::utimeq_make_new, 42);
+        hint(utimeq_make_new, this::utimeq_make_new, 58);
+        hint(mod_utimeq_peektime, this::mod_utimeq_peektime, 0);
+        hint(mod_utimeq_peektime, this::mod_utimeq_peektime, 16);
+        hint(mod_utimeq_peektime, this::mod_utimeq_peektime, 20);
+        hint(heap_siftdown_constprop_3, this::heap_siftdown_constprop_3, 0);
+        hint(mod_utimeq_heappop, this::mod_utimeq_heappop, 0);
+        hint(mod_utimeq_heappop, this::mod_utimeq_heappop, 20);
+        hint(mod_utimeq_heappop, this::mod_utimeq_heappop, 24);
+        hint(mod_utimeq_heappop, this::mod_utimeq_heappop, 50);
+        hint(mod_utimeq_heappop, this::mod_utimeq_heappop, 158);
+        hint(mod_utimeq_heappush, this::mod_utimeq_heappush, 0);
+        hint(mod_utimeq_heappush, this::mod_utimeq_heappush, 22);
+        hint(mod_utimeq_heappush, this::mod_utimeq_heappush, 56);
+        hint(sha256_transform, this::sha256_transform, 0);
+        hint(sha256_init, this::sha256_init, 0);
+        hint(sha256_update, this::sha256_update, 0);
+        hint(sha256_update, this::sha256_update, 46);
+        hint(uhashlib_sha256_update, this::uhashlib_sha256_update, 0);
+        hint(uhashlib_sha256_update, this::uhashlib_sha256_update, 14);
+        hint(uhashlib_sha256_update, this::uhashlib_sha256_update, 24);
+        hint(uhashlib_sha256_make_new, this::uhashlib_sha256_make_new, 0);
+        hint(uhashlib_sha256_make_new, this::uhashlib_sha256_make_new, 22);
+        hint(uhashlib_sha256_make_new, this::uhashlib_sha256_make_new, 28);
+        hint(uhashlib_sha256_make_new, this::uhashlib_sha256_make_new, 36);
+        hint(uhashlib_sha256_make_new, this::uhashlib_sha256_make_new, 48);
+        hint(sha256_final, this::sha256_final, 0);
+        hint(sha256_final, this::sha256_final, 104);
+        hint(sha256_final, this::sha256_final, 186);
+        hint(sha256_final, this::sha256_final, 196);
+        hint(uhashlib_sha256_digest, this::uhashlib_sha256_digest, 0);
+        hint(uhashlib_sha256_digest, this::uhashlib_sha256_digest, 12);
+        hint(uhashlib_sha256_digest, this::uhashlib_sha256_digest, 20);
+        hint(uhashlib_sha256_digest, this::uhashlib_sha256_digest, 28);
+        hint(mod_binascii_hexlify, this::mod_binascii_hexlify, 0);
+        hint(mod_binascii_hexlify, this::mod_binascii_hexlify, 18);
+        hint(mod_binascii_hexlify, this::mod_binascii_hexlify, 44);
+        hint(mod_binascii_hexlify, this::mod_binascii_hexlify, 56);
+        hint(mod_binascii_hexlify, this::mod_binascii_hexlify, 74);
+        hint(mod_binascii_b2a_base64, this::mod_binascii_b2a_base64, 0);
+        hint(mod_binascii_b2a_base64, this::mod_binascii_b2a_base64, 12);
+        hint(mod_binascii_b2a_base64, this::mod_binascii_b2a_base64, 28);
+        hint(mod_binascii_b2a_base64, this::mod_binascii_b2a_base64, 44);
+        hint(mod_binascii_b2a_base64, this::mod_binascii_b2a_base64, 132);
+        hint(mod_binascii_unhexlify, this::mod_binascii_unhexlify, 0);
+        hint(mod_binascii_unhexlify, this::mod_binascii_unhexlify, 12);
+        hint(mod_binascii_unhexlify, this::mod_binascii_unhexlify, 32);
+        hint(mod_binascii_unhexlify, this::mod_binascii_unhexlify, 56);
+        hint(mod_binascii_unhexlify, this::mod_binascii_unhexlify, 70);
+        hint(mod_binascii_unhexlify, this::mod_binascii_unhexlify, 80);
+        hint(mod_binascii_unhexlify, this::mod_binascii_unhexlify, 118);
+        hint(mod_binascii_a2b_base64, this::mod_binascii_a2b_base64, 0);
+        hint(mod_binascii_a2b_base64, this::mod_binascii_a2b_base64, 12);
+        hint(mod_binascii_a2b_base64, this::mod_binascii_a2b_base64, 32);
+        hint(mod_binascii_a2b_base64, this::mod_binascii_a2b_base64, 64);
+        hint(mod_binascii_a2b_base64, this::mod_binascii_a2b_base64, 184);
+        hint(mod_binascii_crc32, this::mod_binascii_crc32, 0);
+        hint(mod_binascii_crc32, this::mod_binascii_crc32, 18);
+        hint(mod_binascii_crc32, this::mod_binascii_crc32, 30);
+        hint(mod_binascii_crc32, this::mod_binascii_crc32, 40);
+        hint(mod_binascii_crc32, this::mod_binascii_crc32, 46);
+        hint(machine_mem_get_addr, this::machine_mem_get_addr, 0);
+        hint(machine_mem_get_addr, this::machine_mem_get_addr, 8);
+        hint(machine_mem_get_addr, this::machine_mem_get_addr, 26);
+        hint(machine_mem_get_addr, this::machine_mem_get_addr, 30);
+        hint(machine_mem_print, this::machine_mem_print, 0);
+        hint(machine_mem_print, this::machine_mem_print, 12);
+        hint(machine_mem_subscr, this::machine_mem_subscr, 0);
+        hint(machine_mem_subscr, this::machine_mem_subscr, 24);
+        hint(machine_mem_subscr, this::machine_mem_subscr, 44);
+        hint(machine_mem_subscr, this::machine_mem_subscr, 54);
+        hint(machine_mem_subscr, this::machine_mem_subscr, 62);
+        hint(yasmarang, this::yasmarang, 0);
+        hint(yasmarang_randbelow, this::yasmarang_randbelow, 0);
+        hint(yasmarang_randbelow, this::yasmarang_randbelow, 20);
+        hint(mod_urandom_uniform, this::mod_urandom_uniform, 0);
+        hint(mod_urandom_uniform, this::mod_urandom_uniform, 8);
+        hint(mod_urandom_uniform, this::mod_urandom_uniform, 16);
+        hint(mod_urandom_uniform, this::mod_urandom_uniform, 22);
+        hint(mod_urandom_uniform, this::mod_urandom_uniform, 28);
+        hint(mod_urandom_uniform, this::mod_urandom_uniform, 46);
+        hint(mod_urandom_uniform, this::mod_urandom_uniform, 54);
+        hint(mod_urandom_uniform, this::mod_urandom_uniform, 60);
+        hint(mod_urandom_uniform, this::mod_urandom_uniform, 64);
+        hint(mod_urandom_randint, this::mod_urandom_randint, 0);
+        hint(mod_urandom_randint, this::mod_urandom_randint, 8);
+        hint(mod_urandom_randint, this::mod_urandom_randint, 16);
+        hint(mod_urandom_randint, this::mod_urandom_randint, 26);
+        hint(mod_urandom_randint, this::mod_urandom_randint, 34);
+        hint(mod_urandom_randint, this::mod_urandom_randint, 40);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 0);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 12);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 26);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 30);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 38);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 54);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 64);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 78);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 86);
+        hint(mod_urandom_randrange, this::mod_urandom_randrange, 106);
+        hint(mod_urandom_seed, this::mod_urandom_seed, 0);
+        hint(mod_urandom_seed, this::mod_urandom_seed, 6);
+        hint(mod_urandom_getrandbits, this::mod_urandom_getrandbits, 0);
+        hint(mod_urandom_getrandbits, this::mod_urandom_getrandbits, 6);
+        hint(mod_urandom_getrandbits, this::mod_urandom_getrandbits, 22);
+        hint(mod_urandom_getrandbits, this::mod_urandom_getrandbits, 26);
+        hint(mod_urandom_getrandbits, this::mod_urandom_getrandbits, 42);
+        hint(mod_urandom_choice, this::mod_urandom_choice, 0);
+        hint(mod_urandom_choice, this::mod_urandom_choice, 8);
+        hint(mod_urandom_choice, this::mod_urandom_choice, 12);
+        hint(mod_urandom_choice, this::mod_urandom_choice, 22);
+        hint(mod_urandom_choice, this::mod_urandom_choice, 26);
+        hint(mod_urandom_choice, this::mod_urandom_choice, 30);
+        hint(mod_urandom_choice, this::mod_urandom_choice, 34);
+        hint(mod_urandom_choice, this::mod_urandom_choice, 44);
+        hint(mod_urandom_random, this::mod_urandom_random, 0);
+        hint(mod_urandom_random, this::mod_urandom_random, 6);
+        hint(mod_urandom_random, this::mod_urandom_random, 24);
+        hint(mod_urandom_random, this::mod_urandom_random, 28);
+        hint(mp_vfs_proxy_call, this::mp_vfs_proxy_call, 0);
+        hint(mp_vfs_proxy_call, this::mp_vfs_proxy_call, 18);
+        hint(mp_vfs_proxy_call, this::mp_vfs_proxy_call, 34);
+        hint(mp_vfs_proxy_call, this::mp_vfs_proxy_call, 48);
+        hint(mp_vfs_proxy_call, this::mp_vfs_proxy_call, 58);
+        hint(mp_vfs_umount, this::mp_vfs_umount, 0);
+        hint(mp_vfs_umount, this::mp_vfs_umount, 36);
+        hint(mp_vfs_umount, this::mp_vfs_umount, 66);
+        hint(mp_vfs_umount, this::mp_vfs_umount, 80);
+        hint(mp_vfs_umount, this::mp_vfs_umount, 124);
+        hint(mp_vfs_getcwd, this::mp_vfs_getcwd, 0);
+        hint(mp_vfs_getcwd, this::mp_vfs_getcwd, 26);
+        hint(mp_vfs_getcwd, this::mp_vfs_getcwd, 38);
+        hint(mp_vfs_getcwd, this::mp_vfs_getcwd, 44);
+        hint(mp_vfs_getcwd, this::mp_vfs_getcwd, 58);
+        hint(mp_vfs_getcwd, this::mp_vfs_getcwd, 68);
+        hint(mp_vfs_getcwd, this::mp_vfs_getcwd, 88);
+        hint(mp_vfs_getcwd, this::mp_vfs_getcwd, 96);
+        hint(mp_vfs_ilistdir_it_iternext, this::mp_vfs_ilistdir_it_iternext, 0);
+        hint(mp_vfs_ilistdir_it_iternext, this::mp_vfs_ilistdir_it_iternext, 46);
+        hint(mp_vfs_ilistdir_it_iternext, this::mp_vfs_ilistdir_it_iternext, 52);
+        hint(mp_vfs_ilistdir_it_iternext, this::mp_vfs_ilistdir_it_iternext, 64);
+        hint(mp_vfs_ilistdir_it_iternext, this::mp_vfs_ilistdir_it_iternext, 88);
+        hint(mp_vfs_lookup_path, this::mp_vfs_lookup_path, 0);
+        hint(mp_vfs_lookup_path, this::mp_vfs_lookup_path, 100);
+        hint(mp_vfs_mount, this::mp_vfs_mount, 0);
+        hint(mp_vfs_mount, this::mp_vfs_mount, 24);
+        hint(mp_vfs_mount, this::mp_vfs_mount, 32);
+        hint(mp_vfs_mount, this::mp_vfs_mount, 48);
+        hint(mp_vfs_mount, this::mp_vfs_mount, 54);
+        hint(mp_vfs_mount, this::mp_vfs_mount, 82);
+        hint(mp_vfs_mount, this::mp_vfs_mount, 88);
+        hint(mp_vfs_mount, this::mp_vfs_mount, 94);
+        hint(mp_vfs_mount, this::mp_vfs_mount, 118);
+        hint(lookup_path, this::lookup_path, 0);
+        hint(lookup_path, this::lookup_path, 10);
+        hint(lookup_path, this::lookup_path, 16);
+        hint(lookup_path, this::lookup_path, 28);
+        hint(lookup_path, this::lookup_path, 38);
+        hint(lookup_path, this::lookup_path, 48);
+        hint(mp_vfs_open, this::mp_vfs_open, 0);
+        hint(mp_vfs_open, this::mp_vfs_open, 18);
+        hint(mp_vfs_open, this::mp_vfs_open, 26);
+        hint(mp_vfs_open, this::mp_vfs_open, 38);
+        hint(mp_vfs_chdir, this::mp_vfs_chdir, 0);
+        hint(mp_vfs_chdir, this::mp_vfs_chdir, 8);
+        hint(mp_vfs_chdir, this::mp_vfs_chdir, 52);
+        hint(mp_vfs_ilistdir, this::mp_vfs_ilistdir, 0);
+        hint(mp_vfs_ilistdir, this::mp_vfs_ilistdir, 18);
+        hint(mp_vfs_ilistdir, this::mp_vfs_ilistdir, 28);
+        hint(mp_vfs_ilistdir, this::mp_vfs_ilistdir, 54);
+        hint(mp_vfs_ilistdir, this::mp_vfs_ilistdir, 82);
+        hint(mp_vfs_listdir, this::mp_vfs_listdir, 0);
+        hint(mp_vfs_listdir, this::mp_vfs_listdir, 6);
+        hint(mp_vfs_listdir, this::mp_vfs_listdir, 16);
+        hint(mp_vfs_listdir, this::mp_vfs_listdir, 24);
+        hint(mp_vfs_listdir, this::mp_vfs_listdir, 40);
+        hint(mp_vfs_listdir, this::mp_vfs_listdir, 48);
+        hint(mp_vfs_mkdir, this::mp_vfs_mkdir, 0);
+        hint(mp_vfs_mkdir, this::mp_vfs_mkdir, 8);
+        hint(mp_vfs_mkdir, this::mp_vfs_mkdir, 18);
+        hint(mp_vfs_mkdir, this::mp_vfs_mkdir, 28);
+        hint(mp_vfs_mkdir, this::mp_vfs_mkdir, 34);
+        hint(mp_vfs_mkdir, this::mp_vfs_mkdir, 52);
+        hint(mp_vfs_remove, this::mp_vfs_remove, 0);
+        hint(mp_vfs_remove, this::mp_vfs_remove, 8);
+        hint(mp_vfs_remove, this::mp_vfs_remove, 20);
+        hint(mp_vfs_rename, this::mp_vfs_rename, 0);
+        hint(mp_vfs_rename, this::mp_vfs_rename, 10);
+        hint(mp_vfs_rename, this::mp_vfs_rename, 20);
+        hint(mp_vfs_rename, this::mp_vfs_rename, 30);
+        hint(mp_vfs_rename, this::mp_vfs_rename, 44);
+        hint(mp_vfs_rmdir, this::mp_vfs_rmdir, 0);
+        hint(mp_vfs_rmdir, this::mp_vfs_rmdir, 8);
+        hint(mp_vfs_rmdir, this::mp_vfs_rmdir, 20);
+        hint(mp_vfs_stat, this::mp_vfs_stat, 0);
+        hint(mp_vfs_stat, this::mp_vfs_stat, 8);
+        hint(mp_vfs_stat, this::mp_vfs_stat, 20);
+        hint(mp_vfs_stat, this::mp_vfs_stat, 54);
+        hint(mp_vfs_statvfs, this::mp_vfs_statvfs, 0);
+        hint(mp_vfs_statvfs, this::mp_vfs_statvfs, 8);
+        hint(mp_vfs_statvfs, this::mp_vfs_statvfs, 32);
+        hint(mp_vfs_statvfs, this::mp_vfs_statvfs, 82);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 0);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 10);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 28);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 42);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 52);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 60);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 68);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 86);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 92);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 102);
+        hint(mp_vfs_import_stat, this::mp_vfs_import_stat, 110);
+        hint(mp_reader_vfs_close, this::mp_reader_vfs_close, 0);
+        hint(mp_reader_vfs_close, this::mp_reader_vfs_close, 10);
+        hint(mp_reader_vfs_close, this::mp_reader_vfs_close, 18);
+        hint(mp_reader_vfs_readbyte, this::mp_reader_vfs_readbyte, 0);
+        hint(mp_reader_vfs_readbyte, this::mp_reader_vfs_readbyte, 34);
+        hint(mp_reader_new_file, this::mp_reader_new_file, 0);
+        hint(mp_reader_new_file, this::mp_reader_new_file, 12);
+        hint(mp_reader_new_file, this::mp_reader_new_file, 20);
+        hint(mp_reader_new_file, this::mp_reader_new_file, 28);
+        hint(mp_reader_new_file, this::mp_reader_new_file, 40);
+        hint(mp_reader_new_file, this::mp_reader_new_file, 58);
+        hint(mp_reader_new_file, this::mp_reader_new_file, 70);
+        hint(time_ticks_diff, this::time_ticks_diff, 0);
+        hint(time_sleep, this::time_sleep, 0);
+        hint(time_sleep, this::time_sleep, 6);
+        hint(time_sleep, this::time_sleep, 12);
+        hint(time_sleep, this::time_sleep, 16);
+        hint(time_sleep, this::time_sleep, 20);
+        hint(time_sleep_ms, this::time_sleep_ms, 0);
+        hint(time_sleep_ms, this::time_sleep_ms, 6);
+        hint(time_sleep_ms, this::time_sleep_ms, 14);
+        hint(time_ticks_add, this::time_ticks_add, 0);
+        hint(time_ticks_add, this::time_ticks_add, 10);
+        hint(time_ticks_ms, this::time_ticks_ms, 0);
+        hint(time_ticks_ms, this::time_ticks_ms, 6);
+        hint(time_ticks_cpu, this::time_ticks_cpu, 0);
+        hint(time_ticks_cpu, this::time_ticks_cpu, 6);
+        hint(strn_print_strn, this::strn_print_strn, 0);
+        hint(strn_print_strn, this::strn_print_strn, 20);
+        hint(printf, this::printf, 0);
+        hint(printf, this::printf, 16);
+        hint(putchar, this::putchar, 0);
+        hint(putchar, this::putchar, 16);
+        hint(puts, this::puts, 0);
+        hint(puts, this::puts, 8);
+        hint(puts, this::puts, 16);
+        hint(puts, this::puts, 30);
+        hint(vsnprintf, this::vsnprintf, 0);
+        hint(vsnprintf, this::vsnprintf, 26);
+        hint(snprintf, this::snprintf, 0);
+        hint(snprintf, this::snprintf, 14);
+        hint(main, this::main, 0);
+        hint(main, this::main, 10);
+        hint(main, this::main, 22);
+        hint(main, this::main, 36);
+        hint(main, this::main, 44);
+        hint(main, this::main, 52);
+        hint(main, this::main, 56);
+        hint(main, this::main, 66);
+        hint(main, this::main, 74);
+        hint(main, this::main, 82);
+        hint(main, this::main, 88);
+        hint(main, this::main, 104);
+        hint(main, this::main, 120);
+        hint(main, this::main, 132);
+        hint(main, this::main, 142);
+        hint(main, this::main, 146);
+        hint(Signal_Handler, this::Signal_Handler, 0);
+        hint(Signal_Handler, this::Signal_Handler, 10);
+        hint(Signal_Handler, this::Signal_Handler, 16);
+        hint(Signal_Handler, this::Signal_Handler, 26);
+        hint(_exit, this::_exit, 0);
+        hint(_exit, this::_exit, 10);
+        hint(_start, this::_start, 0);
+        hint(_start, this::_start, 10);
+        hint(_start, this::_start, 14);
+        hint(Reset_Handler, this::Reset_Handler, 0);
+        hint(Reset_Handler, this::Reset_Handler, 48);
+        hint(__fatal_error, this::__fatal_error, 0);
+        hint(__fatal_error, this::__fatal_error, 12);
+        hint(nlr_jump_fail, this::nlr_jump_fail, 0);
+        hint(nlr_jump_fail, this::nlr_jump_fail, 8);
+        hint(mp_hal_stdin_rx_chr, this::mp_hal_stdin_rx_chr, 0);
+        hint(mp_hal_stdin_rx_chr, this::mp_hal_stdin_rx_chr, 6);
+        hint(mp_hal_stdout_tx_strn, this::mp_hal_stdout_tx_strn, 0);
+        hint(mp_hal_stdout_tx_strn, this::mp_hal_stdout_tx_strn, 6);
+        hint(mp_hal_stdout_tx_strn, this::mp_hal_stdout_tx_strn, 16);
+        hint(mp_hal_stdout_tx_strn, this::mp_hal_stdout_tx_strn, 22);
+        hint(mp_hal_delay_ms, this::mp_hal_delay_ms, 0);
+        hint(mp_hal_delay_ms, this::mp_hal_delay_ms, 24);
+        hint(mp_hal_ticks_ms, this::mp_hal_ticks_ms, 0);
+        hint(mp_hal_ticks_cpu, this::mp_hal_ticks_cpu, 0);
+        hint(usystem_print_hook, this::usystem_print_hook, 0);
+        hint(usystem_debug, this::usystem_debug, 0);
+        hint(usystem_debug, this::usystem_debug, 12);
+        hint(usystem_debug, this::usystem_debug, 22);
+        hint(usystem_set_stdin_char, this::usystem_set_stdin_char, 0);
+        hint(usystem_set_stdin_char, this::usystem_set_stdin_char, 24);
+        hint(parse_2, this::parse_2, 0);
+        hint(parse_2, this::parse_2, 16);
+        hint(parse_2, this::parse_2, 22);
+        hint(usystem_syscall, this::usystem_syscall, 0);
+        hint(usystem_syscall, this::usystem_syscall, 12);
+        hint(usystem_syscall, this::usystem_syscall, 22);
+        hint(usystem_syscall, this::usystem_syscall, 28);
+        hint(usystem_signal, this::usystem_signal, 0);
+        hint(usystem_signal, this::usystem_signal, 12);
+        hint(usystem_signal, this::usystem_signal, 18);
+        hint(usystem_components, this::usystem_components, 0);
+        hint(usystem_components, this::usystem_components, 12);
+        hint(usystem_components, this::usystem_components, 18);
+        hint(usystem_methods, this::usystem_methods, 0);
+        hint(usystem_methods, this::usystem_methods, 12);
+        hint(usystem_methods, this::usystem_methods, 26);
+        hint(usystem_methods, this::usystem_methods, 32);
+        hint(usystem_annotations, this::usystem_annotations, 0);
+        hint(usystem_annotations, this::usystem_annotations, 12);
+        hint(usystem_annotations, this::usystem_annotations, 24);
+        hint(usystem_annotations, this::usystem_annotations, 30);
+        hint(usystem_get_stdout_str, this::usystem_get_stdout_str, 0);
+        hint(usystem_get_stdout_str, this::usystem_get_stdout_str, 12);
+        hint(usystem_get_stdout_str, this::usystem_get_stdout_str, 18);
+        hint(gc_collect, this::gc_collect, 0);
+        hint(gc_collect, this::gc_collect, 8);
+        hint(gc_collect, this::gc_collect, 14);
+        hint(gc_collect, this::gc_collect, 24);
+        hint(gc_collect, this::gc_collect, 28);
+        hint(vfs_openpie_file___exit__, this::vfs_openpie_file___exit__, 0);
+        hint(vfs_openpie_file___exit__, this::vfs_openpie_file___exit__, 8);
+        hint(vfs_openpie_file_print, this::vfs_openpie_file_print, 0);
+        hint(vfs_openpie_file_print, this::vfs_openpie_file_print, 12);
+        hint(vfs_openpie_file_print, this::vfs_openpie_file_print, 24);
+        hint(unlikely_check_fd_is_open_isra_0_part_1, this::unlikely_check_fd_is_open_isra_0_part_1, 0);
+        hint(unlikely_check_fd_is_open_isra_0_part_1, this::unlikely_check_fd_is_open_isra_0_part_1, 10);
+        hint(unlikely_check_fd_is_open_isra_0_part_1, this::unlikely_check_fd_is_open_isra_0_part_1, 14);
+        hint(vfs_openpie_file_fileno, this::vfs_openpie_file_fileno, 0);
+        hint(vfs_openpie_file_fileno, this::vfs_openpie_file_fileno, 12);
+        hint(vfs_openpie_file_fileno, this::vfs_openpie_file_fileno, 16);
+        hint(SVC_CALL_VFS, this::SVC_CALL_VFS, 0);
+        hint(SVC_CALL_VFS, this::SVC_CALL_VFS, 10);
+        hint(SVC_CALL_VFS_OUT, this::SVC_CALL_VFS_OUT, 0);
+        hint(SVC_CALL_VFS_OUT, this::SVC_CALL_VFS_OUT, 12);
+        hint(vfs_openpie_file_ioctl, this::vfs_openpie_file_ioctl, 0);
+        hint(vfs_openpie_file_ioctl, this::vfs_openpie_file_ioctl, 20);
+        hint(vfs_openpie_file_ioctl, this::vfs_openpie_file_ioctl, 42);
+        hint(vfs_openpie_file_ioctl, this::vfs_openpie_file_ioctl, 76);
+        hint(vfs_openpie_file_ioctl, this::vfs_openpie_file_ioctl, 102);
+        hint(vfs_openpie_file_write, this::vfs_openpie_file_write, 0);
+        hint(vfs_openpie_file_write, this::vfs_openpie_file_write, 18);
+        hint(vfs_openpie_file_write, this::vfs_openpie_file_write, 36);
+        hint(vfs_openpie_file_read, this::vfs_openpie_file_read, 0);
+        hint(vfs_openpie_file_read, this::vfs_openpie_file_read, 18);
+        hint(vfs_openpie_file_read, this::vfs_openpie_file_read, 34);
+        hint(mp_vfs_openpie_file_open, this::mp_vfs_openpie_file_open, 0);
+        hint(mp_vfs_openpie_file_open, this::mp_vfs_openpie_file_open, 18);
+        hint(mp_vfs_openpie_file_open, this::mp_vfs_openpie_file_open, 26);
+        hint(mp_vfs_openpie_file_open, this::mp_vfs_openpie_file_open, 34);
+        hint(mp_vfs_openpie_file_open, this::mp_vfs_openpie_file_open, 42);
+        hint(mp_vfs_openpie_file_open, this::mp_vfs_openpie_file_open, 68);
+        hint(mp_vfs_openpie_file_open, this::mp_vfs_openpie_file_open, 76);
+        hint(mp_vfs_openpie_file_open, this::mp_vfs_openpie_file_open, 86);
+        hint(vfs_openpie_file_make_new, this::vfs_openpie_file_make_new, 0);
+        hint(vfs_openpie_file_make_new, this::vfs_openpie_file_make_new, 26);
+        hint(vfs_openpie_file_make_new, this::vfs_openpie_file_make_new, 38);
+        hint(gc_helper_get_regs_and_sp, this::gc_helper_get_regs_and_sp, 0);
+        hint(stdio_obj___exit__, this::stdio_obj___exit__, 0);
+        hint(stdio_obj_print, this::stdio_obj_print, 0);
+        hint(stdio_obj_print, this::stdio_obj_print, 10);
+        hint(stdio_buffer_write, this::stdio_buffer_write, 0);
+        hint(stdio_buffer_write, this::stdio_buffer_write, 12);
+        hint(stdio_buffer_read, this::stdio_buffer_read, 0);
+        hint(stdio_buffer_read, this::stdio_buffer_read, 20);
+        hint(stdio_write, this::stdio_write, 0);
+        hint(stdio_write, this::stdio_write, 22);
+        hint(stdio_read, this::stdio_read, 0);
+        hint(stdio_read, this::stdio_read, 28);
+        hint(mp_hal_stdout_tx_strn_cooked, this::mp_hal_stdout_tx_strn_cooked, 0);
+        hint(mp_hal_stdout_tx_strn_cooked, this::mp_hal_stdout_tx_strn_cooked, 26);
+        hint(mp_hal_stdout_tx_strn_cooked, this::mp_hal_stdout_tx_strn_cooked, 36);
+        hint(mp_hal_stdout_tx_str, this::mp_hal_stdout_tx_str, 0);
+        hint(mp_hal_stdout_tx_str, this::mp_hal_stdout_tx_str, 8);
+        hint(mp_hal_stdout_tx_str, this::mp_hal_stdout_tx_str, 16);
+        hint(mp_hal_set_interrupt_char, this::mp_hal_set_interrupt_char, 0);
+        hint(mp_hal_set_interrupt_char, this::mp_hal_set_interrupt_char, 14);
+        hint(parse_compile_execute, this::parse_compile_execute, 0);
+        hint(parse_compile_execute, this::parse_compile_execute, 24);
+        hint(parse_compile_execute, this::parse_compile_execute, 44);
+        hint(parse_compile_execute, this::parse_compile_execute, 52);
+        hint(parse_compile_execute, this::parse_compile_execute, 56);
+        hint(parse_compile_execute, this::parse_compile_execute, 64);
+        hint(parse_compile_execute, this::parse_compile_execute, 72);
+        hint(parse_compile_execute, this::parse_compile_execute, 78);
+        hint(parse_compile_execute, this::parse_compile_execute, 90);
+        hint(parse_compile_execute, this::parse_compile_execute, 108);
+        hint(parse_compile_execute, this::parse_compile_execute, 116);
+        hint(parse_compile_execute, this::parse_compile_execute, 128);
+        hint(parse_compile_execute, this::parse_compile_execute, 144);
+        hint(parse_compile_execute, this::parse_compile_execute, 148);
+        hint(parse_compile_execute, this::parse_compile_execute, 152);
+        hint(parse_compile_execute, this::parse_compile_execute, 164);
+        hint(parse_compile_execute, this::parse_compile_execute, 184);
+        hint(parse_compile_execute, this::parse_compile_execute, 198);
+        hint(parse_compile_execute, this::parse_compile_execute, 212);
+        hint(parse_compile_execute, this::parse_compile_execute, 224);
+        hint(parse_compile_execute, this::parse_compile_execute, 234);
+        hint(parse_compile_execute, this::parse_compile_execute, 246);
+        hint(parse_compile_execute, this::parse_compile_execute, 256);
+        hint(parse_compile_execute, this::parse_compile_execute, 274);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 0);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 14);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 22);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 32);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 36);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 50);
+    }
+
+    private void gen_hints_12() {
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 56);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 90);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 98);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 112);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 118);
+        hint(pyexec_raw_repl, this::pyexec_raw_repl, 134);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 0);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 14);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 22);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 28);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 40);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 50);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 56);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 76);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 96);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 102);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 118);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 124);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 146);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 156);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 168);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 180);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 190);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 204);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 208);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 220);
+        hint(pyexec_friendly_repl, this::pyexec_friendly_repl, 228);
+        hint(pyexec_frozen_module, this::pyexec_frozen_module, 0);
+        hint(pyexec_frozen_module, this::pyexec_frozen_module, 8);
+        hint(pyexec_frozen_module, this::pyexec_frozen_module, 18);
+        hint(pyexec_frozen_module, this::pyexec_frozen_module, 36);
+        hint(pyexec_frozen_module, this::pyexec_frozen_module, 48);
+        hint(memcpy, this::memcpy, 0);
+        hint(memmove, this::memmove, 0);
+        hint(memmove, this::memmove, 34);
+        hint(memset, this::memset, 0);
+        hint(memcmp, this::memcmp, 0);
+        hint(strlen, this::strlen, 0);
+        hint(strcmp, this::strcmp, 0);
+        hint(strncmp, this::strncmp, 0);
+        hint(strchr, this::strchr, 0);
+        hint(mp_hal_move_cursor_back, this::mp_hal_move_cursor_back, 0);
+        hint(mp_hal_move_cursor_back, this::mp_hal_move_cursor_back, 16);
+        hint(mp_hal_move_cursor_back, this::mp_hal_move_cursor_back, 28);
+        hint(readline_init, this::readline_init, 0);
+        hint(readline_init, this::readline_init, 30);
+        hint(readline_push_history, this::readline_push_history, 0);
+        hint(readline_push_history, this::readline_push_history, 28);
+        hint(readline_push_history, this::readline_push_history, 38);
+        hint(readline_push_history, this::readline_push_history, 46);
+        hint(readline_push_history, this::readline_push_history, 58);
+        hint(readline_process_char, this::readline_process_char, 0);
+        hint(readline_process_char, this::readline_process_char, 62);
+        hint(readline_process_char, this::readline_process_char, 68);
+        hint(readline_process_char, this::readline_process_char, 76);
+        hint(readline_process_char, this::readline_process_char, 114);
+        hint(readline_process_char, this::readline_process_char, 142);
+        hint(readline_process_char, this::readline_process_char, 158);
+        hint(readline_process_char, this::readline_process_char, 174);
+        hint(readline_process_char, this::readline_process_char, 192);
+        hint(readline_process_char, this::readline_process_char, 208);
+        hint(readline_process_char, this::readline_process_char, 222);
+        hint(readline_process_char, this::readline_process_char, 250);
+        hint(readline_process_char, this::readline_process_char, 272);
+        hint(readline_process_char, this::readline_process_char, 360);
+        hint(readline_process_char, this::readline_process_char, 384);
+        hint(readline_process_char, this::readline_process_char, 416);
+        hint(readline_process_char, this::readline_process_char, 466);
+        hint(readline_process_char, this::readline_process_char, 576);
+        hint(readline, this::readline, 0);
+        hint(readline, this::readline, 6);
+        hint(readline, this::readline, 10);
+        hint(readline, this::readline, 14);
+        hint(scalbnf, this::scalbnf, 0);
+        hint(scalbnf, this::scalbnf, 20);
+        hint(scalbnf, this::scalbnf, 34);
+        hint(scalbnf, this::scalbnf, 50);
+        hint(scalbnf, this::scalbnf, 70);
+        hint(scalbnf, this::scalbnf, 86);
+        hint(powf, this::powf, 0);
+        hint(powf, this::powf, 56);
+        hint(powf, this::powf, 130);
+        hint(powf, this::powf, 198);
+        hint(powf, this::powf, 218);
+        hint(powf, this::powf, 260);
+        hint(powf, this::powf, 278);
+        hint(powf, this::powf, 346);
+        hint(powf, this::powf, 374);
+        hint(powf, this::powf, 420);
+        hint(powf, this::powf, 428);
+        hint(powf, this::powf, 438);
+        hint(powf, this::powf, 450);
+        hint(powf, this::powf, 458);
+        hint(powf, this::powf, 464);
+        hint(powf, this::powf, 474);
+        hint(powf, this::powf, 484);
+        hint(powf, this::powf, 492);
+        hint(powf, this::powf, 498);
+        hint(powf, this::powf, 506);
+        hint(powf, this::powf, 516);
+        hint(powf, this::powf, 528);
+        hint(powf, this::powf, 536);
+        hint(powf, this::powf, 552);
+        hint(powf, this::powf, 558);
+        hint(powf, this::powf, 568);
+        hint(powf, this::powf, 576);
+        hint(powf, this::powf, 586);
+        hint(powf, this::powf, 598);
+        hint(powf, this::powf, 624);
+        hint(powf, this::powf, 634);
+        hint(powf, this::powf, 642);
+        hint(powf, this::powf, 716);
+        hint(powf, this::powf, 726);
+        hint(powf, this::powf, 738);
+        hint(powf, this::powf, 748);
+        hint(powf, this::powf, 756);
+        hint(powf, this::powf, 762);
+        hint(powf, this::powf, 772);
+        hint(powf, this::powf, 780);
+        hint(powf, this::powf, 790);
+        hint(powf, this::powf, 798);
+        hint(powf, this::powf, 806);
+        hint(powf, this::powf, 816);
+        hint(powf, this::powf, 824);
+        hint(powf, this::powf, 830);
+        hint(powf, this::powf, 836);
+        hint(powf, this::powf, 842);
+        hint(powf, this::powf, 848);
+        hint(powf, this::powf, 854);
+        hint(powf, this::powf, 860);
+        hint(powf, this::powf, 866);
+        hint(powf, this::powf, 872);
+        hint(powf, this::powf, 880);
+        hint(powf, this::powf, 890);
+        hint(powf, this::powf, 902);
+        hint(powf, this::powf, 910);
+        hint(powf, this::powf, 920);
+        hint(powf, this::powf, 926);
+        hint(powf, this::powf, 934);
+        hint(powf, this::powf, 940);
+        hint(powf, this::powf, 950);
+        hint(powf, this::powf, 968);
+        hint(powf, this::powf, 1044);
+        hint(powf, this::powf, 1116);
+        hint(powf, this::powf, 1126);
+        hint(powf, this::powf, 1136);
+        hint(powf, this::powf, 1146);
+        hint(powf, this::powf, 1184);
+        hint(powf, this::powf, 1192);
+        hint(powf, this::powf, 1202);
+        hint(powf, this::powf, 1210);
+        hint(powf, this::powf, 1216);
+        hint(powf, this::powf, 1224);
+        hint(powf, this::powf, 1230);
+        hint(powf, this::powf, 1240);
+        hint(powf, this::powf, 1248);
+        hint(powf, this::powf, 1254);
+        hint(powf, this::powf, 1260);
+        hint(powf, this::powf, 1266);
+        hint(powf, this::powf, 1272);
+        hint(powf, this::powf, 1278);
+        hint(powf, this::powf, 1284);
+        hint(powf, this::powf, 1290);
+        hint(powf, this::powf, 1296);
+        hint(powf, this::powf, 1302);
+        hint(powf, this::powf, 1312);
+        hint(powf, this::powf, 1320);
+        hint(powf, this::powf, 1330);
+        hint(powf, this::powf, 1336);
+        hint(powf, this::powf, 1342);
+        hint(powf, this::powf, 1352);
+        hint(powf, this::powf, 1360);
+        hint(powf, this::powf, 1366);
+        hint(powf, this::powf, 1378);
+        hint(powf, this::powf, 1388);
+        hint(powf, this::powf, 1394);
+        hint(powf, this::powf, 1402);
+        hint(powf, this::powf, 1408);
+        hint(powf, this::powf, 1418);
+        hint(powf, this::powf, 1426);
+        hint(powf, this::powf, 1436);
+        hint(powf, this::powf, 1448);
+        hint(powf, this::powf, 1458);
+        hint(powf, this::powf, 1466);
+        hint(powf, this::powf, 1472);
+        hint(powf, this::powf, 1482);
+        hint(powf, this::powf, 1490);
+        hint(powf, this::powf, 1500);
+        hint(powf, this::powf, 1508);
+        hint(powf, this::powf, 1524);
+        hint(powf, this::powf, 1530);
+        hint(powf, this::powf, 1536);
+        hint(powf, this::powf, 1548);
+        hint(powf, this::powf, 1554);
+        hint(powf, this::powf, 1560);
+        hint(powf, this::powf, 1592);
+        hint(powf, this::powf, 1598);
+        hint(expf, this::expf, 0);
+        hint(expf, this::expf, 36);
+        hint(expf, this::expf, 66);
+        hint(expf, this::expf, 102);
+        hint(expf, this::expf, 116);
+        hint(expf, this::expf, 126);
+        hint(expf, this::expf, 136);
+        hint(expf, this::expf, 140);
+        hint(expf, this::expf, 148);
+        hint(expf, this::expf, 156);
+        hint(expf, this::expf, 164);
+        hint(expf, this::expf, 174);
+        hint(expf, this::expf, 184);
+        hint(expf, this::expf, 194);
+        hint(expf, this::expf, 202);
+        hint(expf, this::expf, 208);
+        hint(expf, this::expf, 214);
+        hint(expf, this::expf, 222);
+        hint(expf, this::expf, 232);
+        hint(expf, this::expf, 244);
+        hint(expf, this::expf, 252);
+        hint(expf, this::expf, 258);
+        hint(expf, this::expf, 264);
+        hint(expf, this::expf, 272);
+        hint(expf, this::expf, 284);
+        hint(expm1f, this::expm1f, 0);
+        hint(expm1f, this::expm1f, 40);
+        hint(expm1f, this::expm1f, 54);
+        hint(expm1f, this::expm1f, 80);
+        hint(expm1f, this::expm1f, 94);
+        hint(expm1f, this::expm1f, 104);
+        hint(expm1f, this::expm1f, 110);
+        hint(expm1f, this::expm1f, 122);
+        hint(expm1f, this::expm1f, 132);
+        hint(expm1f, this::expm1f, 140);
+        hint(expm1f, this::expm1f, 146);
+        hint(expm1f, this::expm1f, 152);
+        hint(expm1f, this::expm1f, 160);
+        hint(expm1f, this::expm1f, 170);
+        hint(expm1f, this::expm1f, 178);
+        hint(expm1f, this::expm1f, 188);
+        hint(expm1f, this::expm1f, 198);
+        hint(expm1f, this::expm1f, 206);
+        hint(expm1f, this::expm1f, 214);
+        hint(expm1f, this::expm1f, 220);
+        hint(expm1f, this::expm1f, 232);
+        hint(expm1f, this::expm1f, 238);
+        hint(expm1f, this::expm1f, 246);
+        hint(expm1f, this::expm1f, 252);
+        hint(expm1f, this::expm1f, 270);
+        hint(expm1f, this::expm1f, 282);
+        hint(expm1f, this::expm1f, 286);
+        hint(expm1f, this::expm1f, 292);
+        hint(expm1f, this::expm1f, 300);
+        hint(expm1f, this::expm1f, 308);
+        hint(expm1f, this::expm1f, 318);
+        hint(expm1f, this::expm1f, 346);
+        hint(expm1f, this::expm1f, 366);
+        hint(expm1f, this::expm1f, 372);
+        hint(expm1f, this::expm1f, 378);
+        hint(expm1f, this::expm1f, 384);
+        hint(expm1f, this::expm1f, 398);
+        hint(expm1f, this::expm1f, 406);
+        hint(expm1f, this::expm1f, 424);
+        hint(expm1f, this::expm1f, 438);
+        hint(expm1f, this::expm1f, 446);
+        hint(expm1f, this::expm1f, 460);
+        hint(expm1f, this::expm1f, 466);
+        hint(expm1f, this::expm1f, 474);
+        hint(expm1f, this::expm1f, 496);
+        hint(expm1f, this::expm1f, 504);
+        hint(expm1f, this::expm1f, 514);
+        hint(expm1f, this::expm1f, 522);
+        hint(expm1f, this::expm1f, 550);
+        hint(expm1f, this::expm1f, 562);
+        hint(expm1f, this::expm1f, 570);
+        hint(expm1f, this::expm1f, 580);
+        hint(expm1f, this::expm1f, 588);
+        hint(__expo2f, this::__expo2f, 0);
+        hint(__expo2f, this::__expo2f, 8);
+        hint(__expo2f, this::__expo2f, 12);
+        hint(__expo2f, this::__expo2f, 20);
+        hint(__expo2f, this::__expo2f, 28);
+        hint(logf, this::logf, 0);
+        hint(logf, this::logf, 28);
+        hint(logf, this::logf, 36);
+        hint(logf, this::logf, 50);
+        hint(logf, this::logf, 62);
+        hint(logf, this::logf, 92);
+        hint(logf, this::logf, 102);
+        hint(logf, this::logf, 110);
+        hint(logf, this::logf, 118);
+        hint(logf, this::logf, 126);
+        hint(logf, this::logf, 138);
+        hint(logf, this::logf, 144);
+        hint(logf, this::logf, 160);
+        hint(logf, this::logf, 170);
+        hint(logf, this::logf, 176);
+        hint(logf, this::logf, 182);
+        hint(logf, this::logf, 192);
+        hint(logf, this::logf, 198);
+        hint(logf, this::logf, 204);
+        hint(logf, this::logf, 212);
+        hint(logf, this::logf, 218);
+        hint(logf, this::logf, 224);
+        hint(logf, this::logf, 234);
+        hint(logf, this::logf, 242);
+        hint(logf, this::logf, 248);
+        hint(logf, this::logf, 254);
+        hint(logf, this::logf, 264);
+        hint(logf, this::logf, 272);
+        hint(log10f, this::log10f, 0);
+        hint(log10f, this::log10f, 6);
+        hint(log10f, this::log10f, 12);
+        hint(coshf, this::coshf, 0);
+        hint(coshf, this::coshf, 28);
+        hint(coshf, this::coshf, 42);
+        hint(coshf, this::coshf, 50);
+        hint(coshf, this::coshf, 62);
+        hint(coshf, this::coshf, 68);
+        hint(coshf, this::coshf, 76);
+        hint(coshf, this::coshf, 84);
+        hint(coshf, this::coshf, 96);
+        hint(coshf, this::coshf, 108);
+        hint(coshf, this::coshf, 114);
+        hint(coshf, this::coshf, 122);
+        hint(coshf, this::coshf, 128);
+        hint(sinhf, this::sinhf, 0);
+        hint(sinhf, this::sinhf, 28);
+        hint(sinhf, this::sinhf, 48);
+        hint(sinhf, this::sinhf, 58);
+        hint(sinhf, this::sinhf, 70);
+        hint(sinhf, this::sinhf, 78);
+        hint(sinhf, this::sinhf, 86);
+        hint(sinhf, this::sinhf, 92);
+        hint(sinhf, this::sinhf, 112);
+        hint(sinhf, this::sinhf, 120);
+        hint(sinhf, this::sinhf, 126);
+        hint(sinhf, this::sinhf, 132);
+        hint(sinhf, this::sinhf, 142);
+        hint(tanhf, this::tanhf, 0);
+        hint(tanhf, this::tanhf, 16);
+        hint(tanhf, this::tanhf, 28);
+        hint(tanhf, this::tanhf, 50);
+        hint(tanhf, this::tanhf, 58);
+        hint(tanhf, this::tanhf, 66);
+        hint(ceilf, this::ceilf, 0);
+        hint(ceilf, this::ceilf, 34);
+        hint(ceilf, this::ceilf, 58);
+        hint(floorf, this::floorf, 0);
+        hint(floorf, this::floorf, 34);
+        hint(floorf, this::floorf, 58);
+        hint(truncf, this::truncf, 0);
+        hint(truncf, this::truncf, 38);
+        hint(acoshf, this::acoshf, 0);
+        hint(acoshf, this::acoshf, 22);
+        hint(acoshf, this::acoshf, 30);
+        hint(acoshf, this::acoshf, 40);
+        hint(acoshf, this::acoshf, 48);
+        hint(acoshf, this::acoshf, 52);
+        hint(acoshf, this::acoshf, 60);
+        hint(acoshf, this::acoshf, 64);
+        hint(acoshf, this::acoshf, 78);
+        hint(acoshf, this::acoshf, 86);
+        hint(acoshf, this::acoshf, 90);
+        hint(acoshf, this::acoshf, 100);
+        hint(acoshf, this::acoshf, 110);
+        hint(acoshf, this::acoshf, 120);
+        hint(acoshf, this::acoshf, 128);
+        hint(acoshf, this::acoshf, 132);
+        hint(acoshf, this::acoshf, 138);
+        hint(acoshf, this::acoshf, 144);
+        hint(text_R, this::text_R, 0);
+        hint(text_R, this::text_R, 10);
+        hint(text_R, this::text_R, 16);
+        hint(text_R, this::text_R, 22);
+        hint(text_R, this::text_R, 28);
+        hint(text_R, this::text_R, 34);
+        hint(text_R, this::text_R, 44);
+        hint(text_R, this::text_R, 52);
+        hint(text_R, this::text_R, 60);
+        hint(asinf, this::asinf, 0);
+        hint(asinf, this::asinf, 28);
+        hint(asinf, this::asinf, 36);
+        hint(asinf, this::asinf, 44);
+        hint(asinf, this::asinf, 52);
+        hint(asinf, this::asinf, 80);
+        hint(asinf, this::asinf, 84);
+        hint(asinf, this::asinf, 90);
+        hint(asinf, this::asinf, 104);
+        hint(asinf, this::asinf, 112);
+        hint(asinf, this::asinf, 118);
+        hint(asinf, this::asinf, 126);
+        hint(asinf, this::asinf, 132);
+        hint(asinf, this::asinf, 138);
+        hint(asinf, this::asinf, 144);
+        hint(asinf, this::asinf, 150);
+        hint(asinf, this::asinf, 158);
+        hint(acosf, this::acosf, 0);
+        hint(acosf, this::acosf, 36);
+        hint(acosf, this::acosf, 44);
+        hint(acosf, this::acosf, 66);
+        hint(acosf, this::acosf, 70);
+        hint(acosf, this::acosf, 76);
+        hint(acosf, this::acosf, 84);
+        hint(acosf, this::acosf, 92);
+        hint(acosf, this::acosf, 100);
+        hint(acosf, this::acosf, 114);
+        hint(acosf, this::acosf, 122);
+        hint(acosf, this::acosf, 128);
+        hint(acosf, this::acosf, 136);
+        hint(acosf, this::acosf, 142);
+        hint(acosf, this::acosf, 148);
+        hint(acosf, this::acosf, 154);
+        hint(acosf, this::acosf, 162);
+        hint(acosf, this::acosf, 168);
+        hint(acosf, this::acosf, 180);
+        hint(acosf, this::acosf, 188);
+        hint(acosf, this::acosf, 194);
+        hint(acosf, this::acosf, 208);
+        hint(acosf, this::acosf, 216);
+        hint(acosf, this::acosf, 226);
+        hint(acosf, this::acosf, 234);
+        hint(acosf, this::acosf, 242);
+        hint(acosf, this::acosf, 248);
+        hint(acosf, this::acosf, 254);
+        hint(acosf, this::acosf, 260);
+        hint(asinhf, this::asinhf, 0);
+        hint(asinhf, this::asinhf, 22);
+        hint(asinhf, this::asinhf, 28);
+        hint(asinhf, this::asinhf, 58);
+        hint(asinhf, this::asinhf, 66);
+        hint(asinhf, this::asinhf, 70);
+        hint(asinhf, this::asinhf, 76);
+        hint(asinhf, this::asinhf, 86);
+        hint(asinhf, this::asinhf, 96);
+        hint(asinhf, this::asinhf, 104);
+        hint(asinhf, this::asinhf, 108);
+        hint(asinhf, this::asinhf, 124);
+        hint(asinhf, this::asinhf, 134);
+        hint(asinhf, this::asinhf, 138);
+        hint(asinhf, this::asinhf, 146);
+        hint(asinhf, this::asinhf, 154);
+        hint(asinhf, this::asinhf, 160);
+        hint(asinhf, this::asinhf, 164);
+        hint(asinhf, this::asinhf, 176);
+        hint(atan2f, this::atan2f, 0);
+        hint(atan2f, this::atan2f, 12);
+        hint(atan2f, this::atan2f, 24);
+        hint(atan2f, this::atan2f, 36);
+        hint(atan2f, this::atan2f, 54);
+        hint(atan2f, this::atan2f, 192);
+        hint(atan2f, this::atan2f, 200);
+        hint(atan2f, this::atan2f, 222);
+        hint(atan2f, this::atan2f, 246);
+        hint(atan2f, this::atan2f, 254);
+        hint(atanf, this::atanf, 0);
+        hint(atanf, this::atanf, 26);
+        hint(atanf, this::atanf, 72);
+        hint(atanf, this::atanf, 100);
+        hint(atanf, this::atanf, 108);
+        hint(atanf, this::atanf, 120);
+        hint(atanf, this::atanf, 128);
+        hint(atanf, this::atanf, 140);
+        hint(atanf, this::atanf, 148);
+        hint(atanf, this::atanf, 156);
+        hint(atanf, this::atanf, 162);
+        hint(atanf, this::atanf, 168);
+        hint(atanf, this::atanf, 174);
+        hint(atanf, this::atanf, 180);
+        hint(atanf, this::atanf, 190);
+        hint(atanf, this::atanf, 196);
+        hint(atanf, this::atanf, 202);
+        hint(atanf, this::atanf, 210);
+        hint(atanf, this::atanf, 216);
+        hint(atanf, this::atanf, 228);
+        hint(atanf, this::atanf, 242);
+        hint(atanf, this::atanf, 254);
+        hint(atanf, this::atanf, 262);
+        hint(atanf, this::atanf, 284);
+        hint(atanf, this::atanf, 296);
+        hint(atanf, this::atanf, 304);
+        hint(atanf, this::atanf, 312);
+        hint(atanf, this::atanf, 326);
+        hint(atanf, this::atanf, 348);
+        hint(atanf, this::atanf, 354);
+        hint(atanf, this::atanf, 364);
+        hint(atanhf, this::atanhf, 0);
+        hint(atanhf, this::atanhf, 34);
+        hint(atanhf, this::atanhf, 58);
+        hint(atanhf, this::atanhf, 66);
+        hint(atanhf, this::atanhf, 78);
+        hint(atanhf, this::atanhf, 86);
+        hint(atanhf, this::atanhf, 92);
+        hint(atanhf, this::atanhf, 96);
+        hint(atanhf, this::atanhf, 104);
+        hint(atanhf, this::atanhf, 118);
+        hint(atanhf, this::atanhf, 126);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 0);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 50);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 62);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 72);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 78);
+    }
+
+    private void gen_hints_13() {
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 94);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 102);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 112);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 120);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 132);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 142);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 148);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 162);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 170);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 180);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 200);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 208);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 212);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 218);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 226);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 234);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 244);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 254);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 306);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 316);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 326);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 332);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 342);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 348);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 358);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 386);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 392);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 424);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 434);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 444);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 450);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 460);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 466);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 476);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 490);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 510);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 514);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 524);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 532);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 538);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 542);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 554);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 562);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 570);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 584);
+        hint(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f, 608);
+        hint(sqrtf, this::sqrtf, 0);
+        hint(sqrtf, this::sqrtf, 22);
+        hint(sqrtf, this::sqrtf, 30);
+        hint(sqrtf, this::sqrtf, 50);
+        hint(sqrtf, this::sqrtf, 56);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 0);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 28);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 46);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 76);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 86);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 118);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 126);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 136);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 148);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 158);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 162);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 172);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 216);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 224);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 238);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 244);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 252);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 258);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 268);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 272);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 306);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 316);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 336);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 342);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 348);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 364);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 372);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 384);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 390);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 396);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 414);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 434);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 444);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 452);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 460);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 466);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 472);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 478);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 484);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 490);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 496);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 502);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 508);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 518);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 524);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 530);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 536);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 542);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 548);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 554);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 560);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 566);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 576);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 582);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 588);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 594);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 600);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 606);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 612);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 618);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 626);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 632);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 640);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 648);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 668);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 688);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 704);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 716);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 722);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 728);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 734);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 740);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 746);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 752);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 758);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 764);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 770);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 776);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 786);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 792);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 798);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 804);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 810);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 816);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 822);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 828);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 834);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 842);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 850);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 862);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 870);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1038);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1044);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1052);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1060);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1066);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1072);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1078);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1084);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1090);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1096);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1102);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1108);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1114);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1120);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1126);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1132);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1142);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1148);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1154);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1160);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1166);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1172);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1178);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1184);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1190);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1196);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1202);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1210);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1218);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1230);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1238);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1270);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1288);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1298);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1304);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1316);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1322);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1332);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1338);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1350);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1356);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1360);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1368);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1406);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1418);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1426);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1434);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1440);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1446);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1452);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1458);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1464);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1470);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1476);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1482);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1488);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1494);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1500);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1512);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1524);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1532);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1542);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1550);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1556);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1604);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1628);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1638);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1646);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1652);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1658);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1664);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1670);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1676);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1682);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1688);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1694);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1700);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1706);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1716);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1722);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1728);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1734);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1740);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1746);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1752);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1758);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1764);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1770);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1776);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1784);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1796);
+        hint(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r, 1804);
+        hint(fmodf, this::fmodf, 0);
+        hint(fmodf, this::fmodf, 16);
+        hint(fmodf, this::fmodf, 38);
+        hint(fmodf, this::fmodf, 44);
+        hint(fmodf, this::fmodf, 66);
+        hint(__kernel_cosf, this::__kernel_cosf, 0);
+        hint(__kernel_cosf, this::__kernel_cosf, 20);
+        hint(__kernel_cosf, this::__kernel_cosf, 32);
+        hint(__kernel_cosf, this::__kernel_cosf, 42);
+        hint(__kernel_cosf, this::__kernel_cosf, 52);
+        hint(__kernel_cosf, this::__kernel_cosf, 58);
+        hint(__kernel_cosf, this::__kernel_cosf, 64);
+        hint(__kernel_cosf, this::__kernel_cosf, 70);
+        hint(__kernel_cosf, this::__kernel_cosf, 76);
+        hint(__kernel_cosf, this::__kernel_cosf, 82);
+        hint(__kernel_cosf, this::__kernel_cosf, 88);
+        hint(__kernel_cosf, this::__kernel_cosf, 94);
+        hint(__kernel_cosf, this::__kernel_cosf, 100);
+        hint(__kernel_cosf, this::__kernel_cosf, 106);
+        hint(__kernel_cosf, this::__kernel_cosf, 112);
+        hint(__kernel_cosf, this::__kernel_cosf, 118);
+        hint(__kernel_cosf, this::__kernel_cosf, 128);
+        hint(__kernel_cosf, this::__kernel_cosf, 136);
+        hint(__kernel_cosf, this::__kernel_cosf, 152);
+        hint(__kernel_cosf, this::__kernel_cosf, 162);
+        hint(__kernel_cosf, this::__kernel_cosf, 186);
+        hint(__kernel_cosf, this::__kernel_cosf, 196);
+        hint(__kernel_cosf, this::__kernel_cosf, 202);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 0);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 148);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 158);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 162);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 170);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 178);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 184);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 190);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 198);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 316);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 332);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 340);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 358);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 382);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 390);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 432);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 436);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 440);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 456);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 464);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 468);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 488);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 520);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 534);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 590);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 806);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 870);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 878);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 902);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 912);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 926);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 930);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 934);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 944);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 952);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 956);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 974);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 990);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1006);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1012);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1030);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1050);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1058);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1120);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1158);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1190);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1232);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1264);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1274);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1280);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1364);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1374);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1380);
+        hint(__kernel_rem_pio2f, this::__kernel_rem_pio2f, 1398);
+        hint(__kernel_sinf, this::__kernel_sinf, 0);
+        hint(__kernel_sinf, this::__kernel_sinf, 22);
+        hint(__kernel_sinf, this::__kernel_sinf, 34);
+        hint(__kernel_sinf, this::__kernel_sinf, 44);
+        hint(__kernel_sinf, this::__kernel_sinf, 54);
+        hint(__kernel_sinf, this::__kernel_sinf, 60);
+        hint(__kernel_sinf, this::__kernel_sinf, 66);
+        hint(__kernel_sinf, this::__kernel_sinf, 72);
+        hint(__kernel_sinf, this::__kernel_sinf, 78);
+        hint(__kernel_sinf, this::__kernel_sinf, 84);
+        hint(__kernel_sinf, this::__kernel_sinf, 90);
+        hint(__kernel_sinf, this::__kernel_sinf, 96);
+        hint(__kernel_sinf, this::__kernel_sinf, 112);
+        hint(__kernel_sinf, this::__kernel_sinf, 118);
+        hint(__kernel_sinf, this::__kernel_sinf, 124);
+        hint(__kernel_sinf, this::__kernel_sinf, 132);
+        hint(__kernel_sinf, this::__kernel_sinf, 148);
+        hint(__kernel_sinf, this::__kernel_sinf, 158);
+        hint(__kernel_sinf, this::__kernel_sinf, 166);
+        hint(__kernel_sinf, this::__kernel_sinf, 172);
+        hint(__kernel_sinf, this::__kernel_sinf, 178);
+        hint(__kernel_sinf, this::__kernel_sinf, 188);
+        hint(__kernel_sinf, this::__kernel_sinf, 196);
+        hint(__kernel_sinf, this::__kernel_sinf, 204);
+        hint(__kernel_tanf, this::__kernel_tanf, 0);
+        hint(__kernel_tanf, this::__kernel_tanf, 30);
+        hint(__kernel_tanf, this::__kernel_tanf, 54);
+        hint(__kernel_tanf, this::__kernel_tanf, 102);
+        hint(__kernel_tanf, this::__kernel_tanf, 112);
+        hint(__kernel_tanf, this::__kernel_tanf, 118);
+        hint(__kernel_tanf, this::__kernel_tanf, 130);
+        hint(__kernel_tanf, this::__kernel_tanf, 138);
+        hint(__kernel_tanf, this::__kernel_tanf, 148);
+        hint(__kernel_tanf, this::__kernel_tanf, 158);
+        hint(__kernel_tanf, this::__kernel_tanf, 164);
+        hint(__kernel_tanf, this::__kernel_tanf, 170);
+        hint(__kernel_tanf, this::__kernel_tanf, 176);
+        hint(__kernel_tanf, this::__kernel_tanf, 182);
+        hint(__kernel_tanf, this::__kernel_tanf, 188);
+        hint(__kernel_tanf, this::__kernel_tanf, 194);
+        hint(__kernel_tanf, this::__kernel_tanf, 200);
+        hint(__kernel_tanf, this::__kernel_tanf, 206);
+        hint(__kernel_tanf, this::__kernel_tanf, 212);
+        hint(__kernel_tanf, this::__kernel_tanf, 218);
+        hint(__kernel_tanf, this::__kernel_tanf, 228);
+        hint(__kernel_tanf, this::__kernel_tanf, 234);
+        hint(__kernel_tanf, this::__kernel_tanf, 240);
+        hint(__kernel_tanf, this::__kernel_tanf, 246);
+        hint(__kernel_tanf, this::__kernel_tanf, 252);
+        hint(__kernel_tanf, this::__kernel_tanf, 258);
+        hint(__kernel_tanf, this::__kernel_tanf, 264);
+        hint(__kernel_tanf, this::__kernel_tanf, 270);
+        hint(__kernel_tanf, this::__kernel_tanf, 276);
+        hint(__kernel_tanf, this::__kernel_tanf, 282);
+        hint(__kernel_tanf, this::__kernel_tanf, 290);
+        hint(__kernel_tanf, this::__kernel_tanf, 296);
+        hint(__kernel_tanf, this::__kernel_tanf, 302);
+        hint(__kernel_tanf, this::__kernel_tanf, 308);
+        hint(__kernel_tanf, this::__kernel_tanf, 314);
+        hint(__kernel_tanf, this::__kernel_tanf, 324);
+        hint(__kernel_tanf, this::__kernel_tanf, 330);
+        hint(__kernel_tanf, this::__kernel_tanf, 340);
+        hint(__kernel_tanf, this::__kernel_tanf, 356);
+        hint(__kernel_tanf, this::__kernel_tanf, 366);
+        hint(__kernel_tanf, this::__kernel_tanf, 376);
+        hint(__kernel_tanf, this::__kernel_tanf, 384);
+        hint(__kernel_tanf, this::__kernel_tanf, 390);
+        hint(__kernel_tanf, this::__kernel_tanf, 398);
+        hint(__kernel_tanf, this::__kernel_tanf, 404);
+        hint(__kernel_tanf, this::__kernel_tanf, 412);
+        hint(__kernel_tanf, this::__kernel_tanf, 430);
+        hint(__kernel_tanf, this::__kernel_tanf, 438);
+        hint(__kernel_tanf, this::__kernel_tanf, 456);
+        hint(__kernel_tanf, this::__kernel_tanf, 472);
+        hint(__kernel_tanf, this::__kernel_tanf, 482);
+        hint(__kernel_tanf, this::__kernel_tanf, 488);
+        hint(__kernel_tanf, this::__kernel_tanf, 498);
+        hint(__kernel_tanf, this::__kernel_tanf, 506);
+        hint(__kernel_tanf, this::__kernel_tanf, 514);
+        hint(__kernel_tanf, this::__kernel_tanf, 520);
+        hint(__kernel_tanf, this::__kernel_tanf, 526);
+        hint(log1pf, this::log1pf, 0);
+        hint(log1pf, this::log1pf, 30);
+        hint(log1pf, this::log1pf, 42);
+        hint(log1pf, this::log1pf, 54);
+        hint(log1pf, this::log1pf, 80);
+        hint(log1pf, this::log1pf, 108);
+        hint(log1pf, this::log1pf, 132);
+        hint(log1pf, this::log1pf, 142);
+        hint(log1pf, this::log1pf, 148);
+        hint(log1pf, this::log1pf, 166);
+        hint(log1pf, this::log1pf, 178);
+        hint(log1pf, this::log1pf, 186);
+        hint(log1pf, this::log1pf, 194);
+        hint(log1pf, this::log1pf, 202);
+        hint(log1pf, this::log1pf, 214);
+        hint(log1pf, this::log1pf, 220);
+        hint(log1pf, this::log1pf, 228);
+        hint(log1pf, this::log1pf, 238);
+        hint(log1pf, this::log1pf, 244);
+        hint(log1pf, this::log1pf, 250);
+        hint(log1pf, this::log1pf, 260);
+        hint(log1pf, this::log1pf, 266);
+        hint(log1pf, this::log1pf, 272);
+        hint(log1pf, this::log1pf, 280);
+        hint(log1pf, this::log1pf, 286);
+        hint(log1pf, this::log1pf, 292);
+        hint(log1pf, this::log1pf, 302);
+        hint(log1pf, this::log1pf, 308);
+        hint(log1pf, this::log1pf, 316);
+        hint(log1pf, this::log1pf, 322);
+        hint(log1pf, this::log1pf, 328);
+        hint(log1pf, this::log1pf, 338);
+        hint(log1pf, this::log1pf, 346);
+        hint(log1pf, this::log1pf, 366);
+        hint(nearbyintf, this::nearbyintf, 0);
+        hint(nearbyintf, this::nearbyintf, 26);
+        hint(nearbyintf, this::nearbyintf, 34);
+        hint(nearbyintf, this::nearbyintf, 42);
+        hint(nearbyintf, this::nearbyintf, 64);
+        hint(nearbyintf, this::nearbyintf, 72);
+        hint(cosf, this::cosf, 0);
+        hint(cosf, this::cosf, 26);
+        hint(cosf, this::cosf, 34);
+        hint(cosf, this::cosf, 58);
+        hint(cosf, this::cosf, 68);
+        hint(cosf, this::cosf, 84);
+        hint(cosf, this::cosf, 96);
+        hint(erff, this::erff, 0);
+        hint(erff, this::erff, 30);
+        hint(erff, this::erff, 42);
+        hint(erff, this::erff, 50);
+        hint(erff, this::erff, 78);
+        hint(erff, this::erff, 88);
+        hint(erff, this::erff, 96);
+        hint(erff, this::erff, 104);
+        hint(erff, this::erff, 114);
+        hint(erff, this::erff, 124);
+        hint(erff, this::erff, 132);
+        hint(erff, this::erff, 138);
+        hint(erff, this::erff, 144);
+        hint(erff, this::erff, 150);
+        hint(erff, this::erff, 156);
+        hint(erff, this::erff, 162);
+        hint(erff, this::erff, 168);
+        hint(erff, this::erff, 174);
+        hint(erff, this::erff, 184);
+        hint(erff, this::erff, 190);
+        hint(erff, this::erff, 196);
+        hint(erff, this::erff, 202);
+        hint(erff, this::erff, 208);
+        hint(erff, this::erff, 214);
+        hint(erff, this::erff, 220);
+        hint(erff, this::erff, 226);
+        hint(erff, this::erff, 232);
+        hint(erff, this::erff, 240);
+        hint(erff, this::erff, 248);
+        hint(erff, this::erff, 268);
+        hint(erff, this::erff, 276);
+        hint(erff, this::erff, 282);
+        hint(erff, this::erff, 288);
+        hint(erff, this::erff, 294);
+        hint(erff, this::erff, 300);
+        hint(erff, this::erff, 306);
+        hint(erff, this::erff, 312);
+        hint(erff, this::erff, 318);
+        hint(erff, this::erff, 324);
+        hint(erff, this::erff, 330);
+        hint(erff, this::erff, 336);
+        hint(erff, this::erff, 342);
+        hint(erff, this::erff, 352);
+        hint(erff, this::erff, 358);
+        hint(erff, this::erff, 364);
+        hint(erff, this::erff, 370);
+        hint(erff, this::erff, 376);
+        hint(erff, this::erff, 382);
+        hint(erff, this::erff, 388);
+        hint(erff, this::erff, 394);
+        hint(erff, this::erff, 400);
+        hint(erff, this::erff, 406);
+        hint(erff, this::erff, 412);
+        hint(erff, this::erff, 420);
+        hint(erff, this::erff, 428);
+        hint(erff, this::erff, 444);
+    }
+
+    private void gen_hints_14() {
+        hint(erff, this::erff, 470);
+        hint(erff, this::erff, 480);
+        hint(erff, this::erff, 498);
+        hint(erff, this::erff, 504);
+        hint(erff, this::erff, 510);
+        hint(erff, this::erff, 516);
+        hint(erff, this::erff, 522);
+        hint(erff, this::erff, 528);
+        hint(erff, this::erff, 534);
+        hint(erff, this::erff, 540);
+        hint(erff, this::erff, 546);
+        hint(erff, this::erff, 552);
+        hint(erff, this::erff, 558);
+        hint(erff, this::erff, 564);
+        hint(erff, this::erff, 570);
+        hint(erff, this::erff, 576);
+        hint(erff, this::erff, 586);
+        hint(erff, this::erff, 592);
+        hint(erff, this::erff, 598);
+        hint(erff, this::erff, 604);
+        hint(erff, this::erff, 610);
+        hint(erff, this::erff, 616);
+        hint(erff, this::erff, 622);
+        hint(erff, this::erff, 628);
+        hint(erff, this::erff, 634);
+        hint(erff, this::erff, 640);
+        hint(erff, this::erff, 646);
+        hint(erff, this::erff, 652);
+        hint(erff, this::erff, 658);
+        hint(erff, this::erff, 664);
+        hint(erff, this::erff, 670);
+        hint(erff, this::erff, 678);
+        hint(erff, this::erff, 698);
+        hint(erff, this::erff, 704);
+        hint(erff, this::erff, 708);
+        hint(erff, this::erff, 718);
+        hint(erff, this::erff, 728);
+        hint(erff, this::erff, 736);
+        hint(erff, this::erff, 746);
+        hint(erff, this::erff, 754);
+        hint(erff, this::erff, 758);
+        hint(erff, this::erff, 766);
+        hint(erff, this::erff, 778);
+        hint(erff, this::erff, 994);
+        hint(erff, this::erff, 1000);
+        hint(erff, this::erff, 1006);
+        hint(erff, this::erff, 1012);
+        hint(erff, this::erff, 1018);
+        hint(erff, this::erff, 1024);
+        hint(erff, this::erff, 1030);
+        hint(erff, this::erff, 1036);
+        hint(erff, this::erff, 1042);
+        hint(erff, this::erff, 1048);
+        hint(erff, this::erff, 1054);
+        hint(erff, this::erff, 1060);
+        hint(erff, this::erff, 1070);
+        hint(erff, this::erff, 1076);
+        hint(erff, this::erff, 1082);
+        hint(erff, this::erff, 1088);
+        hint(erff, this::erff, 1094);
+        hint(erff, this::erff, 1100);
+        hint(erff, this::erff, 1106);
+        hint(erff, this::erff, 1112);
+        hint(erff, this::erff, 1118);
+        hint(erff, this::erff, 1124);
+        hint(erff, this::erff, 1130);
+        hint(erff, this::erff, 1138);
+        hint(erfcf, this::erfcf, 0);
+        hint(erfcf, this::erfcf, 26);
+        hint(erfcf, this::erfcf, 38);
+        hint(erfcf, this::erfcf, 46);
+        hint(erfcf, this::erfcf, 72);
+        hint(erfcf, this::erfcf, 78);
+        hint(erfcf, this::erfcf, 86);
+        hint(erfcf, this::erfcf, 92);
+        hint(erfcf, this::erfcf, 98);
+        hint(erfcf, this::erfcf, 104);
+        hint(erfcf, this::erfcf, 110);
+        hint(erfcf, this::erfcf, 116);
+        hint(erfcf, this::erfcf, 122);
+        hint(erfcf, this::erfcf, 128);
+        hint(erfcf, this::erfcf, 138);
+        hint(erfcf, this::erfcf, 144);
+        hint(erfcf, this::erfcf, 150);
+        hint(erfcf, this::erfcf, 156);
+        hint(erfcf, this::erfcf, 162);
+        hint(erfcf, this::erfcf, 168);
+        hint(erfcf, this::erfcf, 174);
+        hint(erfcf, this::erfcf, 180);
+        hint(erfcf, this::erfcf, 186);
+        hint(erfcf, this::erfcf, 194);
+        hint(erfcf, this::erfcf, 202);
+        hint(erfcf, this::erfcf, 208);
+        hint(erfcf, this::erfcf, 224);
+        hint(erfcf, this::erfcf, 238);
+        hint(erfcf, this::erfcf, 244);
+        hint(erfcf, this::erfcf, 266);
+        hint(erfcf, this::erfcf, 274);
+        hint(erfcf, this::erfcf, 280);
+        hint(erfcf, this::erfcf, 286);
+        hint(erfcf, this::erfcf, 292);
+        hint(erfcf, this::erfcf, 298);
+        hint(erfcf, this::erfcf, 304);
+        hint(erfcf, this::erfcf, 310);
+        hint(erfcf, this::erfcf, 316);
+        hint(erfcf, this::erfcf, 322);
+        hint(erfcf, this::erfcf, 328);
+        hint(erfcf, this::erfcf, 334);
+        hint(erfcf, this::erfcf, 340);
+        hint(erfcf, this::erfcf, 350);
+        hint(erfcf, this::erfcf, 356);
+        hint(erfcf, this::erfcf, 362);
+        hint(erfcf, this::erfcf, 368);
+        hint(erfcf, this::erfcf, 374);
+        hint(erfcf, this::erfcf, 380);
+        hint(erfcf, this::erfcf, 386);
+        hint(erfcf, this::erfcf, 392);
+        hint(erfcf, this::erfcf, 398);
+        hint(erfcf, this::erfcf, 404);
+        hint(erfcf, this::erfcf, 410);
+        hint(erfcf, this::erfcf, 418);
+        hint(erfcf, this::erfcf, 426);
+        hint(erfcf, this::erfcf, 442);
+        hint(erfcf, this::erfcf, 462);
+        hint(erfcf, this::erfcf, 472);
+        hint(erfcf, this::erfcf, 490);
+        hint(erfcf, this::erfcf, 496);
+        hint(erfcf, this::erfcf, 502);
+        hint(erfcf, this::erfcf, 508);
+        hint(erfcf, this::erfcf, 514);
+        hint(erfcf, this::erfcf, 520);
+        hint(erfcf, this::erfcf, 526);
+        hint(erfcf, this::erfcf, 532);
+        hint(erfcf, this::erfcf, 538);
+        hint(erfcf, this::erfcf, 544);
+        hint(erfcf, this::erfcf, 550);
+        hint(erfcf, this::erfcf, 556);
+        hint(erfcf, this::erfcf, 562);
+        hint(erfcf, this::erfcf, 568);
+        hint(erfcf, this::erfcf, 578);
+        hint(erfcf, this::erfcf, 584);
+        hint(erfcf, this::erfcf, 590);
+        hint(erfcf, this::erfcf, 596);
+        hint(erfcf, this::erfcf, 602);
+        hint(erfcf, this::erfcf, 608);
+        hint(erfcf, this::erfcf, 614);
+        hint(erfcf, this::erfcf, 620);
+        hint(erfcf, this::erfcf, 626);
+        hint(erfcf, this::erfcf, 632);
+        hint(erfcf, this::erfcf, 638);
+        hint(erfcf, this::erfcf, 644);
+        hint(erfcf, this::erfcf, 650);
+        hint(erfcf, this::erfcf, 656);
+        hint(erfcf, this::erfcf, 662);
+        hint(erfcf, this::erfcf, 670);
+        hint(erfcf, this::erfcf, 690);
+        hint(erfcf, this::erfcf, 696);
+        hint(erfcf, this::erfcf, 700);
+        hint(erfcf, this::erfcf, 710);
+        hint(erfcf, this::erfcf, 720);
+        hint(erfcf, this::erfcf, 728);
+        hint(erfcf, this::erfcf, 738);
+        hint(erfcf, this::erfcf, 746);
+        hint(erfcf, this::erfcf, 750);
+        hint(erfcf, this::erfcf, 758);
+        hint(erfcf, this::erfcf, 770);
+        hint(erfcf, this::erfcf, 986);
+        hint(erfcf, this::erfcf, 992);
+        hint(erfcf, this::erfcf, 998);
+        hint(erfcf, this::erfcf, 1004);
+        hint(erfcf, this::erfcf, 1010);
+        hint(erfcf, this::erfcf, 1016);
+        hint(erfcf, this::erfcf, 1022);
+        hint(erfcf, this::erfcf, 1028);
+        hint(erfcf, this::erfcf, 1034);
+        hint(erfcf, this::erfcf, 1040);
+        hint(erfcf, this::erfcf, 1046);
+        hint(erfcf, this::erfcf, 1052);
+        hint(erfcf, this::erfcf, 1062);
+        hint(erfcf, this::erfcf, 1068);
+        hint(erfcf, this::erfcf, 1074);
+        hint(erfcf, this::erfcf, 1080);
+        hint(erfcf, this::erfcf, 1086);
+        hint(erfcf, this::erfcf, 1092);
+        hint(erfcf, this::erfcf, 1098);
+        hint(erfcf, this::erfcf, 1104);
+        hint(erfcf, this::erfcf, 1110);
+        hint(erfcf, this::erfcf, 1116);
+        hint(erfcf, this::erfcf, 1122);
+        hint(erfcf, this::erfcf, 1130);
+        hint(frexpf, this::frexpf, 0);
+        hint(frexpf, this::frexpf, 38);
+        hint(ldexpf, this::ldexpf, 0);
+        hint(ldexpf, this::ldexpf, 18);
+        hint(ldexpf, this::ldexpf, 30);
+        hint(ldexpf, this::ldexpf, 42);
+        hint(ldexpf, this::ldexpf, 54);
+        hint(modff, this::modff, 0);
+        hint(modff, this::modff, 52);
+        hint(sinf, this::sinf, 0);
+        hint(sinf, this::sinf, 20);
+        hint(sinf, this::sinf, 34);
+        hint(sinf, this::sinf, 42);
+        hint(sinf, this::sinf, 74);
+        hint(sinf, this::sinf, 86);
+        hint(sinf, this::sinf, 102);
+        hint(tanf, this::tanf, 0);
+        hint(tanf, this::tanf, 20);
+        hint(tanf, this::tanf, 34);
+        hint(tanf, this::tanf, 42);
+        hint(lgammaf, this::lgammaf, 0);
+        hint(lgammaf, this::lgammaf, 8);
+        hint(tgammaf, this::tgammaf, 0);
+        hint(tgammaf, this::tgammaf, 8);
+        hint(tgammaf, this::tgammaf, 12);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 0);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 8);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 14);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 20);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 26);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 32);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 44);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 50);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 56);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 58);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 60);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 66);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 70);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 78);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 82);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 90);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 94);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 102);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 106);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 108);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 114);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 118);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 126);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 130);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 138);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 142);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 150);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 154);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 158);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 164);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 168);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 176);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 180);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 188);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 192);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 200);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 204);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 206);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 212);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 216);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 224);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 228);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 236);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 240);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 242);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 246);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 248);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 254);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 256);
+        hint(__aeabi_uidiv, this::__aeabi_uidiv, 264);
+        hint(__aeabi_uidivmod, this::__aeabi_uidivmod, 0);
+        hint(__aeabi_uidivmod, this::__aeabi_uidivmod, 4);
+        hint(__divsi3, this::__divsi3, 0);
+        hint(__divsi3, this::__divsi3, 458);
+        hint(__aeabi_idivmod, this::__aeabi_idivmod, 0);
+        hint(__aeabi_idivmod, this::__aeabi_idivmod, 4);
+        hint(__aeabi_idiv0, this::__aeabi_idiv0, 0);
+        hint(__aeabi_cfrcmple, this::__aeabi_cfrcmple, 0);
+        hint(__aeabi_cfcmpeq, this::__aeabi_cfcmpeq, 0);
+        hint(__aeabi_cfcmpeq, this::__aeabi_cfcmpeq, 6);
+        hint(__aeabi_cfcmpeq, this::__aeabi_cfcmpeq, 10);
+        hint(__aeabi_cfcmpeq, this::__aeabi_cfcmpeq, 14);
+        hint(__aeabi_fcmpeq, this::__aeabi_fcmpeq, 0);
+        hint(__aeabi_fcmpeq, this::__aeabi_fcmpeq, 6);
+        hint(__aeabi_fcmplt, this::__aeabi_fcmplt, 0);
+        hint(__aeabi_fcmplt, this::__aeabi_fcmplt, 6);
+        hint(__aeabi_fcmplt, this::__aeabi_fcmplt, 10);
+        hint(__aeabi_fcmplt, this::__aeabi_fcmplt, 14);
+        hint(__aeabi_fcmple, this::__aeabi_fcmple, 0);
+        hint(__aeabi_fcmple, this::__aeabi_fcmple, 6);
+        hint(__aeabi_fcmple, this::__aeabi_fcmple, 10);
+        hint(__aeabi_fcmple, this::__aeabi_fcmple, 14);
+        hint(__aeabi_fcmpgt, this::__aeabi_fcmpgt, 0);
+        hint(__aeabi_fcmpgt, this::__aeabi_fcmpgt, 6);
+        hint(__aeabi_fcmpgt, this::__aeabi_fcmpgt, 10);
+        hint(__aeabi_fcmpgt, this::__aeabi_fcmpgt, 14);
+        hint(__aeabi_fcmpge, this::__aeabi_fcmpge, 0);
+        hint(__aeabi_fcmpge, this::__aeabi_fcmpge, 6);
+        hint(__aeabi_fcmpge, this::__aeabi_fcmpge, 10);
+        hint(__aeabi_fcmpge, this::__aeabi_fcmpge, 14);
+        hint(__fixunssfsi, this::__fixunssfsi, 0);
+        hint(__fixunssfsi, this::__fixunssfsi, 12);
+        hint(__fixunssfsi, this::__fixunssfsi, 22);
+        hint(__fixunssfsi, this::__fixunssfsi, 34);
+        hint(__fixunssfsi, this::__fixunssfsi, 38);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 0);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 46);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 50);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 54);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 58);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 60);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 66);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 68);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 74);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 94);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 98);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 100);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 108);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 110);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 116);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 118);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 122);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 130);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 134);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 136);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 140);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 144);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 150);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 154);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 156);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 172);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 174);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 178);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 184);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 186);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 204);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 208);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 214);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 218);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 220);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 236);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 238);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 242);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 246);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 252);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 260);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 288);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 298);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 306);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 308);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 312);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 314);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 322);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 328);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 332);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 336);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 338);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 342);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 346);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 360);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 366);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 370);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 372);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 376);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 380);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 388);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 392);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 394);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 410);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 418);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 424);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 426);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 436);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 438);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 442);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 450);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 454);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 464);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 476);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 480);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 484);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 488);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 490);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 498);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 504);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 506);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 510);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 512);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 514);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 520);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 524);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 530);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 536);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 540);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 544);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 554);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 562);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 566);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 570);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 574);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 578);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 582);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 586);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 592);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 594);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 600);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 604);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 608);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 612);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 618);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 630);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 634);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 638);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 646);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 650);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 666);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 672);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 676);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 680);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 682);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 692);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 698);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 700);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 706);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 710);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 712);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 718);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 728);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 734);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 736);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 746);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 752);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 756);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 766);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 768);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 776);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 780);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 786);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 790);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 794);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 798);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 800);
+        hint(__aeabi_fadd, this::__aeabi_fadd, 806);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 0);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 28);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 32);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 48);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 68);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 72);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 86);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 96);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 98);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 106);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 110);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 140);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 148);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 152);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 160);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 162);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 166);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 174);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 178);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 186);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 190);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 214);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 222);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 228);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 232);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 244);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 250);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 252);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 264);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 272);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 276);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 280);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 292);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 298);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 316);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 328);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 334);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 382);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 390);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 396);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 398);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 408);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 412);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 416);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 422);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 464);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 472);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 492);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 500);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 502);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 506);
+        hint(__aeabi_fdiv, this::__aeabi_fdiv, 514);
+        hint(__eqsf2, this::__eqsf2, 0);
+        hint(__gesf2, this::__gesf2, 0);
+        hint(__ltsf2, this::__ltsf2, 0);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 0);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 2);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 4);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 6);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 8);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 10);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 12);
+    }
+
+    private void gen_hints_15() {
+        hint(__aeabi_fmul, this::__aeabi_fmul, 14);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 16);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 18);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 20);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 22);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 24);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 26);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 28);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 30);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 32);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 34);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 36);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 38);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 40);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 42);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 44);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 46);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 48);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 50);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 52);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 54);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 56);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 58);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 60);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 62);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 64);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 66);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 68);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 70);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 72);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 74);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 76);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 78);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 80);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 82);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 84);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 86);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 88);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 90);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 92);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 94);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 96);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 98);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 100);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 102);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 104);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 106);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 108);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 110);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 112);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 114);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 116);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 118);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 120);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 122);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 124);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 126);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 128);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 130);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 132);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 134);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 136);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 138);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 140);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 142);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 144);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 146);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 148);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 150);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 152);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 154);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 156);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 158);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 160);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 162);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 164);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 166);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 168);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 170);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 172);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 174);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 176);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 178);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 180);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 182);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 184);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 186);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 188);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 190);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 192);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 194);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 196);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 198);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 200);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 202);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 204);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 206);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 208);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 210);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 212);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 214);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 216);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 218);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 220);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 222);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 224);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 226);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 228);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 230);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 232);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 234);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 236);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 238);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 240);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 242);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 244);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 246);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 248);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 250);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 252);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 254);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 256);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 258);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 260);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 262);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 264);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 266);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 268);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 270);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 272);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 274);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 276);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 278);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 280);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 282);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 284);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 286);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 288);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 290);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 292);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 294);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 296);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 298);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 300);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 302);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 304);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 306);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 308);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 310);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 312);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 314);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 316);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 318);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 320);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 322);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 324);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 326);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 328);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 330);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 332);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 334);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 336);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 338);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 340);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 342);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 344);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 346);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 348);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 350);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 352);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 354);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 356);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 358);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 360);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 362);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 364);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 366);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 368);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 370);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 372);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 374);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 376);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 378);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 380);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 382);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 384);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 386);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 388);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 390);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 392);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 394);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 396);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 398);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 400);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 402);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 404);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 406);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 408);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 410);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 412);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 414);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 416);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 418);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 420);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 422);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 424);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 426);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 428);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 430);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 432);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 434);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 436);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 438);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 440);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 442);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 444);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 446);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 448);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 450);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 452);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 454);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 456);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 458);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 460);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 462);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 464);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 466);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 468);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 470);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 472);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 474);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 476);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 478);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 480);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 482);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 484);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 486);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 488);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 490);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 492);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 494);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 496);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 498);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 500);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 502);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 504);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 506);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 508);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 510);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 512);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 514);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 516);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 518);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 520);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 522);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 524);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 526);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 528);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 530);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 532);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 534);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 536);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 538);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 540);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 542);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 544);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 546);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 548);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 550);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 552);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 554);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 556);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 558);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 560);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 562);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 564);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 566);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 568);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 570);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 572);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 574);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 576);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 578);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 580);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 582);
+        hint(__aeabi_fmul, this::__aeabi_fmul, 584);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 0);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 46);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 48);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 52);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 58);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 62);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 66);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 68);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 74);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 76);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 82);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 84);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 86);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 90);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 92);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 96);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 102);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 110);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 112);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 138);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 148);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 156);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 158);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 162);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 164);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 172);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 174);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 178);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 198);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 202);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 210);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 212);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 220);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 222);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 226);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 234);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 238);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 240);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 244);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 248);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 258);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 264);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 284);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 286);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 290);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 296);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 298);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 316);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 320);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 322);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 324);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 328);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 338);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 344);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 364);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 370);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 372);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 382);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 384);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 386);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 392);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 396);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 398);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 402);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 404);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 418);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 422);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 428);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 436);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 440);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 444);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 452);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 456);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 458);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 474);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 484);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 488);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 494);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 496);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 498);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 502);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 508);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 512);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 520);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 524);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 526);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 536);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 548);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 552);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 556);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 562);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 564);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 570);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 576);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 580);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 584);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 588);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 596);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 600);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 606);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 612);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 616);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 622);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 628);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 632);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 634);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 636);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 644);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 648);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 652);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 656);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 660);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 664);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 668);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 674);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 680);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 692);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 696);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 704);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 708);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 724);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 730);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 734);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 740);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 742);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 750);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 752);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 758);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 760);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 764);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 772);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 774);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 782);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 788);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 792);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 802);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 808);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 814);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 828);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 832);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 838);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 842);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 844);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 852);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 856);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 862);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 872);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 876);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 880);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 884);
+        hint(__aeabi_fsub, this::__aeabi_fsub, 890);
+        hint(__aeabi_fcmpun, this::__aeabi_fcmpun, 0);
+        hint(__aeabi_fcmpun, this::__aeabi_fcmpun, 20);
+        hint(__aeabi_fcmpun, this::__aeabi_fcmpun, 26);
+        hint(__aeabi_fcmpun, this::__aeabi_fcmpun, 32);
+        hint(__aeabi_fcmpun, this::__aeabi_fcmpun, 34);
+        hint(__aeabi_fcmpun, this::__aeabi_fcmpun, 40);
+        hint(__aeabi_f2iz, this::__aeabi_f2iz, 0);
+        hint(__aeabi_f2iz, this::__aeabi_f2iz, 16);
+        hint(__aeabi_f2iz, this::__aeabi_f2iz, 20);
+        hint(__aeabi_f2iz, this::__aeabi_f2iz, 30);
+        hint(__aeabi_f2iz, this::__aeabi_f2iz, 36);
+        hint(__aeabi_f2iz, this::__aeabi_f2iz, 42);
+        hint(__aeabi_f2iz, this::__aeabi_f2iz, 44);
+        hint(__aeabi_f2iz, this::__aeabi_f2iz, 46);
+        hint(__aeabi_f2iz, this::__aeabi_f2iz, 52);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 0);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 6);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 20);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 28);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 34);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 44);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 48);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 72);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 76);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 80);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 90);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 98);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 104);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 110);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 116);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 130);
+        hint(__aeabi_i2f, this::__aeabi_i2f, 138);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 0);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 6);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 10);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 18);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 24);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 34);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 38);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 58);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 62);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 66);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 76);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 84);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 90);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 96);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 102);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 112);
+        hint(__aeabi_ui2f, this::__aeabi_ui2f, 118);
+        hint(__aeabi_i2d, this::__aeabi_i2d, 0);
+        hint(__aeabi_i2d, this::__aeabi_i2d, 6);
+        hint(__aeabi_i2d, this::__aeabi_i2d, 20);
+        hint(__aeabi_i2d, this::__aeabi_i2d, 32);
+        hint(__aeabi_i2d, this::__aeabi_i2d, 42);
+        hint(__aeabi_i2d, this::__aeabi_i2d, 76);
+        hint(__aeabi_i2d, this::__aeabi_i2d, 98);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 0);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 20);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 30);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 62);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 66);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 70);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 76);
+    }
+
+    private void gen_hints_16() {
+        hint(__aeabi_f2d, this::__aeabi_f2d, 80);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 94);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 108);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 112);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 126);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 132);
+        hint(__aeabi_f2d, this::__aeabi_f2d, 138);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 0);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 28);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 36);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 40);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 58);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 62);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 70);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 72);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 80);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 88);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 94);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 98);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 112);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 118);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 122);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 128);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 132);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 142);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 144);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 146);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 154);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 160);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 166);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 180);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 196);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 206);
+        hint(__aeabi_d2f, this::__aeabi_d2f, 222);
+        hint(__clzsi2, this::__clzsi2, 0);
+    }
+
     @Override
-    @NotNull
-    protected HashMap<Integer, Callback> gen_hints() {
-        HashMap<Integer, Callback> map = new HashMap<>();
-        map.put(nlr_push_tail, this::nlr_push_tail);
-        map.put(nlr_pop, this::nlr_pop);
-        map.put(nlr_push, this::nlr_push);
-        map.put(nlr_jump, this::nlr_jump);
-        map.put(m_malloc, this::m_malloc);
-        map.put(m_malloc_maybe, this::m_malloc_maybe);
-        map.put(m_malloc0, this::m_malloc0);
-        map.put(m_realloc, this::m_realloc);
-        map.put(m_realloc_maybe, this::m_realloc_maybe);
-        map.put(m_free, this::m_free);
-        map.put(m_get_total_bytes_allocated, this::m_get_total_bytes_allocated);
-        map.put(m_get_current_bytes_allocated, this::m_get_current_bytes_allocated);
-        map.put(m_get_peak_bytes_allocated, this::m_get_peak_bytes_allocated);
-        map.put(gc_mark_subtree, this::gc_mark_subtree);
-        map.put(gc_init, this::gc_init);
-        map.put(gc_lock, this::gc_lock);
-        map.put(gc_unlock, this::gc_unlock);
-        map.put(gc_is_locked, this::gc_is_locked);
-        map.put(gc_collect_start, this::gc_collect_start);
-        map.put(gc_collect_root, this::gc_collect_root);
-        map.put(gc_collect_end, this::gc_collect_end);
-        map.put(gc_info, this::gc_info);
-        map.put(gc_alloc, this::gc_alloc);
-        map.put(gc_free, this::gc_free);
-        map.put(gc_nbytes, this::gc_nbytes);
-        map.put(gc_realloc, this::gc_realloc);
-        map.put(gc_dump_info, this::gc_dump_info);
-        map.put(gc_dump_alloc_table, this::gc_dump_alloc_table);
-        map.put(mp_pystack_init, this::mp_pystack_init);
-        map.put(mp_pystack_alloc, this::mp_pystack_alloc);
-        map.put(find_qstr, this::find_qstr);
-        map.put(qstr_compute_hash, this::qstr_compute_hash);
-        map.put(qstr_init, this::qstr_init);
-        map.put(qstr_find_strn, this::qstr_find_strn);
-        map.put(qstr_from_strn, this::qstr_from_strn);
-        map.put(qstr_from_str, this::qstr_from_str);
-        map.put(qstr_hash, this::qstr_hash);
-        map.put(qstr_len, this::qstr_len);
-        map.put(qstr_str, this::qstr_str);
-        map.put(qstr_data, this::qstr_data);
-        map.put(qstr_pool_info, this::qstr_pool_info);
-        map.put(qstr_dump_data, this::qstr_dump_data);
-        map.put(vstr_ensure_extra, this::vstr_ensure_extra);
-        map.put(vstr_add_strn, this::vstr_add_strn);
-        map.put(vstr_ins_blank_bytes_constprop_2, this::vstr_ins_blank_bytes_constprop_2);
-        map.put(vstr_init, this::vstr_init);
-        map.put(vstr_init_len, this::vstr_init_len);
-        map.put(vstr_init_fixed_buf, this::vstr_init_fixed_buf);
-        map.put(vstr_init_print, this::vstr_init_print);
-        map.put(vstr_clear, this::vstr_clear);
-        map.put(vstr_new, this::vstr_new);
-        map.put(vstr_free, this::vstr_free);
-        map.put(vstr_extend, this::vstr_extend);
-        map.put(vstr_add_len, this::vstr_add_len);
-        map.put(vstr_null_terminated_str, this::vstr_null_terminated_str);
-        map.put(vstr_add_byte, this::vstr_add_byte);
-        map.put(vstr_add_char, this::vstr_add_char);
-        map.put(vstr_add_str, this::vstr_add_str);
-        map.put(vstr_ins_byte, this::vstr_ins_byte);
-        map.put(vstr_ins_char, this::vstr_ins_char);
-        map.put(vstr_cut_tail_bytes, this::vstr_cut_tail_bytes);
-        map.put(vstr_cut_out_bytes, this::vstr_cut_out_bytes);
-        map.put(plat_print_strn, this::plat_print_strn);
-        map.put(mp_print_str, this::mp_print_str);
-        map.put(mp_print_strn, this::mp_print_strn);
-        map.put(mp_print_int, this::mp_print_int);
-        map.put(mp_print_mp_int, this::mp_print_mp_int);
-        map.put(mp_print_float, this::mp_print_float);
-        map.put(mp_vprintf, this::mp_vprintf);
-        map.put(mp_printf, this::mp_printf);
-        map.put(utf8_get_char, this::utf8_get_char);
-        map.put(utf8_next_char, this::utf8_next_char);
-        map.put(utf8_ptr_to_index, this::utf8_ptr_to_index);
-        map.put(utf8_charlen, this::utf8_charlen);
-        map.put(unichar_isspace, this::unichar_isspace);
-        map.put(unichar_isalpha, this::unichar_isalpha);
-        map.put(unichar_isdigit, this::unichar_isdigit);
-        map.put(unichar_isxdigit, this::unichar_isxdigit);
-        map.put(unichar_isident, this::unichar_isident);
-        map.put(unichar_isupper, this::unichar_isupper);
-        map.put(unichar_islower, this::unichar_islower);
-        map.put(unichar_tolower, this::unichar_tolower);
-        map.put(unichar_toupper, this::unichar_toupper);
-        map.put(unichar_xdigit_value, this::unichar_xdigit_value);
-        map.put(utf8_check, this::utf8_check);
-        map.put(mpn_remove_trailing_zeros, this::mpn_remove_trailing_zeros);
-        map.put(text_mpn_shr, this::text_mpn_shr);
-        map.put(text_mpn_add, this::text_mpn_add);
-        map.put(text_mpn_sub, this::text_mpn_sub);
-        map.put(mpn_xor_neg, this::mpn_xor_neg);
-        map.put(mpz_need_dig, this::mpz_need_dig);
-        map.put(mpz_clone, this::mpz_clone);
-        map.put(mpn_cmp_part_1, this::mpn_cmp_part_1);
-        map.put(mpz_free, this::mpz_free);
-        map.put(mpz_set_from_int_part_4, this::mpz_set_from_int_part_4);
-        map.put(mpz_init_zero, this::mpz_init_zero);
-        map.put(mpz_deinit, this::mpz_deinit);
-        map.put(mpz_set, this::mpz_set);
-        map.put(mpz_set_from_int, this::mpz_set_from_int);
-        map.put(mpz_init_from_int, this::mpz_init_from_int);
-        map.put(mpz_init_fixed_from_int, this::mpz_init_fixed_from_int);
-        map.put(mpz_set_from_ll, this::mpz_set_from_ll);
-        map.put(mpz_set_from_float, this::mpz_set_from_float);
-        map.put(mpz_set_from_str, this::mpz_set_from_str);
-        map.put(mpz_set_from_bytes, this::mpz_set_from_bytes);
-        map.put(mpz_cmp, this::mpz_cmp);
-        map.put(mpz_abs_inpl, this::mpz_abs_inpl);
-        map.put(mpz_neg_inpl, this::mpz_neg_inpl);
-        map.put(mpz_not_inpl, this::mpz_not_inpl);
-        map.put(mpz_shl_inpl, this::mpz_shl_inpl);
-        map.put(mpz_shr_inpl, this::mpz_shr_inpl);
-        map.put(mpz_add_inpl, this::mpz_add_inpl);
-        map.put(mpz_sub_inpl, this::mpz_sub_inpl);
-        map.put(mpz_and_inpl, this::mpz_and_inpl);
-        map.put(mpz_or_inpl, this::mpz_or_inpl);
-        map.put(mpz_xor_inpl, this::mpz_xor_inpl);
-        map.put(mpz_mul_inpl, this::mpz_mul_inpl);
-        map.put(mpz_pow_inpl, this::mpz_pow_inpl);
-        map.put(mpz_divmod_inpl, this::mpz_divmod_inpl);
-        map.put(mpz_pow3_inpl, this::mpz_pow3_inpl);
-        map.put(mpz_hash, this::mpz_hash);
-        map.put(mpz_as_int_checked, this::mpz_as_int_checked);
-        map.put(mpz_as_bytes, this::mpz_as_bytes);
-        map.put(mpz_as_float, this::mpz_as_float);
-        map.put(mpz_as_str_inpl, this::mpz_as_str_inpl);
-        map.put(mp_reader_mem_readbyte, this::mp_reader_mem_readbyte);
-        map.put(mp_reader_mem_close, this::mp_reader_mem_close);
-        map.put(mp_reader_new_mem, this::mp_reader_new_mem);
-        map.put(is_string_or_bytes, this::is_string_or_bytes);
-        map.put(next_char, this::next_char);
-        map.put(skip_whitespace, this::skip_whitespace);
-        map.put(mp_lexer_to_next, this::mp_lexer_to_next);
-        map.put(mp_lexer_new, this::mp_lexer_new);
-        map.put(mp_lexer_new_from_str_len, this::mp_lexer_new_from_str_len);
-        map.put(mp_lexer_new_from_file, this::mp_lexer_new_from_file);
-        map.put(mp_lexer_free, this::mp_lexer_free);
-        map.put(pop_result, this::pop_result);
-        map.put(peek_result, this::peek_result);
-        map.put(parser_alloc, this::parser_alloc);
-        map.put(push_result_node, this::push_result_node);
-        map.put(push_rule, this::push_rule);
-        map.put(push_rule_from_arg, this::push_rule_from_arg);
-        map.put(push_result_token, this::push_result_token);
-        map.put(mp_parse_node_is_const_false, this::mp_parse_node_is_const_false);
-        map.put(mp_parse_node_is_const_true, this::mp_parse_node_is_const_true);
-        map.put(mp_parse_node_get_int_maybe, this::mp_parse_node_get_int_maybe);
-        map.put(push_result_rule, this::push_result_rule);
-        map.put(mp_parse_node_extract_list, this::mp_parse_node_extract_list);
-        map.put(mp_parse, this::mp_parse);
-        map.put(mp_parse_tree_clear, this::mp_parse_tree_clear);
-        map.put(scope_new, this::scope_new);
-        map.put(scope_free, this::scope_free);
-        map.put(scope_find, this::scope_find);
-        map.put(scope_find_or_add_id, this::scope_find_or_add_id);
-        map.put(scope_find_global, this::scope_find_global);
-        map.put(scope_find_local_and_close_over, this::scope_find_local_and_close_over);
-        map.put(compile_increase_except_level, this::compile_increase_except_level);
-        map.put(apply_to_single_or_list, this::apply_to_single_or_list);
-        map.put(compile_del_stmt, this::compile_del_stmt);
-        map.put(compile_import_name, this::compile_import_name);
-        map.put(scope_new_and_link, this::scope_new_and_link);
-        map.put(compile_trailer_period, this::compile_trailer_period);
-        map.put(compile_const_object, this::compile_const_object);
-        map.put(close_over_variables_etc, this::close_over_variables_etc);
-        map.put(compile_funcdef_lambdef, this::compile_funcdef_lambdef);
-        map.put(compile_lambdef, this::compile_lambdef);
-        map.put(compile_funcdef_helper, this::compile_funcdef_helper);
-        map.put(compile_error_set_line_isra_0, this::compile_error_set_line_isra_0);
-        map.put(compile_syntax_error, this::compile_syntax_error);
-        map.put(compile_star_expr, this::compile_star_expr);
-        map.put(compile_break_cont_stmt, this::compile_break_cont_stmt);
-        map.put(compile_scope_func_lambda_param_isra_5, this::compile_scope_func_lambda_param_isra_5);
-        map.put(compile_scope_lambda_param, this::compile_scope_lambda_param);
-        map.put(compile_scope_func_param, this::compile_scope_func_param);
-        map.put(compile_yield_from_isra_6, this::compile_yield_from_isra_6);
-        map.put(compile_await_object_method, this::compile_await_object_method);
-        map.put(compile_load_id, this::compile_load_id);
-        map.put(compile_store_id, this::compile_store_id);
-        map.put(compile_funcdef, this::compile_funcdef);
-        map.put(compile_delete_id, this::compile_delete_id);
-        map.put(compile_node, this::compile_node);
-        map.put(c_assign, this::c_assign);
-        map.put(c_assign_tuple, this::c_assign_tuple);
-        map.put(c_if_cond, this::c_if_cond);
-        map.put(compile_scope_comp_iter, this::compile_scope_comp_iter);
-        map.put(check_for_doc_string, this::check_for_doc_string);
-        map.put(compile_scope, this::compile_scope);
-        map.put(compile_dictorsetmaker_item, this::compile_dictorsetmaker_item);
-        map.put(compile_subscript, this::compile_subscript);
-        map.put(compile_trailer_bracket, this::compile_trailer_bracket);
-        map.put(text_c_tuple, this::text_c_tuple);
-        map.put(compile_generic_tuple, this::compile_generic_tuple);
-        map.put(compile_while_stmt, this::compile_while_stmt);
-        map.put(compile_yield_stmt, this::compile_yield_stmt);
-        map.put(c_del_stmt, this::c_del_stmt);
-        map.put(compile_generic_all_nodes, this::compile_generic_all_nodes);
-        map.put(compile_power, this::compile_power);
-        map.put(compile_if_stmt, this::compile_if_stmt);
-        map.put(compile_comprehension, this::compile_comprehension);
-        map.put(compile_atom_bracket, this::compile_atom_bracket);
-        map.put(compile_trailer_paren_helper, this::compile_trailer_paren_helper);
-        map.put(compile_classdef_helper, this::compile_classdef_helper);
-        map.put(compile_classdef, this::compile_classdef);
-        map.put(compile_trailer_paren, this::compile_trailer_paren);
-        map.put(compile_decorated, this::compile_decorated);
-        map.put(compile_atom_brace, this::compile_atom_brace);
-        map.put(compile_funcdef_lambdef_param, this::compile_funcdef_lambdef_param);
-        map.put(compile_atom_expr_normal, this::compile_atom_expr_normal);
-        map.put(compile_term, this::compile_term);
-        map.put(compile_binary_op, this::compile_binary_op);
-        map.put(compile_expr_stmt, this::compile_expr_stmt);
-        map.put(compile_factor_2, this::compile_factor_2);
-        map.put(compile_not_test_2, this::compile_not_test_2);
-        map.put(compile_or_and_test, this::compile_or_and_test);
-        map.put(compile_comparison, this::compile_comparison);
-        map.put(compile_test_if_expr, this::compile_test_if_expr);
-        map.put(compile_for_stmt, this::compile_for_stmt);
-        map.put(compile_with_stmt_helper, this::compile_with_stmt_helper);
-        map.put(compile_with_stmt, this::compile_with_stmt);
-        map.put(compile_try_except, this::compile_try_except);
-        map.put(compile_try_finally, this::compile_try_finally);
-        map.put(compile_try_stmt, this::compile_try_stmt);
-        map.put(compile_async_with_stmt_helper, this::compile_async_with_stmt_helper);
-        map.put(compile_async_stmt, this::compile_async_stmt);
-        map.put(compile_yield_expr, this::compile_yield_expr);
-        map.put(compile_return_stmt, this::compile_return_stmt);
-        map.put(compile_atom_paren, this::compile_atom_paren);
-        map.put(compile_atom_expr_await, this::compile_atom_expr_await);
-        map.put(compile_assert_stmt, this::compile_assert_stmt);
-        map.put(compile_raise_stmt, this::compile_raise_stmt);
-        map.put(compile_global_nonlocal_stmt, this::compile_global_nonlocal_stmt);
-        map.put(do_import_name_isra_19, this::do_import_name_isra_19);
-        map.put(compile_import_from, this::compile_import_from);
-        map.put(compile_dotted_as_name, this::compile_dotted_as_name);
-        map.put(mp_compile, this::mp_compile);
-        map.put(mp_emit_common_get_id_for_load, this::mp_emit_common_get_id_for_load);
-        map.put(mp_emit_common_get_id_for_modification, this::mp_emit_common_get_id_for_modification);
-        map.put(mp_emit_common_id_op, this::mp_emit_common_id_op);
-        map.put(emit_write_uint, this::emit_write_uint);
-        map.put(emit_get_cur_to_write_code_info, this::emit_get_cur_to_write_code_info);
-        map.put(emit_write_code_info_byte, this::emit_write_code_info_byte);
-        map.put(emit_get_cur_to_write_bytecode, this::emit_get_cur_to_write_bytecode);
-        map.put(emit_write_bytecode_byte, this::emit_write_bytecode_byte);
-        map.put(emit_write_bytecode_byte_uint, this::emit_write_bytecode_byte_uint);
-        map.put(emit_write_bytecode_byte_raw_code, this::emit_write_bytecode_byte_raw_code);
-        map.put(mp_emit_bc_delete_local, this::mp_emit_bc_delete_local);
-        map.put(emit_write_bytecode_byte_qstr, this::emit_write_bytecode_byte_qstr);
-        map.put(emit_write_bytecode_byte_unsigned_label, this::emit_write_bytecode_byte_unsigned_label);
-        map.put(emit_write_bytecode_byte_signed_label, this::emit_write_bytecode_byte_signed_label);
-        map.put(emit_write_bytecode_byte_obj_constprop_8, this::emit_write_bytecode_byte_obj_constprop_8);
-        map.put(emit_bc_new, this::emit_bc_new);
-        map.put(emit_bc_set_max_num_labels, this::emit_bc_set_max_num_labels);
-        map.put(emit_bc_free, this::emit_bc_free);
-        map.put(mp_emit_bc_start_pass, this::mp_emit_bc_start_pass);
-        map.put(mp_emit_bc_end_pass, this::mp_emit_bc_end_pass);
-        map.put(mp_emit_bc_last_emit_was_return_value, this::mp_emit_bc_last_emit_was_return_value);
-        map.put(mp_emit_bc_adjust_stack_size, this::mp_emit_bc_adjust_stack_size);
-        map.put(mp_emit_bc_load_local, this::mp_emit_bc_load_local);
-        map.put(mp_emit_bc_load_global, this::mp_emit_bc_load_global);
-        map.put(mp_emit_bc_store_local, this::mp_emit_bc_store_local);
-        map.put(mp_emit_bc_store_global, this::mp_emit_bc_store_global);
-        map.put(mp_emit_bc_delete_global, this::mp_emit_bc_delete_global);
-        map.put(emit_bc_call_function_method_helper, this::emit_bc_call_function_method_helper);
-        map.put(mp_emit_bc_set_source_line, this::mp_emit_bc_set_source_line);
-        map.put(mp_emit_bc_label_assign, this::mp_emit_bc_label_assign);
-        map.put(mp_emit_bc_import, this::mp_emit_bc_import);
-        map.put(mp_emit_bc_load_const_tok, this::mp_emit_bc_load_const_tok);
-        map.put(mp_emit_bc_load_const_small_int, this::mp_emit_bc_load_const_small_int);
-        map.put(mp_emit_bc_load_const_str, this::mp_emit_bc_load_const_str);
-        map.put(mp_emit_bc_load_const_obj, this::mp_emit_bc_load_const_obj);
-        map.put(mp_emit_bc_load_null, this::mp_emit_bc_load_null);
-        map.put(mp_emit_bc_load_method, this::mp_emit_bc_load_method);
-        map.put(mp_emit_bc_load_build_class, this::mp_emit_bc_load_build_class);
-        map.put(mp_emit_bc_dup_top, this::mp_emit_bc_dup_top);
-        map.put(mp_emit_bc_dup_top_two, this::mp_emit_bc_dup_top_two);
-        map.put(mp_emit_bc_pop_top, this::mp_emit_bc_pop_top);
-        map.put(mp_emit_bc_rot_two, this::mp_emit_bc_rot_two);
-        map.put(mp_emit_bc_attr, this::mp_emit_bc_attr);
-        map.put(mp_emit_bc_rot_three, this::mp_emit_bc_rot_three);
-        map.put(mp_emit_bc_subscr, this::mp_emit_bc_subscr);
-        map.put(mp_emit_bc_jump, this::mp_emit_bc_jump);
-        map.put(mp_emit_bc_pop_jump_if, this::mp_emit_bc_pop_jump_if);
-        map.put(mp_emit_bc_jump_if_or_pop, this::mp_emit_bc_jump_if_or_pop);
-        map.put(mp_emit_bc_unwind_jump, this::mp_emit_bc_unwind_jump);
-        map.put(mp_emit_bc_setup_block, this::mp_emit_bc_setup_block);
-        map.put(mp_emit_bc_end_finally, this::mp_emit_bc_end_finally);
-        map.put(mp_emit_bc_get_iter, this::mp_emit_bc_get_iter);
-        map.put(mp_emit_bc_for_iter, this::mp_emit_bc_for_iter);
-        map.put(mp_emit_bc_for_iter_end, this::mp_emit_bc_for_iter_end);
-        map.put(mp_emit_bc_pop_block, this::mp_emit_bc_pop_block);
-        map.put(mp_emit_bc_with_cleanup, this::mp_emit_bc_with_cleanup);
-        map.put(mp_emit_bc_pop_except, this::mp_emit_bc_pop_except);
-        map.put(mp_emit_bc_unary_op, this::mp_emit_bc_unary_op);
-        map.put(mp_emit_bc_binary_op, this::mp_emit_bc_binary_op);
-        map.put(mp_emit_bc_build, this::mp_emit_bc_build);
-        map.put(mp_emit_bc_store_map, this::mp_emit_bc_store_map);
-        map.put(mp_emit_bc_store_comp, this::mp_emit_bc_store_comp);
-        map.put(mp_emit_bc_unpack_sequence, this::mp_emit_bc_unpack_sequence);
-        map.put(mp_emit_bc_unpack_ex, this::mp_emit_bc_unpack_ex);
-        map.put(mp_emit_bc_make_function, this::mp_emit_bc_make_function);
-        map.put(mp_emit_bc_make_closure, this::mp_emit_bc_make_closure);
-        map.put(mp_emit_bc_call_function, this::mp_emit_bc_call_function);
-        map.put(mp_emit_bc_call_method, this::mp_emit_bc_call_method);
-        map.put(mp_emit_bc_return_value, this::mp_emit_bc_return_value);
-        map.put(mp_emit_bc_raise_varargs, this::mp_emit_bc_raise_varargs);
-        map.put(mp_emit_bc_yield, this::mp_emit_bc_yield);
-        map.put(mp_emit_bc_start_except_handler, this::mp_emit_bc_start_except_handler);
-        map.put(mp_emit_bc_end_except_handler, this::mp_emit_bc_end_except_handler);
-        map.put(mp_format_float, this::mp_format_float);
-        map.put(mp_parse_num_base, this::mp_parse_num_base);
-        map.put(unlikely_raise_exc, this::unlikely_raise_exc);
-        map.put(mp_parse_num_integer, this::mp_parse_num_integer);
-        map.put(mp_parse_num_decimal, this::mp_parse_num_decimal);
-        map.put(mp_emit_glue_new_raw_code, this::mp_emit_glue_new_raw_code);
-        map.put(mp_emit_glue_assign_bytecode, this::mp_emit_glue_assign_bytecode);
-        map.put(mp_make_function_from_raw_code, this::mp_make_function_from_raw_code);
-        map.put(mp_make_closure_from_raw_code, this::mp_make_closure_from_raw_code);
-        map.put(read_bytes, this::read_bytes);
-        map.put(read_uint, this::read_uint);
-        map.put(load_qstr, this::load_qstr);
-        map.put(load_raw_code, this::load_raw_code);
-        map.put(mp_raw_code_load, this::mp_raw_code_load);
-        map.put(mp_raw_code_load_file, this::mp_raw_code_load_file);
-        map.put(mp_init, this::mp_init);
-        map.put(mp_deinit, this::mp_deinit);
-        map.put(mp_load_global, this::mp_load_global);
-        map.put(mp_load_name, this::mp_load_name);
-        map.put(mp_load_build_class, this::mp_load_build_class);
-        map.put(mp_store_name, this::mp_store_name);
-        map.put(mp_delete_name, this::mp_delete_name);
-        map.put(mp_store_global, this::mp_store_global);
-        map.put(mp_delete_global, this::mp_delete_global);
-        map.put(mp_unary_op, this::mp_unary_op);
-        map.put(mp_call_function_n_kw, this::mp_call_function_n_kw);
-        map.put(mp_call_function_0, this::mp_call_function_0);
-        map.put(mp_call_function_1, this::mp_call_function_1);
-        map.put(checked_fun_call, this::checked_fun_call);
-        map.put(mp_call_method_n_kw, this::mp_call_method_n_kw);
-        map.put(mp_convert_member_lookup, this::mp_convert_member_lookup);
-        map.put(mp_load_method_maybe, this::mp_load_method_maybe);
-        map.put(mp_load_method, this::mp_load_method);
-        map.put(mp_load_attr, this::mp_load_attr);
-        map.put(mp_load_method_protected, this::mp_load_method_protected);
-        map.put(mp_store_attr, this::mp_store_attr);
-        map.put(mp_getiter, this::mp_getiter);
-        map.put(mp_iternext_allow_raise, this::mp_iternext_allow_raise);
-        map.put(mp_iternext, this::mp_iternext);
-        map.put(mp_call_prepare_args_n_kw_var, this::mp_call_prepare_args_n_kw_var);
-        map.put(mp_call_method_n_kw_var, this::mp_call_method_n_kw_var);
-        map.put(mp_unpack_sequence, this::mp_unpack_sequence);
-        map.put(mp_unpack_ex, this::mp_unpack_ex);
-        map.put(mp_make_raise_obj, this::mp_make_raise_obj);
-        map.put(mp_resume, this::mp_resume);
-        map.put(mp_import_name, this::mp_import_name);
-        map.put(mp_import_from, this::mp_import_from);
-        map.put(mp_import_all, this::mp_import_all);
-        map.put(mp_parse_compile_execute, this::mp_parse_compile_execute);
-        map.put(mp_raise_msg, this::mp_raise_msg);
-        map.put(m_malloc_fail, this::m_malloc_fail);
-        map.put(mp_raise_ValueError, this::mp_raise_ValueError);
-        map.put(mp_binary_op, this::mp_binary_op);
-        map.put(mp_raise_TypeError, this::mp_raise_TypeError);
-        map.put(mp_raise_OSError, this::mp_raise_OSError);
-        map.put(mp_raise_NotImplementedError, this::mp_raise_NotImplementedError);
-        map.put(mp_raise_recursion_depth, this::mp_raise_recursion_depth);
-        map.put(mp_call_function_1_protected, this::mp_call_function_1_protected);
-        map.put(mp_sched_lock, this::mp_sched_lock);
-        map.put(mp_sched_unlock, this::mp_sched_unlock);
-        map.put(mp_handle_pending_tail, this::mp_handle_pending_tail);
-        map.put(mp_handle_pending, this::mp_handle_pending);
-        map.put(mp_sched_schedule, this::mp_sched_schedule);
-        map.put(mp_stack_set_top, this::mp_stack_set_top);
-        map.put(mp_stack_usage, this::mp_stack_usage);
-        map.put(mp_stack_set_limit, this::mp_stack_set_limit);
-        map.put(mp_stack_check, this::mp_stack_check);
-        map.put(mp_arg_check_num, this::mp_arg_check_num);
-        map.put(mp_arg_parse_all, this::mp_arg_parse_all);
-        map.put(mp_arg_parse_all_kw_array, this::mp_arg_parse_all_kw_array);
-        map.put(mp_arg_error_unimpl_kw, this::mp_arg_error_unimpl_kw);
-        map.put(mp_warning, this::mp_warning);
-        map.put(mp_map_init, this::mp_map_init);
-        map.put(mp_map_init_fixed_table, this::mp_map_init_fixed_table);
-        map.put(mp_map_deinit, this::mp_map_deinit);
-        map.put(mp_map_clear, this::mp_map_clear);
-        map.put(mp_map_lookup, this::mp_map_lookup);
-        map.put(mp_map_rehash, this::mp_map_rehash);
-        map.put(mp_set_init, this::mp_set_init);
-        map.put(mp_set_lookup, this::mp_set_lookup);
-        map.put(mp_set_rehash, this::mp_set_rehash);
-        map.put(mp_set_remove_first, this::mp_set_remove_first);
-        map.put(mp_set_clear, this::mp_set_clear);
-        map.put(mp_identity, this::mp_identity);
-        map.put(mp_obj_get_type, this::mp_obj_get_type);
-        map.put(mp_obj_get_type_str, this::mp_obj_get_type_str);
-        map.put(mp_obj_print_helper, this::mp_obj_print_helper);
-        map.put(mp_obj_print, this::mp_obj_print);
-        map.put(mp_obj_print_exception, this::mp_obj_print_exception);
-        map.put(mp_obj_is_callable, this::mp_obj_is_callable);
-        map.put(mp_obj_equal, this::mp_obj_equal);
-        map.put(mp_obj_get_int, this::mp_obj_get_int);
-        map.put(mp_obj_get_int_truncated, this::mp_obj_get_int_truncated);
-        map.put(mp_obj_get_int_maybe, this::mp_obj_get_int_maybe);
-        map.put(mp_obj_get_float_maybe, this::mp_obj_get_float_maybe);
-        map.put(mp_obj_get_float, this::mp_obj_get_float);
-        map.put(mp_obj_get_complex, this::mp_obj_get_complex);
-        map.put(mp_obj_get_array, this::mp_obj_get_array);
-        map.put(mp_obj_get_array_fixed_n, this::mp_obj_get_array_fixed_n);
-        map.put(mp_get_index, this::mp_get_index);
-        map.put(mp_obj_id, this::mp_obj_id);
-        map.put(mp_obj_len_maybe, this::mp_obj_len_maybe);
-        map.put(mp_obj_is_true, this::mp_obj_is_true);
-        map.put(mp_obj_len, this::mp_obj_len);
-        map.put(mp_obj_subscr, this::mp_obj_subscr);
-        map.put(mp_identity_getiter, this::mp_identity_getiter);
-        map.put(mp_get_buffer, this::mp_get_buffer);
-        map.put(mp_get_buffer_raise, this::mp_get_buffer_raise);
-        map.put(mp_generic_unary_op, this::mp_generic_unary_op);
-        map.put(array_unary_op, this::array_unary_op);
-        map.put(array_iterator_new, this::array_iterator_new);
-        map.put(array_get_buffer, this::array_get_buffer);
-        map.put(array_new, this::array_new);
-        map.put(array_extend, this::array_extend);
-        map.put(array_append, this::array_append);
-        map.put(array_it_iternext, this::array_it_iternext);
-        map.put(array_subscr, this::array_subscr);
-        map.put(array_binary_op, this::array_binary_op);
-        map.put(array_construct, this::array_construct);
-        map.put(array_make_new, this::array_make_new);
-        map.put(array_print, this::array_print);
-        map.put(bytearray_make_new, this::bytearray_make_new);
-        map.put(mp_obj_new_memoryview, this::mp_obj_new_memoryview);
-        map.put(memoryview_make_new, this::memoryview_make_new);
-        map.put(mp_obj_new_bytearray_by_ref, this::mp_obj_new_bytearray_by_ref);
-        map.put(mp_obj_attrtuple_attr, this::mp_obj_attrtuple_attr);
-        map.put(mp_obj_attrtuple_print_helper, this::mp_obj_attrtuple_print_helper);
-        map.put(mp_obj_attrtuple_print, this::mp_obj_attrtuple_print);
-        map.put(bool_binary_op, this::bool_binary_op);
-        map.put(bool_unary_op, this::bool_unary_op);
-        map.put(bool_make_new, this::bool_make_new);
-        map.put(bool_print, this::bool_print);
-        map.put(bound_meth_print, this::bound_meth_print);
-        map.put(bound_meth_attr, this::bound_meth_attr);
-        map.put(mp_call_method_self_n_kw, this::mp_call_method_self_n_kw);
-        map.put(bound_meth_call, this::bound_meth_call);
-        map.put(mp_obj_new_bound_meth, this::mp_obj_new_bound_meth);
-        map.put(cell_print, this::cell_print);
-        map.put(mp_obj_cell_get, this::mp_obj_cell_get);
-        map.put(mp_obj_cell_set, this::mp_obj_cell_set);
-        map.put(mp_obj_new_cell, this::mp_obj_new_cell);
-        map.put(closure_call, this::closure_call);
-        map.put(closure_print, this::closure_print);
-        map.put(mp_obj_new_closure, this::mp_obj_new_closure);
-        map.put(complex_attr, this::complex_attr);
-        map.put(complex_print, this::complex_print);
-        map.put(mp_obj_new_complex, this::mp_obj_new_complex);
-        map.put(complex_unary_op, this::complex_unary_op);
-        map.put(complex_make_new, this::complex_make_new);
-        map.put(mp_obj_complex_get, this::mp_obj_complex_get);
-        map.put(mp_obj_complex_binary_op, this::mp_obj_complex_binary_op);
-        map.put(complex_binary_op, this::complex_binary_op);
-        map.put(deque_make_new, this::deque_make_new);
-        map.put(deque_unary_op, this::deque_unary_op);
-        map.put(deque_popleft, this::deque_popleft);
-        map.put(mp_obj_deque_append, this::mp_obj_deque_append);
-        map.put(dict_view_getiter, this::dict_view_getiter);
-        map.put(dict_getiter, this::dict_getiter);
-        map.put(dict_values, this::dict_values);
-        map.put(mp_ensure_not_fixed, this::mp_ensure_not_fixed);
-        map.put(dict_clear, this::dict_clear);
-        map.put(dict_unary_op, this::dict_unary_op);
-        map.put(dict_get_helper, this::dict_get_helper);
-        map.put(dict_setdefault, this::dict_setdefault);
-        map.put(dict_pop, this::dict_pop);
-        map.put(dict_get, this::dict_get);
-        map.put(dict_iter_next, this::dict_iter_next);
-        map.put(dict_view_it_iternext, this::dict_view_it_iternext);
-        map.put(dict_view_print, this::dict_view_print);
-        map.put(dict_update, this::dict_update);
-        map.put(dict_popitem, this::dict_popitem);
-        map.put(dict_binary_op, this::dict_binary_op);
-        map.put(dict_view_binary_op, this::dict_view_binary_op);
-        map.put(dict_print, this::dict_print);
-        map.put(dict_items, this::dict_items);
-        map.put(dict_keys, this::dict_keys);
-        map.put(mp_obj_dict_get, this::mp_obj_dict_get);
-        map.put(mp_obj_dict_init, this::mp_obj_dict_init);
-        map.put(mp_obj_new_dict, this::mp_obj_new_dict);
-        map.put(dict_fromkeys, this::dict_fromkeys);
-        map.put(dict_copy, this::dict_copy);
-        map.put(dict_make_new, this::dict_make_new);
-        map.put(mp_obj_dict_len, this::mp_obj_dict_len);
-        map.put(mp_obj_dict_store, this::mp_obj_dict_store);
-        map.put(mp_obj_dict_delete, this::mp_obj_dict_delete);
-        map.put(dict_subscr, this::dict_subscr);
-        map.put(enumerate_iternext, this::enumerate_iternext);
-        map.put(enumerate_make_new, this::enumerate_make_new);
-        map.put(mp_obj_exception_print, this::mp_obj_exception_print);
-        map.put(mp_obj_exception_make_new, this::mp_obj_exception_make_new);
-        map.put(exc_add_strn, this::exc_add_strn);
-        map.put(mp_init_emergency_exception_buf, this::mp_init_emergency_exception_buf);
-        map.put(mp_obj_exception_get_value, this::mp_obj_exception_get_value);
-        map.put(mp_obj_exception_attr, this::mp_obj_exception_attr);
-        map.put(mp_obj_new_exception_args, this::mp_obj_new_exception_args);
-        map.put(mp_obj_new_exception, this::mp_obj_new_exception);
-        map.put(mp_obj_new_exception_arg1, this::mp_obj_new_exception_arg1);
-        map.put(mp_obj_new_exception_msg_varg, this::mp_obj_new_exception_msg_varg);
-        map.put(mp_obj_new_exception_msg, this::mp_obj_new_exception_msg);
-        map.put(mp_obj_is_exception_type, this::mp_obj_is_exception_type);
-        map.put(mp_obj_is_exception_instance, this::mp_obj_is_exception_instance);
-        map.put(mp_obj_exception_match, this::mp_obj_exception_match);
-        map.put(mp_obj_exception_clear_traceback, this::mp_obj_exception_clear_traceback);
-        map.put(mp_obj_exception_add_traceback, this::mp_obj_exception_add_traceback);
-        map.put(mp_obj_exception_get_traceback, this::mp_obj_exception_get_traceback);
-        map.put(filter_iternext, this::filter_iternext);
-        map.put(filter_make_new, this::filter_make_new);
-        map.put(float_print, this::float_print);
-        map.put(mp_obj_float_divmod, this::mp_obj_float_divmod);
-        map.put(mp_float_hash, this::mp_float_hash);
-        map.put(mp_obj_new_float, this::mp_obj_new_float);
-        map.put(float_make_new, this::float_make_new);
-        map.put(float_unary_op, this::float_unary_op);
-        map.put(mp_obj_float_get, this::mp_obj_float_get);
-        map.put(mp_obj_float_binary_op, this::mp_obj_float_binary_op);
-        map.put(float_binary_op, this::float_binary_op);
-        map.put(fun_builtin_0_call, this::fun_builtin_0_call);
-        map.put(fun_builtin_1_call, this::fun_builtin_1_call);
-        map.put(fun_builtin_2_call, this::fun_builtin_2_call);
-        map.put(fun_builtin_3_call, this::fun_builtin_3_call);
-        map.put(fun_bc_call, this::fun_bc_call);
-        map.put(fun_builtin_var_call, this::fun_builtin_var_call);
-        map.put(mp_obj_code_get_name, this::mp_obj_code_get_name);
-        map.put(mp_obj_fun_get_name, this::mp_obj_fun_get_name);
-        map.put(mp_obj_fun_bc_attr, this::mp_obj_fun_bc_attr);
-        map.put(fun_bc_print, this::fun_bc_print);
-        map.put(mp_obj_fun_bc_prepare_codestate, this::mp_obj_fun_bc_prepare_codestate);
-        map.put(mp_obj_new_fun_bc, this::mp_obj_new_fun_bc);
-        map.put(gen_wrap_call, this::gen_wrap_call);
-        map.put(gen_instance_pend_throw, this::gen_instance_pend_throw);
-        map.put(gen_instance_print, this::gen_instance_print);
-        map.put(unlikely_gen_instance_throw_part_0, this::unlikely_gen_instance_throw_part_0);
-        map.put(mp_obj_gen_resume, this::mp_obj_gen_resume);
-        map.put(gen_resume_and_raise, this::gen_resume_and_raise);
-        map.put(gen_instance_throw, this::gen_instance_throw);
-        map.put(gen_instance_send, this::gen_instance_send);
-        map.put(gen_instance_iternext, this::gen_instance_iternext);
-        map.put(gen_instance_close, this::gen_instance_close);
-        map.put(it_iternext, this::it_iternext);
-        map.put(mp_obj_new_getitem_iter, this::mp_obj_new_getitem_iter);
-        map.put(int_to_bytes, this::int_to_bytes);
-        map.put(int_from_bytes, this::int_from_bytes);
-        map.put(mp_obj_new_int_from_float, this::mp_obj_new_int_from_float);
-        map.put(mp_obj_int_make_new, this::mp_obj_int_make_new);
-        map.put(mp_int_format_size, this::mp_int_format_size);
-        map.put(mp_obj_int_formatted, this::mp_obj_int_formatted);
-        map.put(mp_obj_int_print, this::mp_obj_int_print);
-        map.put(mp_obj_int_binary_op_extra_cases, this::mp_obj_int_binary_op_extra_cases);
-        map.put(mp_obj_int_new_mpz, this::mp_obj_int_new_mpz);
-        map.put(mp_obj_int_formatted_impl, this::mp_obj_int_formatted_impl);
-        map.put(mp_obj_int_from_bytes_impl, this::mp_obj_int_from_bytes_impl);
-        map.put(mp_obj_int_to_bytes_impl, this::mp_obj_int_to_bytes_impl);
-        map.put(mp_obj_int_sign, this::mp_obj_int_sign);
-        map.put(mp_obj_int_unary_op, this::mp_obj_int_unary_op);
-        map.put(mp_obj_new_int_from_ll, this::mp_obj_new_int_from_ll);
-        map.put(mp_obj_new_int, this::mp_obj_new_int);
-        map.put(mp_obj_new_int_from_ull, this::mp_obj_new_int_from_ull);
-        map.put(mp_obj_int_pow3, this::mp_obj_int_pow3);
-        map.put(mp_obj_new_int_from_uint, this::mp_obj_new_int_from_uint);
-        map.put(mp_obj_new_int_from_str_len, this::mp_obj_new_int_from_str_len);
-        map.put(mp_obj_int_get_truncated, this::mp_obj_int_get_truncated);
-        map.put(mp_obj_int_get_checked, this::mp_obj_int_get_checked);
-        map.put(mp_obj_int_binary_op, this::mp_obj_int_binary_op);
-        map.put(mp_obj_int_as_float_impl, this::mp_obj_int_as_float_impl);
-        map.put(list_getiter, this::list_getiter);
-        map.put(list_reverse, this::list_reverse);
-        map.put(list_it_iternext, this::list_it_iternext);
-        map.put(mp_obj_list_append, this::mp_obj_list_append);
-        map.put(list_insert, this::list_insert);
-        map.put(list_clear, this::list_clear);
-        map.put(mp_quicksort, this::mp_quicksort);
-        map.put(mp_obj_list_sort, this::mp_obj_list_sort);
-        map.put(list_index, this::list_index);
-        map.put(list_pop, this::list_pop);
-        map.put(mp_obj_list_remove, this::mp_obj_list_remove);
-        map.put(list_extend_from_iter, this::list_extend_from_iter);
-        map.put(list_count, this::list_count);
-        map.put(list_print, this::list_print);
-        map.put(list_unary_op, this::list_unary_op);
-        map.put(list_extend, this::list_extend);
-        map.put(mp_obj_list_init, this::mp_obj_list_init);
-        map.put(list_new, this::list_new);
-        map.put(list_binary_op, this::list_binary_op);
-        map.put(list_make_new, this::list_make_new);
-        map.put(mp_obj_new_list, this::mp_obj_new_list);
-        map.put(list_copy, this::list_copy);
-        map.put(mp_obj_list_get, this::mp_obj_list_get);
-        map.put(mp_obj_list_set_len, this::mp_obj_list_set_len);
-        map.put(mp_obj_list_store, this::mp_obj_list_store);
-        map.put(list_subscr, this::list_subscr);
-        map.put(map_iternext, this::map_iternext);
-        map.put(map_make_new, this::map_make_new);
-        map.put(module_print, this::module_print);
-        map.put(module_attr, this::module_attr);
-        map.put(mp_obj_new_module, this::mp_obj_new_module);
-        map.put(mp_module_register, this::mp_module_register);
-        map.put(mp_module_call_init, this::mp_module_call_init);
-        map.put(mp_module_get, this::mp_module_get);
-        map.put(object___init__, this::object___init__);
-        map.put(object___new__, this::object___new__);
-        map.put(object_make_new, this::object_make_new);
-        map.put(polymorph_it_iternext, this::polymorph_it_iternext);
-        map.put(property_deleter, this::property_deleter);
-        map.put(property_setter, this::property_setter);
-        map.put(property_getter, this::property_getter);
-        map.put(property_make_new, this::property_make_new);
-        map.put(mp_obj_property_get, this::mp_obj_property_get);
-        map.put(none_print, this::none_print);
-        map.put(namedtuple_asdict, this::namedtuple_asdict);
-        map.put(namedtuple_print, this::namedtuple_print);
-        map.put(mp_obj_namedtuple_find_field, this::mp_obj_namedtuple_find_field);
-        map.put(namedtuple_attr, this::namedtuple_attr);
-        map.put(namedtuple_make_new, this::namedtuple_make_new);
-        map.put(mp_obj_new_namedtuple_base, this::mp_obj_new_namedtuple_base);
-        map.put(new_namedtuple_type, this::new_namedtuple_type);
-        map.put(range_it_iternext, this::range_it_iternext);
-        map.put(range_len, this::range_len);
-        map.put(range_unary_op, this::range_unary_op);
-        map.put(range_getiter, this::range_getiter);
-        map.put(range_subscr, this::range_subscr);
-        map.put(range_make_new, this::range_make_new);
-        map.put(range_print, this::range_print);
-        map.put(range_binary_op, this::range_binary_op);
-        map.put(range_attr, this::range_attr);
-        map.put(reversed_iternext, this::reversed_iternext);
-        map.put(reversed_make_new, this::reversed_make_new);
-        map.put(is_set_or_frozenset, this::is_set_or_frozenset);
-        map.put(set_getiter, this::set_getiter);
-        map.put(text_set_add, this::text_set_add);
-        map.put(set_discard, this::set_discard);
-        map.put(set_update_int, this::set_update_int);
-        map.put(set_update, this::set_update);
-        map.put(set_symmetric_difference_update, this::set_symmetric_difference_update);
-        map.put(set_isdisjoint, this::set_isdisjoint);
-        map.put(set_copy, this::set_copy);
-        map.put(set_union, this::set_union);
-        map.put(set_symmetric_difference, this::set_symmetric_difference);
-        map.put(set_clear, this::set_clear);
-        map.put(set_diff_int, this::set_diff_int);
-        map.put(set_diff_update, this::set_diff_update);
-        map.put(set_diff, this::set_diff);
-        map.put(set_print, this::set_print);
-        map.put(set_remove, this::set_remove);
-        map.put(text_set_pop, this::text_set_pop);
-        map.put(set_it_iternext, this::set_it_iternext);
-        map.put(set_unary_op, this::set_unary_op);
-        map.put(mp_obj_new_set, this::mp_obj_new_set);
-        map.put(set_intersect_int_part_4, this::set_intersect_int_part_4);
-        map.put(set_intersect_update, this::set_intersect_update);
-        map.put(set_intersect, this::set_intersect);
-        map.put(mp_obj_set_store, this::mp_obj_set_store);
-        map.put(set_make_new, this::set_make_new);
-        map.put(set_issubset_internal, this::set_issubset_internal);
-        map.put(set_issuperset, this::set_issuperset);
-        map.put(set_issubset, this::set_issubset);
-        map.put(set_binary_op, this::set_binary_op);
-        map.put(singleton_print, this::singleton_print);
-        map.put(slice_print, this::slice_print);
-        map.put(slice_attr, this::slice_attr);
-        map.put(mp_obj_new_slice, this::mp_obj_new_slice);
-        map.put(mp_obj_slice_get, this::mp_obj_slice_get);
-        map.put(arg_looks_integer, this::arg_looks_integer);
-        map.put(arg_looks_numeric, this::arg_looks_numeric);
-        map.put(mp_obj_new_bytes_iterator, this::mp_obj_new_bytes_iterator);
-        map.put(bytes_it_iternext, this::bytes_it_iternext);
-        map.put(unlikely_bad_implicit_conversion, this::unlikely_bad_implicit_conversion);
-        map.put(str_count, this::str_count);
-        map.put(str_uni_istype, this::str_uni_istype);
-        map.put(str_isspace, this::str_isspace);
-        map.put(str_isalpha, this::str_isalpha);
-        map.put(str_isdigit, this::str_isdigit);
-        map.put(str_isupper, this::str_isupper);
-        map.put(str_islower, this::str_islower);
-        map.put(str_to_int, this::str_to_int);
-        map.put(mp_obj_str_get_buffer, this::mp_obj_str_get_buffer);
-        map.put(mp_str_print_quoted, this::mp_str_print_quoted);
-        map.put(mp_str_print_json, this::mp_str_print_json);
-        map.put(str_print, this::str_print);
-        map.put(find_subbytes, this::find_subbytes);
-        map.put(str_finder, this::str_finder);
-        map.put(str_find, this::str_find);
-        map.put(str_rfind, this::str_rfind);
-        map.put(str_index, this::str_index);
-        map.put(str_rindex, this::str_rindex);
-        map.put(mp_obj_new_str_copy, this::mp_obj_new_str_copy);
-        map.put(mp_obj_new_str_via_qstr, this::mp_obj_new_str_via_qstr);
-        map.put(mp_obj_new_str_from_vstr, this::mp_obj_new_str_from_vstr);
-        map.put(str_join, this::str_join);
-        map.put(str_center, this::str_center);
-        map.put(str_replace, this::str_replace);
-        map.put(str_caseconv, this::str_caseconv);
-        map.put(str_lower, this::str_lower);
-        map.put(str_upper, this::str_upper);
-        map.put(mp_obj_new_str, this::mp_obj_new_str);
-        map.put(mp_obj_str_make_new, this::mp_obj_str_make_new);
-        map.put(bytes_decode, this::bytes_decode);
-        map.put(mp_obj_new_bytes, this::mp_obj_new_bytes);
-        map.put(bytes_make_new_part_4, this::bytes_make_new_part_4);
-        map.put(bytes_make_new, this::bytes_make_new);
-        map.put(str_encode, this::str_encode);
-        map.put(mp_obj_new_str_of_type, this::mp_obj_new_str_of_type);
-        map.put(str_splitlines, this::str_splitlines);
-        map.put(str_uni_strip, this::str_uni_strip);
-        map.put(str_strip, this::str_strip);
-        map.put(str_lstrip, this::str_lstrip);
-        map.put(str_rstrip, this::str_rstrip);
-        map.put(str_partitioner, this::str_partitioner);
-        map.put(str_partition, this::str_partition);
-        map.put(str_rpartition, this::str_rpartition);
-        map.put(bytes_subscr, this::bytes_subscr);
-        map.put(mp_obj_str_equal, this::mp_obj_str_equal);
-        map.put(mp_obj_str_get_qstr, this::mp_obj_str_get_qstr);
-        map.put(mp_obj_str_get_str, this::mp_obj_str_get_str);
-        map.put(mp_obj_str_get_data, this::mp_obj_str_get_data);
-        map.put(mp_obj_str_binary_op, this::mp_obj_str_binary_op);
-        map.put(mp_obj_str_split, this::mp_obj_str_split);
-        map.put(str_rsplit, this::str_rsplit);
-        map.put(str_startswith, this::str_startswith);
-        map.put(str_endswith, this::str_endswith);
-        map.put(mp_obj_str_format_helper, this::mp_obj_str_format_helper);
-        map.put(mp_obj_str_format, this::mp_obj_str_format);
-        map.put(mp_obj_str_intern_checked, this::mp_obj_str_intern_checked);
-        map.put(mp_obj_new_str_iterator, this::mp_obj_new_str_iterator);
-        map.put(str_it_iternext, this::str_it_iternext);
-        map.put(uni_unary_op, this::uni_unary_op);
-        map.put(uni_print, this::uni_print);
-        map.put(str_index_to_ptr, this::str_index_to_ptr);
-        map.put(str_subscr, this::str_subscr);
-        map.put(stringio___exit__, this::stringio___exit__);
-        map.put(stringio_print, this::stringio_print);
-        map.put(stringio_write, this::stringio_write);
-        map.put(stringio_make_new, this::stringio_make_new);
-        map.put(stringio_ioctl, this::stringio_ioctl);
-        map.put(stringio_getvalue, this::stringio_getvalue);
-        map.put(stringio_read, this::stringio_read);
-        map.put(tuple_it_iternext, this::tuple_it_iternext);
-        map.put(mp_obj_tuple_getiter, this::mp_obj_tuple_getiter);
-        map.put(mp_obj_tuple_print, this::mp_obj_tuple_print);
-        map.put(tuple_index, this::tuple_index);
-        map.put(tuple_count, this::tuple_count);
-        map.put(mp_obj_tuple_unary_op, this::mp_obj_tuple_unary_op);
-        map.put(mp_obj_new_tuple, this::mp_obj_new_tuple);
-        map.put(mp_obj_tuple_binary_op, this::mp_obj_tuple_binary_op);
-        map.put(mp_obj_tuple_subscr, this::mp_obj_tuple_subscr);
-        map.put(mp_obj_tuple_make_new, this::mp_obj_tuple_make_new);
-        map.put(mp_obj_tuple_get, this::mp_obj_tuple_get);
-        map.put(mp_obj_tuple_del, this::mp_obj_tuple_del);
-        map.put(instance_count_native_bases, this::instance_count_native_bases);
-        map.put(native_base_init_wrapper, this::native_base_init_wrapper);
-        map.put(mp_obj_class_lookup, this::mp_obj_class_lookup);
-        map.put(super_attr, this::super_attr);
-        map.put(static_class_method_make_new, this::static_class_method_make_new);
-        map.put(super_make_new, this::super_make_new);
-        map.put(type_print, this::type_print);
-        map.put(instance_subscr, this::instance_subscr);
-        map.put(instance_binary_op, this::instance_binary_op);
-        map.put(instance_unary_op, this::instance_unary_op);
-        map.put(instance_print, this::instance_print);
-        map.put(super_print, this::super_print);
-        map.put(mp_obj_instance_attr, this::mp_obj_instance_attr);
-        map.put(type_call, this::type_call);
-        map.put(instance_get_buffer, this::instance_get_buffer);
-        map.put(instance_getiter, this::instance_getiter);
-        map.put(check_for_special_accessors, this::check_for_special_accessors);
-        map.put(type_attr, this::type_attr);
-        map.put(mp_obj_instance_call, this::mp_obj_instance_call);
-        map.put(mp_obj_new_instance, this::mp_obj_new_instance);
-        map.put(mp_obj_instance_make_new, this::mp_obj_instance_make_new);
-        map.put(mp_obj_instance_is_callable, this::mp_obj_instance_is_callable);
-        map.put(mp_obj_new_type, this::mp_obj_new_type);
-        map.put(type_make_new, this::type_make_new);
-        map.put(mp_load_super_method, this::mp_load_super_method);
-        map.put(mp_obj_is_subclass_fast, this::mp_obj_is_subclass_fast);
-        map.put(mp_obj_is_subclass, this::mp_obj_is_subclass);
-        map.put(mp_builtin_issubclass, this::mp_builtin_issubclass);
-        map.put(mp_builtin_isinstance, this::mp_builtin_isinstance);
-        map.put(mp_instance_cast_to_native_base, this::mp_instance_cast_to_native_base);
-        map.put(zip_iternext, this::zip_iternext);
-        map.put(zip_make_new, this::zip_make_new);
-        map.put(op_getitem, this::op_getitem);
-        map.put(op_setitem, this::op_setitem);
-        map.put(op_delitem, this::op_delitem);
-        map.put(op_contains, this::op_contains);
-        map.put(mp_seq_multiply, this::mp_seq_multiply);
-        map.put(mp_seq_get_fast_slice_indexes, this::mp_seq_get_fast_slice_indexes);
-        map.put(mp_seq_extract_slice, this::mp_seq_extract_slice);
-        map.put(mp_seq_cmp_bytes, this::mp_seq_cmp_bytes);
-        map.put(mp_seq_cmp_objs, this::mp_seq_cmp_objs);
-        map.put(mp_seq_index_obj, this::mp_seq_index_obj);
-        map.put(mp_seq_count_obj, this::mp_seq_count_obj);
-        map.put(mp_stream_close, this::mp_stream_close);
-        map.put(stream_flush, this::stream_flush);
-        map.put(stream_unbuffered_readline, this::stream_unbuffered_readline);
-        map.put(stream_unbuffered_readlines, this::stream_unbuffered_readlines);
-        map.put(stream_seek, this::stream_seek);
-        map.put(stream_tell, this::stream_tell);
-        map.put(mp_stream_rw, this::mp_stream_rw);
-        map.put(stream_read_generic, this::stream_read_generic);
-        map.put(stream_read, this::stream_read);
-        map.put(stream_readinto, this::stream_readinto);
-        map.put(mp_get_stream_raise, this::mp_get_stream_raise);
-        map.put(mp_stream_write, this::mp_stream_write);
-        map.put(stream_write_method, this::stream_write_method);
-        map.put(mp_stream_write_adaptor, this::mp_stream_write_adaptor);
-        map.put(mp_stream_unbuffered_iter, this::mp_stream_unbuffered_iter);
-        map.put(mp_binary_get_size, this::mp_binary_get_size);
-        map.put(mp_binary_get_val_array, this::mp_binary_get_val_array);
-        map.put(mp_binary_get_int, this::mp_binary_get_int);
-        map.put(mp_binary_get_val, this::mp_binary_get_val);
-        map.put(mp_binary_set_int, this::mp_binary_set_int);
-        map.put(mp_binary_set_val, this::mp_binary_set_val);
-        map.put(mp_binary_set_val_array_from_int, this::mp_binary_set_val_array_from_int);
-        map.put(mp_binary_set_val_array, this::mp_binary_set_val_array);
-        map.put(mp_import_stat_any, this::mp_import_stat_any);
-        map.put(do_execute_raw_code, this::do_execute_raw_code);
-        map.put(do_load_from_lexer, this::do_load_from_lexer);
-        map.put(text_do_load, this::text_do_load);
-        map.put(stat_file_py_or_mpy, this::stat_file_py_or_mpy);
-        map.put(stat_dir_or_file, this::stat_dir_or_file);
-        map.put(mp_builtin___import__, this::mp_builtin___import__);
-        map.put(mp_obj_is_package, this::mp_obj_is_package);
-        map.put(mp_builtin_compile, this::mp_builtin_compile);
-        map.put(eval_exec_helper, this::eval_exec_helper);
-        map.put(mp_builtin_eval, this::mp_builtin_eval);
-        map.put(mp_builtin_exec, this::mp_builtin_exec);
-        map.put(mp_builtin_execfile, this::mp_builtin_execfile);
-        map.put(mp_help_add_from_names, this::mp_help_add_from_names);
-        map.put(mp_help_add_from_map, this::mp_help_add_from_map);
-        map.put(mp_builtin_help, this::mp_builtin_help);
-        map.put(mp_builtin_globals, this::mp_builtin_globals);
-        map.put(mp_builtin_locals, this::mp_builtin_locals);
-        map.put(mp_builtin___build_class__, this::mp_builtin___build_class__);
-        map.put(mp_builtin_abs, this::mp_builtin_abs);
-        map.put(mp_builtin_hash, this::mp_builtin_hash);
-        map.put(mp_builtin_iter, this::mp_builtin_iter);
-        map.put(mp_builtin_all, this::mp_builtin_all);
-        map.put(mp_builtin_any, this::mp_builtin_any);
-        map.put(mp_builtin_bin, this::mp_builtin_bin);
-        map.put(mp_builtin_callable, this::mp_builtin_callable);
-        map.put(mp_builtin_chr, this::mp_builtin_chr);
-        map.put(mp_builtin_divmod, this::mp_builtin_divmod);
-        map.put(mp_builtin_hex, this::mp_builtin_hex);
-        map.put(mp_builtin_oct, this::mp_builtin_oct);
-        map.put(mp_builtin_sum, this::mp_builtin_sum);
-        map.put(mp_builtin_min_max, this::mp_builtin_min_max);
-        map.put(mp_builtin_max, this::mp_builtin_max);
-        map.put(mp_builtin_min, this::mp_builtin_min);
-        map.put(mp_builtin_ord, this::mp_builtin_ord);
-        map.put(mp_builtin_print, this::mp_builtin_print);
-        map.put(mp_builtin_repr, this::mp_builtin_repr);
-        map.put(mp_builtin_round, this::mp_builtin_round);
-        map.put(mp_builtin_sorted, this::mp_builtin_sorted);
-        map.put(mp_builtin_hasattr, this::mp_builtin_hasattr);
-        map.put(mp_builtin_getattr, this::mp_builtin_getattr);
-        map.put(mp_builtin_setattr, this::mp_builtin_setattr);
-        map.put(mp_builtin_delattr, this::mp_builtin_delattr);
-        map.put(mp_builtin_dir, this::mp_builtin_dir);
-        map.put(mp_builtin_next, this::mp_builtin_next);
-        map.put(mp_builtin_pow, this::mp_builtin_pow);
-        map.put(mp_builtin___repl_print__, this::mp_builtin___repl_print__);
-        map.put(gc_disable, this::gc_disable);
-        map.put(gc_enable, this::gc_enable);
-        map.put(gc_isenabled, this::gc_isenabled);
-        map.put(py_gc_collect, this::py_gc_collect);
-        map.put(gc_mem_free, this::gc_mem_free);
-        map.put(gc_mem_alloc, this::gc_mem_alloc);
-        map.put(gc_threshold, this::gc_threshold);
-        map.put(resource_stream, this::resource_stream);
-        map.put(fabs_funcf, this::fabs_funcf);
-        map.put(log2f, this::log2f);
-        map.put(mp_math_isnan, this::mp_math_isnan);
-        map.put(mp_math_isfinite, this::mp_math_isfinite);
-        map.put(mp_math_isinf, this::mp_math_isinf);
-        map.put(mp_math_degrees, this::mp_math_degrees);
-        map.put(mp_math_radians, this::mp_math_radians);
-        map.put(mp_math_trunc, this::mp_math_trunc);
-        map.put(mp_math_modf, this::mp_math_modf);
-        map.put(mp_math_ldexp, this::mp_math_ldexp);
-        map.put(mp_math_frexp, this::mp_math_frexp);
-        map.put(mp_math_floor, this::mp_math_floor);
-        map.put(copysign_funcf, this::copysign_funcf);
-        map.put(mp_math_ceil, this::mp_math_ceil);
-        map.put(math_generic_1, this::math_generic_1);
-        map.put(mp_math_lgamma, this::mp_math_lgamma);
-        map.put(mp_math_gamma, this::mp_math_gamma);
-        map.put(mp_math_erfc, this::mp_math_erfc);
-        map.put(mp_math_erf, this::mp_math_erf);
-        map.put(mp_math_fabs, this::mp_math_fabs);
-        map.put(mp_math_atan, this::mp_math_atan);
-        map.put(mp_math_asin, this::mp_math_asin);
-        map.put(mp_math_acos, this::mp_math_acos);
-        map.put(mp_math_tan, this::mp_math_tan);
-        map.put(mp_math_sin, this::mp_math_sin);
-        map.put(mp_math_cos, this::mp_math_cos);
-        map.put(mp_math_atanh, this::mp_math_atanh);
-        map.put(mp_math_asinh, this::mp_math_asinh);
-        map.put(mp_math_acosh, this::mp_math_acosh);
-        map.put(mp_math_tanh, this::mp_math_tanh);
-        map.put(mp_math_sinh, this::mp_math_sinh);
-        map.put(mp_math_cosh, this::mp_math_cosh);
-        map.put(mp_math_log10, this::mp_math_log10);
-        map.put(mp_math_log2, this::mp_math_log2);
-        map.put(mp_math_expm1, this::mp_math_expm1);
-        map.put(mp_math_exp, this::mp_math_exp);
-        map.put(mp_math_sqrt, this::mp_math_sqrt);
-        map.put(math_generic_2, this::math_generic_2);
-        map.put(mp_math_fmod, this::mp_math_fmod);
-        map.put(mp_math_copysign, this::mp_math_copysign);
-        map.put(mp_math_atan2, this::mp_math_atan2);
-        map.put(mp_math_pow, this::mp_math_pow);
-        map.put(mp_math_log, this::mp_math_log);
-        map.put(mp_cmath_sin, this::mp_cmath_sin);
-        map.put(mp_cmath_cos, this::mp_cmath_cos);
-        map.put(mp_cmath_sqrt, this::mp_cmath_sqrt);
-        map.put(mp_cmath_log10, this::mp_cmath_log10);
-        map.put(mp_cmath_log, this::mp_cmath_log);
-        map.put(mp_cmath_exp, this::mp_cmath_exp);
-        map.put(mp_cmath_rect, this::mp_cmath_rect);
-        map.put(mp_cmath_phase, this::mp_cmath_phase);
-        map.put(mp_cmath_polar, this::mp_cmath_polar);
-        map.put(mp_micropython_pystack_use, this::mp_micropython_pystack_use);
-        map.put(mp_micropython_mem_total, this::mp_micropython_mem_total);
-        map.put(mp_micropython_mem_current, this::mp_micropython_mem_current);
-        map.put(mp_micropython_mem_peak, this::mp_micropython_mem_peak);
-        map.put(mp_micropython_stack_use, this::mp_micropython_stack_use);
-        map.put(mp_micropython_mem_info, this::mp_micropython_mem_info);
-        map.put(mp_micropython_kbd_intr, this::mp_micropython_kbd_intr);
-        map.put(mp_micropython_heap_unlock, this::mp_micropython_heap_unlock);
-        map.put(mp_micropython_heap_lock, this::mp_micropython_heap_lock);
-        map.put(mp_micropython_qstr_info, this::mp_micropython_qstr_info);
-        map.put(mp_micropython_schedule, this::mp_micropython_schedule);
-        map.put(mp_micropython_opt_level, this::mp_micropython_opt_level);
-        map.put(get_fmt_type, this::get_fmt_type);
-        map.put(get_fmt_num, this::get_fmt_num);
-        map.put(calc_size_items, this::calc_size_items);
-        map.put(struct_calcsize, this::struct_calcsize);
-        map.put(struct_unpack_from, this::struct_unpack_from);
-        map.put(struct_pack_into_internal, this::struct_pack_into_internal);
-        map.put(struct_pack, this::struct_pack);
-        map.put(struct_pack_into, this::struct_pack_into);
-        map.put(mp_sys_exit, this::mp_sys_exit);
-        map.put(mp_sys_print_exception, this::mp_sys_print_exception);
-        map.put(mp_sys_exc_info, this::mp_sys_exc_info);
-        map.put(mp_sys_getsizeof, this::mp_sys_getsizeof);
-        map.put(mp_errno_to_str, this::mp_errno_to_str);
-        map.put(mp_execute_bytecode, this::mp_execute_bytecode);
-        map.put(unlikely_fun_pos_args_mismatch, this::unlikely_fun_pos_args_mismatch);
-        map.put(mp_decode_uint, this::mp_decode_uint);
-        map.put(mp_decode_uint_value, this::mp_decode_uint_value);
-        map.put(mp_decode_uint_skip, this::mp_decode_uint_skip);
-        map.put(mp_setup_code_state, this::mp_setup_code_state);
-        map.put(mp_opcode_format, this::mp_opcode_format);
-        map.put(str_startswith_word, this::str_startswith_word);
-        map.put(mp_repl_continue_with_input, this::mp_repl_continue_with_input);
-        map.put(mp_repl_autocomplete, this::mp_repl_autocomplete);
-        map.put(mp_small_int_mul_overflow, this::mp_small_int_mul_overflow);
-        map.put(mp_small_int_modulo, this::mp_small_int_modulo);
-        map.put(mp_small_int_floor_divide, this::mp_small_int_floor_divide);
-        map.put(mp_frozen_stat_helper, this::mp_frozen_stat_helper);
-        map.put(mp_find_frozen_str, this::mp_find_frozen_str);
-        map.put(mp_frozen_stat, this::mp_frozen_stat);
-        map.put(mp_find_frozen_module, this::mp_find_frozen_module);
-        map.put(uctypes_struct_addressof, this::uctypes_struct_addressof);
-        map.put(uctypes_struct_bytearray_at, this::uctypes_struct_bytearray_at);
-        map.put(uctypes_struct_bytes_at, this::uctypes_struct_bytes_at);
-        map.put(get_aligned, this::get_aligned);
-        map.put(uctypes_struct_make_new, this::uctypes_struct_make_new);
-        map.put(uctypes_struct_print, this::uctypes_struct_print);
-        map.put(set_aligned, this::set_aligned);
-        map.put(uctypes_struct_size, this::uctypes_struct_size);
-        map.put(uctypes_struct_sizeof, this::uctypes_struct_sizeof);
-        map.put(uctypes_struct_agg_size, this::uctypes_struct_agg_size);
-        map.put(uctypes_get_buffer, this::uctypes_get_buffer);
-        map.put(uctypes_struct_subscr, this::uctypes_struct_subscr);
-        map.put(uctypes_struct_attr_op, this::uctypes_struct_attr_op);
-        map.put(uctypes_struct_attr, this::uctypes_struct_attr);
-        map.put(ujson_stream_next, this::ujson_stream_next);
-        map.put(mod_ujson_load, this::mod_ujson_load);
-        map.put(mod_ujson_loads, this::mod_ujson_loads);
-        map.put(mod_ujson_dump, this::mod_ujson_dump);
-        map.put(mod_ujson_dumps, this::mod_ujson_dumps);
-        map.put(match_print, this::match_print);
-        map.put(re_print, this::re_print);
-        map.put(_compilecode, this::_compilecode);
-        map.put(match_group, this::match_group);
-        map.put(re1_5_sizecode, this::re1_5_sizecode);
-        map.put(re1_5_compilecode, this::re1_5_compilecode);
-        map.put(re1_5_dumpcode, this::re1_5_dumpcode);
-        map.put(mod_re_compile, this::mod_re_compile);
-        map.put(_re1_5_classmatch, this::_re1_5_classmatch);
-        map.put(_re1_5_namedclassmatch, this::_re1_5_namedclassmatch);
-        map.put(recursiveloop, this::recursiveloop);
-        map.put(re1_5_recursiveloopprog, this::re1_5_recursiveloopprog);
-        map.put(ure_exec_isra_2, this::ure_exec_isra_2);
-        map.put(re_match, this::re_match);
-        map.put(re_search, this::re_search);
-        map.put(mod_re_match, this::mod_re_match);
-        map.put(mod_re_search, this::mod_re_search);
-        map.put(re_split, this::re_split);
-        map.put(tinf_build_tree, this::tinf_build_tree);
-        map.put(read_src_stream, this::read_src_stream);
-        map.put(uzlib_get_byte, this::uzlib_get_byte);
-        map.put(tinf_getbit, this::tinf_getbit);
-        map.put(tinf_read_bits, this::tinf_read_bits);
-        map.put(tinf_decode_symbol, this::tinf_decode_symbol);
-        map.put(tinf_decode_trees, this::tinf_decode_trees);
-        map.put(tinf_get_le_uint32, this::tinf_get_le_uint32);
-        map.put(tinf_get_be_uint32, this::tinf_get_be_uint32);
-        map.put(uzlib_uncompress, this::uzlib_uncompress);
-        map.put(uzlib_zlib_parse_header, this::uzlib_zlib_parse_header);
-        map.put(tinf_skip_bytes, this::tinf_skip_bytes);
-        map.put(tinf_get_uint16, this::tinf_get_uint16);
-        map.put(uzlib_gzip_parse_header, this::uzlib_gzip_parse_header);
-        map.put(decompio_make_new, this::decompio_make_new);
-        map.put(uzlib_adler32, this::uzlib_adler32);
-        map.put(uzlib_crc32, this::uzlib_crc32);
-        map.put(uzlib_uncompress_chksum, this::uzlib_uncompress_chksum);
-        map.put(decompio_read, this::decompio_read);
-        map.put(mod_uzlib_decompress, this::mod_uzlib_decompress);
-        map.put(get_heap, this::get_heap);
-        map.put(heap_siftdown_isra_0, this::heap_siftdown_isra_0);
-        map.put(heap_siftup, this::heap_siftup);
-        map.put(mod_uheapq_heapify, this::mod_uheapq_heapify);
-        map.put(mod_uheapq_heappush, this::mod_uheapq_heappush);
-        map.put(mod_uheapq_heappop, this::mod_uheapq_heappop);
-        map.put(utimeq_unary_op, this::utimeq_unary_op);
-        map.put(utimeq_make_new, this::utimeq_make_new);
-        map.put(mod_utimeq_peektime, this::mod_utimeq_peektime);
-        map.put(heap_siftdown_constprop_3, this::heap_siftdown_constprop_3);
-        map.put(mod_utimeq_heappop, this::mod_utimeq_heappop);
-        map.put(mod_utimeq_heappush, this::mod_utimeq_heappush);
-        map.put(sha256_transform, this::sha256_transform);
-        map.put(sha256_init, this::sha256_init);
-        map.put(sha256_update, this::sha256_update);
-        map.put(uhashlib_sha256_update, this::uhashlib_sha256_update);
-        map.put(uhashlib_sha256_make_new, this::uhashlib_sha256_make_new);
-        map.put(sha256_final, this::sha256_final);
-        map.put(uhashlib_sha256_digest, this::uhashlib_sha256_digest);
-        map.put(mod_binascii_hexlify, this::mod_binascii_hexlify);
-        map.put(mod_binascii_b2a_base64, this::mod_binascii_b2a_base64);
-        map.put(mod_binascii_unhexlify, this::mod_binascii_unhexlify);
-        map.put(mod_binascii_a2b_base64, this::mod_binascii_a2b_base64);
-        map.put(mod_binascii_crc32, this::mod_binascii_crc32);
-        map.put(machine_mem_get_addr, this::machine_mem_get_addr);
-        map.put(machine_mem_print, this::machine_mem_print);
-        map.put(machine_mem_subscr, this::machine_mem_subscr);
-        map.put(yasmarang, this::yasmarang);
-        map.put(yasmarang_randbelow, this::yasmarang_randbelow);
-        map.put(mod_urandom_uniform, this::mod_urandom_uniform);
-        map.put(mod_urandom_randint, this::mod_urandom_randint);
-        map.put(mod_urandom_randrange, this::mod_urandom_randrange);
-        map.put(mod_urandom_seed, this::mod_urandom_seed);
-        map.put(mod_urandom_getrandbits, this::mod_urandom_getrandbits);
-        map.put(mod_urandom_choice, this::mod_urandom_choice);
-        map.put(mod_urandom_random, this::mod_urandom_random);
-        map.put(mp_vfs_proxy_call, this::mp_vfs_proxy_call);
-        map.put(mp_vfs_umount, this::mp_vfs_umount);
-        map.put(mp_vfs_getcwd, this::mp_vfs_getcwd);
-        map.put(mp_vfs_ilistdir_it_iternext, this::mp_vfs_ilistdir_it_iternext);
-        map.put(mp_vfs_lookup_path, this::mp_vfs_lookup_path);
-        map.put(mp_vfs_mount, this::mp_vfs_mount);
-        map.put(lookup_path, this::lookup_path);
-        map.put(mp_vfs_open, this::mp_vfs_open);
-        map.put(mp_vfs_chdir, this::mp_vfs_chdir);
-        map.put(mp_vfs_ilistdir, this::mp_vfs_ilistdir);
-        map.put(mp_vfs_listdir, this::mp_vfs_listdir);
-        map.put(mp_vfs_mkdir, this::mp_vfs_mkdir);
-        map.put(mp_vfs_remove, this::mp_vfs_remove);
-        map.put(mp_vfs_rename, this::mp_vfs_rename);
-        map.put(mp_vfs_rmdir, this::mp_vfs_rmdir);
-        map.put(mp_vfs_stat, this::mp_vfs_stat);
-        map.put(mp_vfs_statvfs, this::mp_vfs_statvfs);
-        map.put(mp_vfs_import_stat, this::mp_vfs_import_stat);
-        map.put(mp_reader_vfs_close, this::mp_reader_vfs_close);
-        map.put(mp_reader_vfs_readbyte, this::mp_reader_vfs_readbyte);
-        map.put(mp_reader_new_file, this::mp_reader_new_file);
-        map.put(time_ticks_diff, this::time_ticks_diff);
-        map.put(time_sleep, this::time_sleep);
-        map.put(time_sleep_ms, this::time_sleep_ms);
-        map.put(time_ticks_add, this::time_ticks_add);
-        map.put(time_ticks_ms, this::time_ticks_ms);
-        map.put(time_ticks_cpu, this::time_ticks_cpu);
-        map.put(strn_print_strn, this::strn_print_strn);
-        map.put(printf, this::printf);
-        map.put(putchar, this::putchar);
-        map.put(puts, this::puts);
-        map.put(vsnprintf, this::vsnprintf);
-        map.put(snprintf, this::snprintf);
-        map.put(main, this::main);
-        map.put(Signal_Handler, this::Signal_Handler);
-        map.put(_exit, this::_exit);
-        map.put(_start, this::_start);
-        map.put(Reset_Handler, this::Reset_Handler);
-        map.put(__fatal_error, this::__fatal_error);
-        map.put(nlr_jump_fail, this::nlr_jump_fail);
-        map.put(mp_hal_stdin_rx_chr, this::mp_hal_stdin_rx_chr);
-        map.put(mp_hal_stdout_tx_strn, this::mp_hal_stdout_tx_strn);
-        map.put(mp_hal_delay_ms, this::mp_hal_delay_ms);
-        map.put(mp_hal_ticks_ms, this::mp_hal_ticks_ms);
-        map.put(mp_hal_ticks_cpu, this::mp_hal_ticks_cpu);
-        map.put(usystem_print_hook, this::usystem_print_hook);
-        map.put(usystem_debug, this::usystem_debug);
-        map.put(usystem_set_stdin_char, this::usystem_set_stdin_char);
-        map.put(parse_2, this::parse_2);
-        map.put(usystem_syscall, this::usystem_syscall);
-        map.put(usystem_signal, this::usystem_signal);
-        map.put(usystem_components, this::usystem_components);
-        map.put(usystem_methods, this::usystem_methods);
-        map.put(usystem_annotations, this::usystem_annotations);
-        map.put(usystem_get_stdout_str, this::usystem_get_stdout_str);
-        map.put(gc_collect, this::gc_collect);
-        map.put(vfs_openpie_file___exit__, this::vfs_openpie_file___exit__);
-        map.put(vfs_openpie_file_print, this::vfs_openpie_file_print);
-        map.put(unlikely_check_fd_is_open_isra_0_part_1, this::unlikely_check_fd_is_open_isra_0_part_1);
-        map.put(vfs_openpie_file_fileno, this::vfs_openpie_file_fileno);
-        map.put(SVC_CALL_VFS, this::SVC_CALL_VFS);
-        map.put(SVC_CALL_VFS_OUT, this::SVC_CALL_VFS_OUT);
-        map.put(vfs_openpie_file_ioctl, this::vfs_openpie_file_ioctl);
-        map.put(vfs_openpie_file_write, this::vfs_openpie_file_write);
-        map.put(vfs_openpie_file_read, this::vfs_openpie_file_read);
-        map.put(mp_vfs_openpie_file_open, this::mp_vfs_openpie_file_open);
-        map.put(vfs_openpie_file_make_new, this::vfs_openpie_file_make_new);
-        map.put(gc_helper_get_regs_and_sp, this::gc_helper_get_regs_and_sp);
-        map.put(stdio_obj___exit__, this::stdio_obj___exit__);
-        map.put(stdio_obj_print, this::stdio_obj_print);
-        map.put(stdio_buffer_write, this::stdio_buffer_write);
-        map.put(stdio_buffer_read, this::stdio_buffer_read);
-        map.put(stdio_write, this::stdio_write);
-        map.put(stdio_read, this::stdio_read);
-        map.put(mp_hal_stdout_tx_strn_cooked, this::mp_hal_stdout_tx_strn_cooked);
-        map.put(mp_hal_stdout_tx_str, this::mp_hal_stdout_tx_str);
-        map.put(mp_hal_set_interrupt_char, this::mp_hal_set_interrupt_char);
-        map.put(parse_compile_execute, this::parse_compile_execute);
-        map.put(pyexec_raw_repl, this::pyexec_raw_repl);
-        map.put(pyexec_friendly_repl, this::pyexec_friendly_repl);
-        map.put(pyexec_frozen_module, this::pyexec_frozen_module);
-        map.put(memcpy, this::memcpy);
-        map.put(memmove, this::memmove);
-        map.put(memset, this::memset);
-        map.put(memcmp, this::memcmp);
-        map.put(strlen, this::strlen);
-        map.put(strcmp, this::strcmp);
-        map.put(strncmp, this::strncmp);
-        map.put(strchr, this::strchr);
-        map.put(mp_hal_move_cursor_back, this::mp_hal_move_cursor_back);
-        map.put(readline_init, this::readline_init);
-        map.put(readline_push_history, this::readline_push_history);
-        map.put(readline_process_char, this::readline_process_char);
-        map.put(readline, this::readline);
-        map.put(scalbnf, this::scalbnf);
-        map.put(powf, this::powf);
-        map.put(expf, this::expf);
-        map.put(expm1f, this::expm1f);
-        map.put(__expo2f, this::__expo2f);
-        map.put(logf, this::logf);
-        map.put(log10f, this::log10f);
-        map.put(coshf, this::coshf);
-        map.put(sinhf, this::sinhf);
-        map.put(tanhf, this::tanhf);
-        map.put(ceilf, this::ceilf);
-        map.put(floorf, this::floorf);
-        map.put(truncf, this::truncf);
-        map.put(acoshf, this::acoshf);
-        map.put(text_R, this::text_R);
-        map.put(asinf, this::asinf);
-        map.put(acosf, this::acosf);
-        map.put(asinhf, this::asinhf);
-        map.put(atan2f, this::atan2f);
-        map.put(atanf, this::atanf);
-        map.put(atanhf, this::atanhf);
-        map.put(__ieee754_rem_pio2f, this::__ieee754_rem_pio2f);
-        map.put(sqrtf, this::sqrtf);
-        map.put(__ieee754_lgammaf_r, this::__ieee754_lgammaf_r);
-        map.put(fmodf, this::fmodf);
-        map.put(__kernel_cosf, this::__kernel_cosf);
-        map.put(__kernel_rem_pio2f, this::__kernel_rem_pio2f);
-        map.put(__kernel_sinf, this::__kernel_sinf);
-        map.put(__kernel_tanf, this::__kernel_tanf);
-        map.put(log1pf, this::log1pf);
-        map.put(nearbyintf, this::nearbyintf);
-        map.put(cosf, this::cosf);
-        map.put(erff, this::erff);
-        map.put(erfcf, this::erfcf);
-        map.put(frexpf, this::frexpf);
-        map.put(ldexpf, this::ldexpf);
-        map.put(modff, this::modff);
-        map.put(sinf, this::sinf);
-        map.put(tanf, this::tanf);
-        map.put(lgammaf, this::lgammaf);
-        map.put(tgammaf, this::tgammaf);
-        map.put(__aeabi_uidiv, this::__aeabi_uidiv);
-        map.put(__aeabi_uidivmod, this::__aeabi_uidivmod);
-        map.put(__divsi3, this::__divsi3);
-        map.put(__aeabi_idivmod, this::__aeabi_idivmod);
-        map.put(__aeabi_idiv0, this::__aeabi_idiv0);
-        map.put(__aeabi_cfrcmple, this::__aeabi_cfrcmple);
-        map.put(__aeabi_cfcmpeq, this::__aeabi_cfcmpeq);
-        map.put(__aeabi_fcmpeq, this::__aeabi_fcmpeq);
-        map.put(__aeabi_fcmplt, this::__aeabi_fcmplt);
-        map.put(__aeabi_fcmple, this::__aeabi_fcmple);
-        map.put(__aeabi_fcmpgt, this::__aeabi_fcmpgt);
-        map.put(__aeabi_fcmpge, this::__aeabi_fcmpge);
-        map.put(__fixunssfsi, this::__fixunssfsi);
-        map.put(__aeabi_fadd, this::__aeabi_fadd);
-        map.put(__aeabi_fdiv, this::__aeabi_fdiv);
-        map.put(__eqsf2, this::__eqsf2);
-        map.put(__gesf2, this::__gesf2);
-        map.put(__ltsf2, this::__ltsf2);
-        map.put(__aeabi_fmul, this::__aeabi_fmul);
-        map.put(__aeabi_fsub, this::__aeabi_fsub);
-        map.put(__aeabi_fcmpun, this::__aeabi_fcmpun);
-        map.put(__aeabi_f2iz, this::__aeabi_f2iz);
-        map.put(__aeabi_i2f, this::__aeabi_i2f);
-        map.put(__aeabi_ui2f, this::__aeabi_ui2f);
-        map.put(__aeabi_i2d, this::__aeabi_i2d);
-        map.put(__aeabi_f2d, this::__aeabi_f2d);
-        map.put(__aeabi_d2f, this::__aeabi_d2f);
-        map.put(__clzsi2, this::__clzsi2);
-        return map;
+    protected void gen_hints() {
+        gen_hints_1();
+        gen_hints_2();
+        gen_hints_3();
+        gen_hints_4();
+        gen_hints_5();
+        gen_hints_6();
+        gen_hints_7();
+        gen_hints_8();
+        gen_hints_9();
+        gen_hints_10();
+        gen_hints_11();
+        gen_hints_12();
+        gen_hints_13();
+        gen_hints_14();
+        gen_hints_15();
+        gen_hints_16();
     }
 
     // function: Function(address=134217740, size=20, name='nlr_push_tail', path='build/py/nlr.o', has_indirect=True)
@@ -8874,7 +15245,7 @@ abstract public class MicroPython_link extends KotlinCPU
         call(this::mp_errno_to_str, handler);
     }
 
-    // function: Function(address=134303396, size=4844, name='mp_execute_bytecode', path='build/py/vm.o', has_indirect=False)
+    // function: Function(address=134303396, size=4440, name='mp_execute_bytecode', path='build/py/vm.o', has_indirect=False)
     abstract protected void mp_execute_bytecode(int offset) throws Exception;
     public static final int mp_execute_bytecode = 0x08014ea4;
     public void mp_execute_bytecode(InterruptHandler handler) throws Exception
@@ -8882,2177 +15253,2177 @@ abstract public class MicroPython_link extends KotlinCPU
         call(this::mp_execute_bytecode, handler);
     }
 
-    // function: Function(address=134308240, size=36, name='unlikely_fun_pos_args_mismatch', path='build/py/bc.o', has_indirect=False)
+    // function: Function(address=134307836, size=36, name='unlikely_fun_pos_args_mismatch', path='build/py/bc.o', has_indirect=False)
     abstract protected void unlikely_fun_pos_args_mismatch(int offset) throws Exception;
-    public static final int unlikely_fun_pos_args_mismatch = 0x08016190;
+    public static final int unlikely_fun_pos_args_mismatch = 0x08015ffc;
     public void unlikely_fun_pos_args_mismatch(InterruptHandler handler) throws Exception
     {
         call(this::unlikely_fun_pos_args_mismatch, handler);
     }
 
-    // function: Function(address=134308276, size=32, name='mp_decode_uint', path='build/py/bc.o', has_indirect=False)
+    // function: Function(address=134307872, size=32, name='mp_decode_uint', path='build/py/bc.o', has_indirect=False)
     abstract protected void mp_decode_uint(int offset) throws Exception;
-    public static final int mp_decode_uint = 0x080161b4;
+    public static final int mp_decode_uint = 0x08016020;
     public void mp_decode_uint(InterruptHandler handler) throws Exception
     {
         call(this::mp_decode_uint, handler);
     }
 
-    // function: Function(address=134308308, size=12, name='mp_decode_uint_value', path='build/py/bc.o', has_indirect=False)
+    // function: Function(address=134307904, size=12, name='mp_decode_uint_value', path='build/py/bc.o', has_indirect=False)
     abstract protected void mp_decode_uint_value(int offset) throws Exception;
-    public static final int mp_decode_uint_value = 0x080161d4;
+    public static final int mp_decode_uint_value = 0x08016040;
     public void mp_decode_uint_value(InterruptHandler handler) throws Exception
     {
         call(this::mp_decode_uint_value, handler);
     }
 
-    // function: Function(address=134308320, size=12, name='mp_decode_uint_skip', path='build/py/bc.o', has_indirect=False)
+    // function: Function(address=134307916, size=12, name='mp_decode_uint_skip', path='build/py/bc.o', has_indirect=False)
     abstract protected void mp_decode_uint_skip(int offset) throws Exception;
-    public static final int mp_decode_uint_skip = 0x080161e0;
+    public static final int mp_decode_uint_skip = 0x0801604c;
     public void mp_decode_uint_skip(InterruptHandler handler) throws Exception
     {
         call(this::mp_decode_uint_skip, handler);
     }
 
-    // function: Function(address=134308332, size=720, name='mp_setup_code_state', path='build/py/bc.o', has_indirect=False)
+    // function: Function(address=134307928, size=720, name='mp_setup_code_state', path='build/py/bc.o', has_indirect=False)
     abstract protected void mp_setup_code_state(int offset) throws Exception;
-    public static final int mp_setup_code_state = 0x080161ec;
+    public static final int mp_setup_code_state = 0x08016058;
     public void mp_setup_code_state(InterruptHandler handler) throws Exception
     {
         call(this::mp_setup_code_state, handler);
     }
 
-    // function: Function(address=134309052, size=84, name='mp_opcode_format', path='build/py/bc.o', has_indirect=False)
+    // function: Function(address=134308648, size=84, name='mp_opcode_format', path='build/py/bc.o', has_indirect=False)
     abstract protected void mp_opcode_format(int offset) throws Exception;
-    public static final int mp_opcode_format = 0x080164bc;
+    public static final int mp_opcode_format = 0x08016328;
     public void mp_opcode_format(InterruptHandler handler) throws Exception
     {
         call(this::mp_opcode_format, handler);
     }
 
-    // function: Function(address=134309136, size=54, name='str_startswith_word', path='build/py/repl.o', has_indirect=False)
+    // function: Function(address=134308732, size=54, name='str_startswith_word', path='build/py/repl.o', has_indirect=False)
     abstract protected void str_startswith_word(int offset) throws Exception;
-    public static final int str_startswith_word = 0x08016510;
+    public static final int str_startswith_word = 0x0801637c;
     public void str_startswith_word(InterruptHandler handler) throws Exception
     {
         call(this::str_startswith_word, handler);
     }
 
-    // function: Function(address=134309192, size=388, name='mp_repl_continue_with_input', path='build/py/repl.o', has_indirect=False)
+    // function: Function(address=134308788, size=388, name='mp_repl_continue_with_input', path='build/py/repl.o', has_indirect=False)
     abstract protected void mp_repl_continue_with_input(int offset) throws Exception;
-    public static final int mp_repl_continue_with_input = 0x08016548;
+    public static final int mp_repl_continue_with_input = 0x080163b4;
     public void mp_repl_continue_with_input(InterruptHandler handler) throws Exception
     {
         call(this::mp_repl_continue_with_input, handler);
     }
 
-    // function: Function(address=134309580, size=524, name='mp_repl_autocomplete', path='build/py/repl.o', has_indirect=False)
+    // function: Function(address=134309176, size=524, name='mp_repl_autocomplete', path='build/py/repl.o', has_indirect=False)
     abstract protected void mp_repl_autocomplete(int offset) throws Exception;
-    public static final int mp_repl_autocomplete = 0x080166cc;
+    public static final int mp_repl_autocomplete = 0x08016538;
     public void mp_repl_autocomplete(InterruptHandler handler) throws Exception
     {
         call(this::mp_repl_autocomplete, handler);
     }
 
-    // function: Function(address=134310104, size=104, name='mp_small_int_mul_overflow', path='build/py/smallint.o', has_indirect=False)
+    // function: Function(address=134309700, size=104, name='mp_small_int_mul_overflow', path='build/py/smallint.o', has_indirect=False)
     abstract protected void mp_small_int_mul_overflow(int offset) throws Exception;
-    public static final int mp_small_int_mul_overflow = 0x080168d8;
+    public static final int mp_small_int_mul_overflow = 0x08016744;
     public void mp_small_int_mul_overflow(InterruptHandler handler) throws Exception
     {
         call(this::mp_small_int_mul_overflow, handler);
     }
 
-    // function: Function(address=134310208, size=32, name='mp_small_int_modulo', path='build/py/smallint.o', has_indirect=False)
+    // function: Function(address=134309804, size=32, name='mp_small_int_modulo', path='build/py/smallint.o', has_indirect=False)
     abstract protected void mp_small_int_modulo(int offset) throws Exception;
-    public static final int mp_small_int_modulo = 0x08016940;
+    public static final int mp_small_int_modulo = 0x080167ac;
     public void mp_small_int_modulo(InterruptHandler handler) throws Exception
     {
         call(this::mp_small_int_modulo, handler);
     }
 
-    // function: Function(address=134310240, size=30, name='mp_small_int_floor_divide', path='build/py/smallint.o', has_indirect=False)
+    // function: Function(address=134309836, size=30, name='mp_small_int_floor_divide', path='build/py/smallint.o', has_indirect=False)
     abstract protected void mp_small_int_floor_divide(int offset) throws Exception;
-    public static final int mp_small_int_floor_divide = 0x08016960;
+    public static final int mp_small_int_floor_divide = 0x080167cc;
     public void mp_small_int_floor_divide(InterruptHandler handler) throws Exception
     {
         call(this::mp_small_int_floor_divide, handler);
     }
 
-    // function: Function(address=134310270, size=72, name='mp_frozen_stat_helper', path='build/py/frozenmod.o', has_indirect=False)
+    // function: Function(address=134309866, size=72, name='mp_frozen_stat_helper', path='build/py/frozenmod.o', has_indirect=False)
     abstract protected void mp_frozen_stat_helper(int offset) throws Exception;
-    public static final int mp_frozen_stat_helper = 0x0801697e;
+    public static final int mp_frozen_stat_helper = 0x080167ea;
     public void mp_frozen_stat_helper(InterruptHandler handler) throws Exception
     {
         call(this::mp_frozen_stat_helper, handler);
     }
 
-    // function: Function(address=134310344, size=104, name='mp_find_frozen_str', path='build/py/frozenmod.o', has_indirect=False)
+    // function: Function(address=134309940, size=104, name='mp_find_frozen_str', path='build/py/frozenmod.o', has_indirect=False)
     abstract protected void mp_find_frozen_str(int offset) throws Exception;
-    public static final int mp_find_frozen_str = 0x080169c8;
+    public static final int mp_find_frozen_str = 0x08016834;
     public void mp_find_frozen_str(InterruptHandler handler) throws Exception
     {
         call(this::mp_find_frozen_str, handler);
     }
 
-    // function: Function(address=134310448, size=36, name='mp_frozen_stat', path='build/py/frozenmod.o', has_indirect=False)
+    // function: Function(address=134310044, size=36, name='mp_frozen_stat', path='build/py/frozenmod.o', has_indirect=False)
     abstract protected void mp_frozen_stat(int offset) throws Exception;
-    public static final int mp_frozen_stat = 0x08016a30;
+    public static final int mp_frozen_stat = 0x0801689c;
     public void mp_frozen_stat(InterruptHandler handler) throws Exception
     {
         call(this::mp_frozen_stat, handler);
     }
 
-    // function: Function(address=134310484, size=128, name='mp_find_frozen_module', path='build/py/frozenmod.o', has_indirect=False)
+    // function: Function(address=134310080, size=128, name='mp_find_frozen_module', path='build/py/frozenmod.o', has_indirect=False)
     abstract protected void mp_find_frozen_module(int offset) throws Exception;
-    public static final int mp_find_frozen_module = 0x08016a54;
+    public static final int mp_find_frozen_module = 0x080168c0;
     public void mp_find_frozen_module(InterruptHandler handler) throws Exception
     {
         call(this::mp_find_frozen_module, handler);
     }
 
-    // function: Function(address=134310612, size=20, name='uctypes_struct_addressof', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134310208, size=20, name='uctypes_struct_addressof', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_addressof(int offset) throws Exception;
-    public static final int uctypes_struct_addressof = 0x08016ad4;
+    public static final int uctypes_struct_addressof = 0x08016940;
     public void uctypes_struct_addressof(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_addressof, handler);
     }
 
-    // function: Function(address=134310632, size=28, name='uctypes_struct_bytearray_at', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134310228, size=28, name='uctypes_struct_bytearray_at', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_bytearray_at(int offset) throws Exception;
-    public static final int uctypes_struct_bytearray_at = 0x08016ae8;
+    public static final int uctypes_struct_bytearray_at = 0x08016954;
     public void uctypes_struct_bytearray_at(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_bytearray_at, handler);
     }
 
-    // function: Function(address=134310660, size=26, name='uctypes_struct_bytes_at', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134310256, size=26, name='uctypes_struct_bytes_at', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_bytes_at(int offset) throws Exception;
-    public static final int uctypes_struct_bytes_at = 0x08016b04;
+    public static final int uctypes_struct_bytes_at = 0x08016970;
     public void uctypes_struct_bytes_at(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_bytes_at, handler);
     }
 
-    // function: Function(address=134310686, size=150, name='get_aligned', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134310282, size=150, name='get_aligned', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void get_aligned(int offset) throws Exception;
-    public static final int get_aligned = 0x08016b1e;
+    public static final int get_aligned = 0x0801698a;
     public void get_aligned(InterruptHandler handler) throws Exception
     {
         call(this::get_aligned, handler);
     }
 
-    // function: Function(address=134310836, size=66, name='uctypes_struct_make_new', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134310432, size=66, name='uctypes_struct_make_new', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_make_new(int offset) throws Exception;
-    public static final int uctypes_struct_make_new = 0x08016bb4;
+    public static final int uctypes_struct_make_new = 0x08016a20;
     public void uctypes_struct_make_new(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_make_new, handler);
     }
 
-    // function: Function(address=134310904, size=88, name='uctypes_struct_print', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134310500, size=88, name='uctypes_struct_print', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_print(int offset) throws Exception;
-    public static final int uctypes_struct_print = 0x08016bf8;
+    public static final int uctypes_struct_print = 0x08016a64;
     public void uctypes_struct_print(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_print, handler);
     }
 
-    // function: Function(address=134310992, size=112, name='set_aligned', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134310588, size=112, name='set_aligned', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void set_aligned(int offset) throws Exception;
-    public static final int set_aligned = 0x08016c50;
+    public static final int set_aligned = 0x08016abc;
     public void set_aligned(InterruptHandler handler) throws Exception
     {
         call(this::set_aligned, handler);
     }
 
-    // function: Function(address=134311104, size=236, name='uctypes_struct_size', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134310700, size=236, name='uctypes_struct_size', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_size(int offset) throws Exception;
-    public static final int uctypes_struct_size = 0x08016cc0;
+    public static final int uctypes_struct_size = 0x08016b2c;
     public void uctypes_struct_size(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_size, handler);
     }
 
-    // function: Function(address=134311340, size=64, name='uctypes_struct_sizeof', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134310936, size=64, name='uctypes_struct_sizeof', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_sizeof(int offset) throws Exception;
-    public static final int uctypes_struct_sizeof = 0x08016dac;
+    public static final int uctypes_struct_sizeof = 0x08016c18;
     public void uctypes_struct_sizeof(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_sizeof, handler);
     }
 
-    // function: Function(address=134311404, size=80, name='uctypes_struct_agg_size', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134311000, size=80, name='uctypes_struct_agg_size', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_agg_size(int offset) throws Exception;
-    public static final int uctypes_struct_agg_size = 0x08016dec;
+    public static final int uctypes_struct_agg_size = 0x08016c58;
     public void uctypes_struct_agg_size(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_agg_size, handler);
     }
 
-    // function: Function(address=134311484, size=34, name='uctypes_get_buffer', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134311080, size=34, name='uctypes_get_buffer', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_get_buffer(int offset) throws Exception;
-    public static final int uctypes_get_buffer = 0x08016e3c;
+    public static final int uctypes_get_buffer = 0x08016ca8;
     public void uctypes_get_buffer(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_get_buffer, handler);
     }
 
-    // function: Function(address=134311520, size=312, name='uctypes_struct_subscr', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134311116, size=312, name='uctypes_struct_subscr', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_subscr(int offset) throws Exception;
-    public static final int uctypes_struct_subscr = 0x08016e60;
+    public static final int uctypes_struct_subscr = 0x08016ccc;
     public void uctypes_struct_subscr(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_subscr, handler);
     }
 
-    // function: Function(address=134311832, size=532, name='uctypes_struct_attr_op', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134311428, size=532, name='uctypes_struct_attr_op', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_attr_op(int offset) throws Exception;
-    public static final int uctypes_struct_attr_op = 0x08016f98;
+    public static final int uctypes_struct_attr_op = 0x08016e04;
     public void uctypes_struct_attr_op(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_attr_op, handler);
     }
 
-    // function: Function(address=134312364, size=34, name='uctypes_struct_attr', path='build/extmod/moductypes.o', has_indirect=False)
+    // function: Function(address=134311960, size=34, name='uctypes_struct_attr', path='build/extmod/moductypes.o', has_indirect=False)
     abstract protected void uctypes_struct_attr(int offset) throws Exception;
-    public static final int uctypes_struct_attr = 0x080171ac;
+    public static final int uctypes_struct_attr = 0x08017018;
     public void uctypes_struct_attr(InterruptHandler handler) throws Exception
     {
         call(this::uctypes_struct_attr, handler);
     }
 
-    // function: Function(address=134312398, size=42, name='ujson_stream_next', path='build/extmod/modujson.o', has_indirect=False)
+    // function: Function(address=134311994, size=42, name='ujson_stream_next', path='build/extmod/modujson.o', has_indirect=False)
     abstract protected void ujson_stream_next(int offset) throws Exception;
-    public static final int ujson_stream_next = 0x080171ce;
+    public static final int ujson_stream_next = 0x0801703a;
     public void ujson_stream_next(InterruptHandler handler) throws Exception
     {
         call(this::ujson_stream_next, handler);
     }
 
-    // function: Function(address=134312440, size=760, name='mod_ujson_load', path='build/extmod/modujson.o', has_indirect=False)
+    // function: Function(address=134312036, size=760, name='mod_ujson_load', path='build/extmod/modujson.o', has_indirect=False)
     abstract protected void mod_ujson_load(int offset) throws Exception;
-    public static final int mod_ujson_load = 0x080171f8;
+    public static final int mod_ujson_load = 0x08017064;
     public void mod_ujson_load(InterruptHandler handler) throws Exception
     {
         call(this::mod_ujson_load, handler);
     }
 
-    // function: Function(address=134313200, size=56, name='mod_ujson_loads', path='build/extmod/modujson.o', has_indirect=False)
+    // function: Function(address=134312796, size=56, name='mod_ujson_loads', path='build/extmod/modujson.o', has_indirect=False)
     abstract protected void mod_ujson_loads(int offset) throws Exception;
-    public static final int mod_ujson_loads = 0x080174f0;
+    public static final int mod_ujson_loads = 0x0801735c;
     public void mod_ujson_loads(InterruptHandler handler) throws Exception
     {
         call(this::mod_ujson_loads, handler);
     }
 
-    // function: Function(address=134313256, size=44, name='mod_ujson_dump', path='build/extmod/modujson.o', has_indirect=False)
+    // function: Function(address=134312852, size=44, name='mod_ujson_dump', path='build/extmod/modujson.o', has_indirect=False)
     abstract protected void mod_ujson_dump(int offset) throws Exception;
-    public static final int mod_ujson_dump = 0x08017528;
+    public static final int mod_ujson_dump = 0x08017394;
     public void mod_ujson_dump(InterruptHandler handler) throws Exception
     {
         call(this::mod_ujson_dump, handler);
     }
 
-    // function: Function(address=134313300, size=44, name='mod_ujson_dumps', path='build/extmod/modujson.o', has_indirect=False)
+    // function: Function(address=134312896, size=44, name='mod_ujson_dumps', path='build/extmod/modujson.o', has_indirect=False)
     abstract protected void mod_ujson_dumps(int offset) throws Exception;
-    public static final int mod_ujson_dumps = 0x08017554;
+    public static final int mod_ujson_dumps = 0x080173c0;
     public void mod_ujson_dumps(InterruptHandler handler) throws Exception
     {
         call(this::mod_ujson_dumps, handler);
     }
 
-    // function: Function(address=134313344, size=16, name='match_print', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134312940, size=16, name='match_print', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void match_print(int offset) throws Exception;
-    public static final int match_print = 0x08017580;
+    public static final int match_print = 0x080173ec;
     public void match_print(InterruptHandler handler) throws Exception
     {
         call(this::match_print, handler);
     }
 
-    // function: Function(address=134313360, size=16, name='re_print', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134312956, size=16, name='re_print', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void re_print(int offset) throws Exception;
-    public static final int re_print = 0x08017590;
+    public static final int re_print = 0x080173fc;
     public void re_print(InterruptHandler handler) throws Exception
     {
         call(this::re_print, handler);
     }
 
-    // function: Function(address=134313376, size=860, name='_compilecode', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134312972, size=860, name='_compilecode', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void _compilecode(int offset) throws Exception;
-    public static final int _compilecode = 0x080175a0;
+    public static final int _compilecode = 0x0801740c;
     public void _compilecode(InterruptHandler handler) throws Exception
     {
         call(this::_compilecode, handler);
     }
 
-    // function: Function(address=134314236, size=72, name='match_group', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134313832, size=72, name='match_group', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void match_group(int offset) throws Exception;
-    public static final int match_group = 0x080178fc;
+    public static final int match_group = 0x08017768;
     public void match_group(InterruptHandler handler) throws Exception
     {
         call(this::match_group, handler);
     }
 
-    // function: Function(address=134314308, size=44, name='re1_5_sizecode', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134313904, size=44, name='re1_5_sizecode', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void re1_5_sizecode(int offset) throws Exception;
-    public static final int re1_5_sizecode = 0x08017944;
+    public static final int re1_5_sizecode = 0x080177b0;
     public void re1_5_sizecode(InterruptHandler handler) throws Exception
     {
         call(this::re1_5_sizecode, handler);
     }
 
-    // function: Function(address=134314352, size=84, name='re1_5_compilecode', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134313948, size=84, name='re1_5_compilecode', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void re1_5_compilecode(int offset) throws Exception;
-    public static final int re1_5_compilecode = 0x08017970;
+    public static final int re1_5_compilecode = 0x080177dc;
     public void re1_5_compilecode(InterruptHandler handler) throws Exception
     {
         call(this::re1_5_compilecode, handler);
     }
 
-    // function: Function(address=134314436, size=312, name='re1_5_dumpcode', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134314032, size=312, name='re1_5_dumpcode', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void re1_5_dumpcode(int offset) throws Exception;
-    public static final int re1_5_dumpcode = 0x080179c4;
+    public static final int re1_5_dumpcode = 0x08017830;
     public void re1_5_dumpcode(InterruptHandler handler) throws Exception
     {
         call(this::re1_5_dumpcode, handler);
     }
 
-    // function: Function(address=134314748, size=92, name='mod_re_compile', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134314344, size=92, name='mod_re_compile', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void mod_re_compile(int offset) throws Exception;
-    public static final int mod_re_compile = 0x08017afc;
+    public static final int mod_re_compile = 0x08017968;
     public void mod_re_compile(InterruptHandler handler) throws Exception
     {
         call(this::mod_re_compile, handler);
     }
 
-    // function: Function(address=134314840, size=52, name='_re1_5_classmatch', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134314436, size=52, name='_re1_5_classmatch', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void _re1_5_classmatch(int offset) throws Exception;
-    public static final int _re1_5_classmatch = 0x08017b58;
+    public static final int _re1_5_classmatch = 0x080179c4;
     public void _re1_5_classmatch(InterruptHandler handler) throws Exception
     {
         call(this::_re1_5_classmatch, handler);
     }
 
-    // function: Function(address=134314892, size=74, name='_re1_5_namedclassmatch', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134314488, size=74, name='_re1_5_namedclassmatch', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void _re1_5_namedclassmatch(int offset) throws Exception;
-    public static final int _re1_5_namedclassmatch = 0x08017b8c;
+    public static final int _re1_5_namedclassmatch = 0x080179f8;
     public void _re1_5_namedclassmatch(InterruptHandler handler) throws Exception
     {
         call(this::_re1_5_namedclassmatch, handler);
     }
 
-    // function: Function(address=134314966, size=280, name='recursiveloop', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134314562, size=280, name='recursiveloop', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void recursiveloop(int offset) throws Exception;
-    public static final int recursiveloop = 0x08017bd6;
+    public static final int recursiveloop = 0x08017a42;
     public void recursiveloop(InterruptHandler handler) throws Exception
     {
         call(this::recursiveloop, handler);
     }
 
-    // function: Function(address=134315246, size=26, name='re1_5_recursiveloopprog', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134314842, size=26, name='re1_5_recursiveloopprog', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void re1_5_recursiveloopprog(int offset) throws Exception;
-    public static final int re1_5_recursiveloopprog = 0x08017cee;
+    public static final int re1_5_recursiveloopprog = 0x08017b5a;
     public void re1_5_recursiveloopprog(InterruptHandler handler) throws Exception
     {
         call(this::re1_5_recursiveloopprog, handler);
     }
 
-    // function: Function(address=134315272, size=120, name='ure_exec_isra_2', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134314868, size=120, name='ure_exec_isra_2', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void ure_exec_isra_2(int offset) throws Exception;
-    public static final int ure_exec_isra_2 = 0x08017d08;
+    public static final int ure_exec_isra_2 = 0x08017b74;
     public void ure_exec_isra_2(InterruptHandler handler) throws Exception
     {
         call(this::ure_exec_isra_2, handler);
     }
 
-    // function: Function(address=134315392, size=10, name='re_match', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134314988, size=10, name='re_match', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void re_match(int offset) throws Exception;
-    public static final int re_match = 0x08017d80;
+    public static final int re_match = 0x08017bec;
     public void re_match(InterruptHandler handler) throws Exception
     {
         call(this::re_match, handler);
     }
 
-    // function: Function(address=134315402, size=10, name='re_search', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134314998, size=10, name='re_search', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void re_search(int offset) throws Exception;
-    public static final int re_search = 0x08017d8a;
+    public static final int re_search = 0x08017bf6;
     public void re_search(InterruptHandler handler) throws Exception
     {
         call(this::re_search, handler);
     }
 
-    // function: Function(address=134315412, size=30, name='mod_re_match', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134315008, size=30, name='mod_re_match', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void mod_re_match(int offset) throws Exception;
-    public static final int mod_re_match = 0x08017d94;
+    public static final int mod_re_match = 0x08017c00;
     public void mod_re_match(InterruptHandler handler) throws Exception
     {
         call(this::mod_re_match, handler);
     }
 
-    // function: Function(address=134315442, size=30, name='mod_re_search', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134315038, size=30, name='mod_re_search', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void mod_re_search(int offset) throws Exception;
-    public static final int mod_re_search = 0x08017db2;
+    public static final int mod_re_search = 0x08017c1e;
     public void mod_re_search(InterruptHandler handler) throws Exception
     {
         call(this::mod_re_search, handler);
     }
 
-    // function: Function(address=134315472, size=204, name='re_split', path='build/extmod/modure.o', has_indirect=False)
+    // function: Function(address=134315068, size=204, name='re_split', path='build/extmod/modure.o', has_indirect=False)
     abstract protected void re_split(int offset) throws Exception;
-    public static final int re_split = 0x08017dd0;
+    public static final int re_split = 0x08017c3c;
     public void re_split(InterruptHandler handler) throws Exception
     {
         call(this::re_split, handler);
     }
 
-    // function: Function(address=134315676, size=102, name='tinf_build_tree', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134315272, size=102, name='tinf_build_tree', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void tinf_build_tree(int offset) throws Exception;
-    public static final int tinf_build_tree = 0x08017e9c;
+    public static final int tinf_build_tree = 0x08017d08;
     public void tinf_build_tree(InterruptHandler handler) throws Exception
     {
         call(this::tinf_build_tree, handler);
     }
 
-    // function: Function(address=134315780, size=56, name='read_src_stream', path='build/extmod/moduzlib.o', has_indirect=True)
+    // function: Function(address=134315376, size=56, name='read_src_stream', path='build/extmod/moduzlib.o', has_indirect=True)
     abstract protected void read_src_stream(int offset) throws Exception;
-    public static final int read_src_stream = 0x08017f04;
+    public static final int read_src_stream = 0x08017d70;
     public void read_src_stream(InterruptHandler handler) throws Exception
     {
         call(this::read_src_stream, handler);
     }
 
-    // function: Function(address=134315836, size=22, name='uzlib_get_byte', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134315432, size=22, name='uzlib_get_byte', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void uzlib_get_byte(int offset) throws Exception;
-    public static final int uzlib_get_byte = 0x08017f3c;
+    public static final int uzlib_get_byte = 0x08017da8;
     public void uzlib_get_byte(InterruptHandler handler) throws Exception
     {
         call(this::uzlib_get_byte, handler);
     }
 
-    // function: Function(address=134315858, size=36, name='tinf_getbit', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134315454, size=36, name='tinf_getbit', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void tinf_getbit(int offset) throws Exception;
-    public static final int tinf_getbit = 0x08017f52;
+    public static final int tinf_getbit = 0x08017dbe;
     public void tinf_getbit(InterruptHandler handler) throws Exception
     {
         call(this::tinf_getbit, handler);
     }
 
-    // function: Function(address=134315894, size=44, name='tinf_read_bits', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134315490, size=44, name='tinf_read_bits', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void tinf_read_bits(int offset) throws Exception;
-    public static final int tinf_read_bits = 0x08017f76;
+    public static final int tinf_read_bits = 0x08017de2;
     public void tinf_read_bits(InterruptHandler handler) throws Exception
     {
         call(this::tinf_read_bits, handler);
     }
 
-    // function: Function(address=134315938, size=42, name='tinf_decode_symbol', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134315534, size=42, name='tinf_decode_symbol', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void tinf_decode_symbol(int offset) throws Exception;
-    public static final int tinf_decode_symbol = 0x08017fa2;
+    public static final int tinf_decode_symbol = 0x08017e0e;
     public void tinf_decode_symbol(InterruptHandler handler) throws Exception
     {
         call(this::tinf_decode_symbol, handler);
     }
 
-    // function: Function(address=134315980, size=268, name='tinf_decode_trees', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134315576, size=268, name='tinf_decode_trees', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void tinf_decode_trees(int offset) throws Exception;
-    public static final int tinf_decode_trees = 0x08017fcc;
+    public static final int tinf_decode_trees = 0x08017e38;
     public void tinf_decode_trees(InterruptHandler handler) throws Exception
     {
         call(this::tinf_decode_trees, handler);
     }
 
-    // function: Function(address=134316248, size=30, name='tinf_get_le_uint32', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134315844, size=30, name='tinf_get_le_uint32', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void tinf_get_le_uint32(int offset) throws Exception;
-    public static final int tinf_get_le_uint32 = 0x080180d8;
+    public static final int tinf_get_le_uint32 = 0x08017f44;
     public void tinf_get_le_uint32(InterruptHandler handler) throws Exception
     {
         call(this::tinf_get_le_uint32, handler);
     }
 
-    // function: Function(address=134316278, size=28, name='tinf_get_be_uint32', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134315874, size=28, name='tinf_get_be_uint32', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void tinf_get_be_uint32(int offset) throws Exception;
-    public static final int tinf_get_be_uint32 = 0x080180f6;
+    public static final int tinf_get_be_uint32 = 0x08017f62;
     public void tinf_get_be_uint32(InterruptHandler handler) throws Exception
     {
         call(this::tinf_get_be_uint32, handler);
     }
 
-    // function: Function(address=134316308, size=640, name='uzlib_uncompress', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134315904, size=640, name='uzlib_uncompress', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void uzlib_uncompress(int offset) throws Exception;
-    public static final int uzlib_uncompress = 0x08018114;
+    public static final int uzlib_uncompress = 0x08017f80;
     public void uzlib_uncompress(InterruptHandler handler) throws Exception
     {
         call(this::uzlib_uncompress, handler);
     }
 
-    // function: Function(address=134316948, size=68, name='uzlib_zlib_parse_header', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134316544, size=68, name='uzlib_zlib_parse_header', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void uzlib_zlib_parse_header(int offset) throws Exception;
-    public static final int uzlib_zlib_parse_header = 0x08018394;
+    public static final int uzlib_zlib_parse_header = 0x08018200;
     public void uzlib_zlib_parse_header(InterruptHandler handler) throws Exception
     {
         call(this::uzlib_zlib_parse_header, handler);
     }
 
-    // function: Function(address=134317016, size=20, name='tinf_skip_bytes', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134316612, size=20, name='tinf_skip_bytes', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void tinf_skip_bytes(int offset) throws Exception;
-    public static final int tinf_skip_bytes = 0x080183d8;
+    public static final int tinf_skip_bytes = 0x08018244;
     public void tinf_skip_bytes(InterruptHandler handler) throws Exception
     {
         call(this::tinf_skip_bytes, handler);
     }
 
-    // function: Function(address=134317036, size=24, name='tinf_get_uint16', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134316632, size=24, name='tinf_get_uint16', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void tinf_get_uint16(int offset) throws Exception;
-    public static final int tinf_get_uint16 = 0x080183ec;
+    public static final int tinf_get_uint16 = 0x08018258;
     public void tinf_get_uint16(InterruptHandler handler) throws Exception
     {
         call(this::tinf_get_uint16, handler);
     }
 
-    // function: Function(address=134317060, size=138, name='uzlib_gzip_parse_header', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134316656, size=138, name='uzlib_gzip_parse_header', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void uzlib_gzip_parse_header(int offset) throws Exception;
-    public static final int uzlib_gzip_parse_header = 0x08018404;
+    public static final int uzlib_gzip_parse_header = 0x08018270;
     public void uzlib_gzip_parse_header(InterruptHandler handler) throws Exception
     {
         call(this::uzlib_gzip_parse_header, handler);
     }
 
-    // function: Function(address=134317200, size=184, name='decompio_make_new', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134316796, size=184, name='decompio_make_new', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void decompio_make_new(int offset) throws Exception;
-    public static final int decompio_make_new = 0x08018490;
+    public static final int decompio_make_new = 0x080182fc;
     public void decompio_make_new(InterruptHandler handler) throws Exception
     {
         call(this::decompio_make_new, handler);
     }
 
-    // function: Function(address=134317384, size=204, name='uzlib_adler32', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134316980, size=204, name='uzlib_adler32', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void uzlib_adler32(int offset) throws Exception;
-    public static final int uzlib_adler32 = 0x08018548;
+    public static final int uzlib_adler32 = 0x080183b4;
     public void uzlib_adler32(InterruptHandler handler) throws Exception
     {
         call(this::uzlib_adler32, handler);
     }
 
-    // function: Function(address=134317588, size=56, name='uzlib_crc32', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134317184, size=56, name='uzlib_crc32', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void uzlib_crc32(int offset) throws Exception;
-    public static final int uzlib_crc32 = 0x08018614;
+    public static final int uzlib_crc32 = 0x08018480;
     public void uzlib_crc32(InterruptHandler handler) throws Exception
     {
         call(this::uzlib_crc32, handler);
     }
 
-    // function: Function(address=134317644, size=106, name='uzlib_uncompress_chksum', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134317240, size=106, name='uzlib_uncompress_chksum', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void uzlib_uncompress_chksum(int offset) throws Exception;
-    public static final int uzlib_uncompress_chksum = 0x0801864c;
+    public static final int uzlib_uncompress_chksum = 0x080184b8;
     public void uzlib_uncompress_chksum(InterruptHandler handler) throws Exception
     {
         call(this::uzlib_uncompress_chksum, handler);
     }
 
-    // function: Function(address=134317752, size=60, name='decompio_read', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134317348, size=60, name='decompio_read', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void decompio_read(int offset) throws Exception;
-    public static final int decompio_read = 0x080186b8;
+    public static final int decompio_read = 0x08018524;
     public void decompio_read(InterruptHandler handler) throws Exception
     {
         call(this::decompio_read, handler);
     }
 
-    // function: Function(address=134317812, size=196, name='mod_uzlib_decompress', path='build/extmod/moduzlib.o', has_indirect=False)
+    // function: Function(address=134317408, size=196, name='mod_uzlib_decompress', path='build/extmod/moduzlib.o', has_indirect=False)
     abstract protected void mod_uzlib_decompress(int offset) throws Exception;
-    public static final int mod_uzlib_decompress = 0x080186f4;
+    public static final int mod_uzlib_decompress = 0x08018560;
     public void mod_uzlib_decompress(InterruptHandler handler) throws Exception
     {
         call(this::mod_uzlib_decompress, handler);
     }
 
-    // function: Function(address=134318008, size=32, name='get_heap', path='build/extmod/moduheapq.o', has_indirect=False)
+    // function: Function(address=134317604, size=32, name='get_heap', path='build/extmod/moduheapq.o', has_indirect=False)
     abstract protected void get_heap(int offset) throws Exception;
-    public static final int get_heap = 0x080187b8;
+    public static final int get_heap = 0x08018624;
     public void get_heap(InterruptHandler handler) throws Exception
     {
         call(this::get_heap, handler);
     }
 
-    // function: Function(address=134318040, size=72, name='heap_siftdown_isra_0', path='build/extmod/moduheapq.o', has_indirect=False)
+    // function: Function(address=134317636, size=72, name='heap_siftdown_isra_0', path='build/extmod/moduheapq.o', has_indirect=False)
     abstract protected void heap_siftdown_isra_0(int offset) throws Exception;
-    public static final int heap_siftdown_isra_0 = 0x080187d8;
+    public static final int heap_siftdown_isra_0 = 0x08018644;
     public void heap_siftdown_isra_0(InterruptHandler handler) throws Exception
     {
         call(this::heap_siftdown_isra_0, handler);
     }
 
-    // function: Function(address=134318112, size=112, name='heap_siftup', path='build/extmod/moduheapq.o', has_indirect=False)
+    // function: Function(address=134317708, size=112, name='heap_siftup', path='build/extmod/moduheapq.o', has_indirect=False)
     abstract protected void heap_siftup(int offset) throws Exception;
-    public static final int heap_siftup = 0x08018820;
+    public static final int heap_siftup = 0x0801868c;
     public void heap_siftup(InterruptHandler handler) throws Exception
     {
         call(this::heap_siftup, handler);
     }
 
-    // function: Function(address=134318224, size=36, name='mod_uheapq_heapify', path='build/extmod/moduheapq.o', has_indirect=False)
+    // function: Function(address=134317820, size=36, name='mod_uheapq_heapify', path='build/extmod/moduheapq.o', has_indirect=False)
     abstract protected void mod_uheapq_heapify(int offset) throws Exception;
-    public static final int mod_uheapq_heapify = 0x08018890;
+    public static final int mod_uheapq_heapify = 0x080186fc;
     public void mod_uheapq_heapify(InterruptHandler handler) throws Exception
     {
         call(this::mod_uheapq_heapify, handler);
     }
 
-    // function: Function(address=134318260, size=44, name='mod_uheapq_heappush', path='build/extmod/moduheapq.o', has_indirect=False)
+    // function: Function(address=134317856, size=44, name='mod_uheapq_heappush', path='build/extmod/moduheapq.o', has_indirect=False)
     abstract protected void mod_uheapq_heappush(int offset) throws Exception;
-    public static final int mod_uheapq_heappush = 0x080188b4;
+    public static final int mod_uheapq_heappush = 0x08018720;
     public void mod_uheapq_heappush(InterruptHandler handler) throws Exception
     {
         call(this::mod_uheapq_heappush, handler);
     }
 
-    // function: Function(address=134318304, size=64, name='mod_uheapq_heappop', path='build/extmod/moduheapq.o', has_indirect=False)
+    // function: Function(address=134317900, size=64, name='mod_uheapq_heappop', path='build/extmod/moduheapq.o', has_indirect=False)
     abstract protected void mod_uheapq_heappop(int offset) throws Exception;
-    public static final int mod_uheapq_heappop = 0x080188e0;
+    public static final int mod_uheapq_heappop = 0x0801874c;
     public void mod_uheapq_heappop(InterruptHandler handler) throws Exception
     {
         call(this::mod_uheapq_heappop, handler);
     }
 
-    // function: Function(address=134318368, size=44, name='utimeq_unary_op', path='build/extmod/modutimeq.o', has_indirect=False)
+    // function: Function(address=134317964, size=44, name='utimeq_unary_op', path='build/extmod/modutimeq.o', has_indirect=False)
     abstract protected void utimeq_unary_op(int offset) throws Exception;
-    public static final int utimeq_unary_op = 0x08018920;
+    public static final int utimeq_unary_op = 0x0801878c;
     public void utimeq_unary_op(InterruptHandler handler) throws Exception
     {
         call(this::utimeq_unary_op, handler);
     }
 
-    // function: Function(address=134318412, size=68, name='utimeq_make_new', path='build/extmod/modutimeq.o', has_indirect=False)
+    // function: Function(address=134318008, size=68, name='utimeq_make_new', path='build/extmod/modutimeq.o', has_indirect=False)
     abstract protected void utimeq_make_new(int offset) throws Exception;
-    public static final int utimeq_make_new = 0x0801894c;
+    public static final int utimeq_make_new = 0x080187b8;
     public void utimeq_make_new(InterruptHandler handler) throws Exception
     {
         call(this::utimeq_make_new, handler);
     }
 
-    // function: Function(address=134318480, size=40, name='mod_utimeq_peektime', path='build/extmod/modutimeq.o', has_indirect=False)
+    // function: Function(address=134318076, size=40, name='mod_utimeq_peektime', path='build/extmod/modutimeq.o', has_indirect=False)
     abstract protected void mod_utimeq_peektime(int offset) throws Exception;
-    public static final int mod_utimeq_peektime = 0x08018990;
+    public static final int mod_utimeq_peektime = 0x080187fc;
     public void mod_utimeq_peektime(InterruptHandler handler) throws Exception
     {
         call(this::mod_utimeq_peektime, handler);
     }
 
-    // function: Function(address=134318520, size=144, name='heap_siftdown_constprop_3', path='build/extmod/modutimeq.o', has_indirect=False)
+    // function: Function(address=134318116, size=144, name='heap_siftdown_constprop_3', path='build/extmod/modutimeq.o', has_indirect=False)
     abstract protected void heap_siftdown_constprop_3(int offset) throws Exception;
-    public static final int heap_siftdown_constprop_3 = 0x080189b8;
+    public static final int heap_siftdown_constprop_3 = 0x08018824;
     public void heap_siftdown_constprop_3(InterruptHandler handler) throws Exception
     {
         call(this::heap_siftdown_constprop_3, handler);
     }
 
-    // function: Function(address=134318664, size=276, name='mod_utimeq_heappop', path='build/extmod/modutimeq.o', has_indirect=False)
+    // function: Function(address=134318260, size=276, name='mod_utimeq_heappop', path='build/extmod/modutimeq.o', has_indirect=False)
     abstract protected void mod_utimeq_heappop(int offset) throws Exception;
-    public static final int mod_utimeq_heappop = 0x08018a48;
+    public static final int mod_utimeq_heappop = 0x080188b4;
     public void mod_utimeq_heappop(InterruptHandler handler) throws Exception
     {
         call(this::mod_utimeq_heappop, handler);
     }
 
-    // function: Function(address=134318940, size=84, name='mod_utimeq_heappush', path='build/extmod/modutimeq.o', has_indirect=False)
+    // function: Function(address=134318536, size=84, name='mod_utimeq_heappush', path='build/extmod/modutimeq.o', has_indirect=False)
     abstract protected void mod_utimeq_heappush(int offset) throws Exception;
-    public static final int mod_utimeq_heappush = 0x08018b5c;
+    public static final int mod_utimeq_heappush = 0x080189c8;
     public void mod_utimeq_heappush(InterruptHandler handler) throws Exception
     {
         call(this::mod_utimeq_heappush, handler);
     }
 
-    // function: Function(address=134319024, size=364, name='sha256_transform', path='build/extmod/moduhashlib.o', has_indirect=False)
+    // function: Function(address=134318620, size=364, name='sha256_transform', path='build/extmod/moduhashlib.o', has_indirect=False)
     abstract protected void sha256_transform(int offset) throws Exception;
-    public static final int sha256_transform = 0x08018bb0;
+    public static final int sha256_transform = 0x08018a1c;
     public void sha256_transform(InterruptHandler handler) throws Exception
     {
         call(this::sha256_transform, handler);
     }
 
-    // function: Function(address=134319388, size=80, name='sha256_init', path='build/extmod/moduhashlib.o', has_indirect=False)
+    // function: Function(address=134318984, size=80, name='sha256_init', path='build/extmod/moduhashlib.o', has_indirect=False)
     abstract protected void sha256_init(int offset) throws Exception;
-    public static final int sha256_init = 0x08018d1c;
+    public static final int sha256_init = 0x08018b88;
     public void sha256_init(InterruptHandler handler) throws Exception
     {
         call(this::sha256_init, handler);
     }
 
-    // function: Function(address=134319468, size=66, name='sha256_update', path='build/extmod/moduhashlib.o', has_indirect=False)
+    // function: Function(address=134319064, size=66, name='sha256_update', path='build/extmod/moduhashlib.o', has_indirect=False)
     abstract protected void sha256_update(int offset) throws Exception;
-    public static final int sha256_update = 0x08018d6c;
+    public static final int sha256_update = 0x08018bd8;
     public void sha256_update(InterruptHandler handler) throws Exception
     {
         call(this::sha256_update, handler);
     }
 
-    // function: Function(address=134319536, size=36, name='uhashlib_sha256_update', path='build/extmod/moduhashlib.o', has_indirect=False)
+    // function: Function(address=134319132, size=36, name='uhashlib_sha256_update', path='build/extmod/moduhashlib.o', has_indirect=False)
     abstract protected void uhashlib_sha256_update(int offset) throws Exception;
-    public static final int uhashlib_sha256_update = 0x08018db0;
+    public static final int uhashlib_sha256_update = 0x08018c1c;
     public void uhashlib_sha256_update(InterruptHandler handler) throws Exception
     {
         call(this::uhashlib_sha256_update, handler);
     }
 
-    // function: Function(address=134319572, size=52, name='uhashlib_sha256_make_new', path='build/extmod/moduhashlib.o', has_indirect=False)
+    // function: Function(address=134319168, size=52, name='uhashlib_sha256_make_new', path='build/extmod/moduhashlib.o', has_indirect=False)
     abstract protected void uhashlib_sha256_make_new(int offset) throws Exception;
-    public static final int uhashlib_sha256_make_new = 0x08018dd4;
+    public static final int uhashlib_sha256_make_new = 0x08018c40;
     public void uhashlib_sha256_make_new(InterruptHandler handler) throws Exception
     {
         call(this::uhashlib_sha256_make_new, handler);
     }
 
-    // function: Function(address=134319624, size=204, name='sha256_final', path='build/extmod/moduhashlib.o', has_indirect=False)
+    // function: Function(address=134319220, size=204, name='sha256_final', path='build/extmod/moduhashlib.o', has_indirect=False)
     abstract protected void sha256_final(int offset) throws Exception;
-    public static final int sha256_final = 0x08018e08;
+    public static final int sha256_final = 0x08018c74;
     public void sha256_final(InterruptHandler handler) throws Exception
     {
         call(this::sha256_final, handler);
     }
 
-    // function: Function(address=134319828, size=36, name='uhashlib_sha256_digest', path='build/extmod/moduhashlib.o', has_indirect=False)
+    // function: Function(address=134319424, size=36, name='uhashlib_sha256_digest', path='build/extmod/moduhashlib.o', has_indirect=False)
     abstract protected void uhashlib_sha256_digest(int offset) throws Exception;
-    public static final int uhashlib_sha256_digest = 0x08018ed4;
+    public static final int uhashlib_sha256_digest = 0x08018d40;
     public void uhashlib_sha256_digest(InterruptHandler handler) throws Exception
     {
         call(this::uhashlib_sha256_digest, handler);
     }
 
-    // function: Function(address=134319864, size=136, name='mod_binascii_hexlify', path='build/extmod/modubinascii.o', has_indirect=False)
+    // function: Function(address=134319460, size=136, name='mod_binascii_hexlify', path='build/extmod/modubinascii.o', has_indirect=False)
     abstract protected void mod_binascii_hexlify(int offset) throws Exception;
-    public static final int mod_binascii_hexlify = 0x08018ef8;
+    public static final int mod_binascii_hexlify = 0x08018d64;
     public void mod_binascii_hexlify(InterruptHandler handler) throws Exception
     {
         call(this::mod_binascii_hexlify, handler);
     }
 
-    // function: Function(address=134320000, size=244, name='mod_binascii_b2a_base64', path='build/extmod/modubinascii.o', has_indirect=False)
+    // function: Function(address=134319596, size=244, name='mod_binascii_b2a_base64', path='build/extmod/modubinascii.o', has_indirect=False)
     abstract protected void mod_binascii_b2a_base64(int offset) throws Exception;
-    public static final int mod_binascii_b2a_base64 = 0x08018f80;
+    public static final int mod_binascii_b2a_base64 = 0x08018dec;
     public void mod_binascii_b2a_base64(InterruptHandler handler) throws Exception
     {
         call(this::mod_binascii_b2a_base64, handler);
     }
 
-    // function: Function(address=134320244, size=132, name='mod_binascii_unhexlify', path='build/extmod/modubinascii.o', has_indirect=False)
+    // function: Function(address=134319840, size=132, name='mod_binascii_unhexlify', path='build/extmod/modubinascii.o', has_indirect=False)
     abstract protected void mod_binascii_unhexlify(int offset) throws Exception;
-    public static final int mod_binascii_unhexlify = 0x08019074;
+    public static final int mod_binascii_unhexlify = 0x08018ee0;
     public void mod_binascii_unhexlify(InterruptHandler handler) throws Exception
     {
         call(this::mod_binascii_unhexlify, handler);
     }
 
-    // function: Function(address=134320376, size=196, name='mod_binascii_a2b_base64', path='build/extmod/modubinascii.o', has_indirect=False)
+    // function: Function(address=134319972, size=196, name='mod_binascii_a2b_base64', path='build/extmod/modubinascii.o', has_indirect=False)
     abstract protected void mod_binascii_a2b_base64(int offset) throws Exception;
-    public static final int mod_binascii_a2b_base64 = 0x080190f8;
+    public static final int mod_binascii_a2b_base64 = 0x08018f64;
     public void mod_binascii_a2b_base64(InterruptHandler handler) throws Exception
     {
         call(this::mod_binascii_a2b_base64, handler);
     }
 
-    // function: Function(address=134320572, size=50, name='mod_binascii_crc32', path='build/extmod/modubinascii.o', has_indirect=False)
+    // function: Function(address=134320168, size=50, name='mod_binascii_crc32', path='build/extmod/modubinascii.o', has_indirect=False)
     abstract protected void mod_binascii_crc32(int offset) throws Exception;
-    public static final int mod_binascii_crc32 = 0x080191bc;
+    public static final int mod_binascii_crc32 = 0x08019028;
     public void mod_binascii_crc32(InterruptHandler handler) throws Exception
     {
         call(this::mod_binascii_crc32, handler);
     }
 
-    // function: Function(address=134320624, size=40, name='machine_mem_get_addr', path='build/extmod/machine_mem.o', has_indirect=False)
+    // function: Function(address=134320220, size=40, name='machine_mem_get_addr', path='build/extmod/machine_mem.o', has_indirect=False)
     abstract protected void machine_mem_get_addr(int offset) throws Exception;
-    public static final int machine_mem_get_addr = 0x080191f0;
+    public static final int machine_mem_get_addr = 0x0801905c;
     public void machine_mem_get_addr(InterruptHandler handler) throws Exception
     {
         call(this::machine_mem_get_addr, handler);
     }
 
-    // function: Function(address=134320664, size=20, name='machine_mem_print', path='build/extmod/machine_mem.o', has_indirect=False)
+    // function: Function(address=134320260, size=20, name='machine_mem_print', path='build/extmod/machine_mem.o', has_indirect=False)
     abstract protected void machine_mem_print(int offset) throws Exception;
-    public static final int machine_mem_print = 0x08019218;
+    public static final int machine_mem_print = 0x08019084;
     public void machine_mem_print(InterruptHandler handler) throws Exception
     {
         call(this::machine_mem_print, handler);
     }
 
-    // function: Function(address=134320684, size=92, name='machine_mem_subscr', path='build/extmod/machine_mem.o', has_indirect=False)
+    // function: Function(address=134320280, size=92, name='machine_mem_subscr', path='build/extmod/machine_mem.o', has_indirect=False)
     abstract protected void machine_mem_subscr(int offset) throws Exception;
-    public static final int machine_mem_subscr = 0x0801922c;
+    public static final int machine_mem_subscr = 0x08019098;
     public void machine_mem_subscr(InterruptHandler handler) throws Exception
     {
         call(this::machine_mem_subscr, handler);
     }
 
-    // function: Function(address=134320776, size=96, name='yasmarang', path='build/extmod/modurandom.o', has_indirect=False)
+    // function: Function(address=134320372, size=96, name='yasmarang', path='build/extmod/modurandom.o', has_indirect=False)
     abstract protected void yasmarang(int offset) throws Exception;
-    public static final int yasmarang = 0x08019288;
+    public static final int yasmarang = 0x080190f4;
     public void yasmarang(InterruptHandler handler) throws Exception
     {
         call(this::yasmarang, handler);
     }
 
-    // function: Function(address=134320872, size=34, name='yasmarang_randbelow', path='build/extmod/modurandom.o', has_indirect=False)
+    // function: Function(address=134320468, size=34, name='yasmarang_randbelow', path='build/extmod/modurandom.o', has_indirect=False)
     abstract protected void yasmarang_randbelow(int offset) throws Exception;
-    public static final int yasmarang_randbelow = 0x080192e8;
+    public static final int yasmarang_randbelow = 0x08019154;
     public void yasmarang_randbelow(InterruptHandler handler) throws Exception
     {
         call(this::yasmarang_randbelow, handler);
     }
 
-    // function: Function(address=134320906, size=66, name='mod_urandom_uniform', path='build/extmod/modurandom.o', has_indirect=False)
+    // function: Function(address=134320502, size=66, name='mod_urandom_uniform', path='build/extmod/modurandom.o', has_indirect=False)
     abstract protected void mod_urandom_uniform(int offset) throws Exception;
-    public static final int mod_urandom_uniform = 0x0801930a;
+    public static final int mod_urandom_uniform = 0x08019176;
     public void mod_urandom_uniform(InterruptHandler handler) throws Exception
     {
         call(this::mod_urandom_uniform, handler);
     }
 
-    // function: Function(address=134320972, size=42, name='mod_urandom_randint', path='build/extmod/modurandom.o', has_indirect=False)
+    // function: Function(address=134320568, size=42, name='mod_urandom_randint', path='build/extmod/modurandom.o', has_indirect=False)
     abstract protected void mod_urandom_randint(int offset) throws Exception;
-    public static final int mod_urandom_randint = 0x0801934c;
+    public static final int mod_urandom_randint = 0x080191b8;
     public void mod_urandom_randint(InterruptHandler handler) throws Exception
     {
         call(this::mod_urandom_randint, handler);
     }
 
-    // function: Function(address=134321014, size=106, name='mod_urandom_randrange', path='build/extmod/modurandom.o', has_indirect=False)
+    // function: Function(address=134320610, size=106, name='mod_urandom_randrange', path='build/extmod/modurandom.o', has_indirect=False)
     abstract protected void mod_urandom_randrange(int offset) throws Exception;
-    public static final int mod_urandom_randrange = 0x08019376;
+    public static final int mod_urandom_randrange = 0x080191e2;
     public void mod_urandom_randrange(InterruptHandler handler) throws Exception
     {
         call(this::mod_urandom_randrange, handler);
     }
 
-    // function: Function(address=134321120, size=52, name='mod_urandom_seed', path='build/extmod/modurandom.o', has_indirect=False)
+    // function: Function(address=134320716, size=52, name='mod_urandom_seed', path='build/extmod/modurandom.o', has_indirect=False)
     abstract protected void mod_urandom_seed(int offset) throws Exception;
-    public static final int mod_urandom_seed = 0x080193e0;
+    public static final int mod_urandom_seed = 0x0801924c;
     public void mod_urandom_seed(InterruptHandler handler) throws Exception
     {
         call(this::mod_urandom_seed, handler);
     }
 
-    // function: Function(address=134321172, size=44, name='mod_urandom_getrandbits', path='build/extmod/modurandom.o', has_indirect=False)
+    // function: Function(address=134320768, size=44, name='mod_urandom_getrandbits', path='build/extmod/modurandom.o', has_indirect=False)
     abstract protected void mod_urandom_getrandbits(int offset) throws Exception;
-    public static final int mod_urandom_getrandbits = 0x08019414;
+    public static final int mod_urandom_getrandbits = 0x08019280;
     public void mod_urandom_getrandbits(InterruptHandler handler) throws Exception
     {
         call(this::mod_urandom_getrandbits, handler);
     }
 
-    // function: Function(address=134321216, size=52, name='mod_urandom_choice', path='build/extmod/modurandom.o', has_indirect=False)
+    // function: Function(address=134320812, size=52, name='mod_urandom_choice', path='build/extmod/modurandom.o', has_indirect=False)
     abstract protected void mod_urandom_choice(int offset) throws Exception;
-    public static final int mod_urandom_choice = 0x08019440;
+    public static final int mod_urandom_choice = 0x080192ac;
     public void mod_urandom_choice(InterruptHandler handler) throws Exception
     {
         call(this::mod_urandom_choice, handler);
     }
 
-    // function: Function(address=134321268, size=30, name='mod_urandom_random', path='build/extmod/modurandom.o', has_indirect=False)
+    // function: Function(address=134320864, size=30, name='mod_urandom_random', path='build/extmod/modurandom.o', has_indirect=False)
     abstract protected void mod_urandom_random(int offset) throws Exception;
-    public static final int mod_urandom_random = 0x08019474;
+    public static final int mod_urandom_random = 0x080192e0;
     public void mod_urandom_random(InterruptHandler handler) throws Exception
     {
         call(this::mod_urandom_random, handler);
     }
 
-    // function: Function(address=134321298, size=62, name='mp_vfs_proxy_call', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134320894, size=62, name='mp_vfs_proxy_call', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_proxy_call(int offset) throws Exception;
-    public static final int mp_vfs_proxy_call = 0x08019492;
+    public static final int mp_vfs_proxy_call = 0x080192fe;
     public void mp_vfs_proxy_call(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_proxy_call, handler);
     }
 
-    // function: Function(address=134321360, size=160, name='mp_vfs_umount', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134320956, size=160, name='mp_vfs_umount', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_umount(int offset) throws Exception;
-    public static final int mp_vfs_umount = 0x080194d0;
+    public static final int mp_vfs_umount = 0x0801933c;
     public void mp_vfs_umount(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_umount, handler);
     }
 
-    // function: Function(address=134321520, size=116, name='mp_vfs_getcwd', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134321116, size=116, name='mp_vfs_getcwd', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_getcwd(int offset) throws Exception;
-    public static final int mp_vfs_getcwd = 0x08019570;
+    public static final int mp_vfs_getcwd = 0x080193dc;
     public void mp_vfs_getcwd(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_getcwd, handler);
     }
 
-    // function: Function(address=134321636, size=112, name='mp_vfs_ilistdir_it_iternext', path='build/extmod/vfs.o', has_indirect=True)
+    // function: Function(address=134321232, size=112, name='mp_vfs_ilistdir_it_iternext', path='build/extmod/vfs.o', has_indirect=True)
     abstract protected void mp_vfs_ilistdir_it_iternext(int offset) throws Exception;
-    public static final int mp_vfs_ilistdir_it_iternext = 0x080195e4;
+    public static final int mp_vfs_ilistdir_it_iternext = 0x08019450;
     public void mp_vfs_ilistdir_it_iternext(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_ilistdir_it_iternext, handler);
     }
 
-    // function: Function(address=134321748, size=140, name='mp_vfs_lookup_path', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134321344, size=140, name='mp_vfs_lookup_path', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_lookup_path(int offset) throws Exception;
-    public static final int mp_vfs_lookup_path = 0x08019654;
+    public static final int mp_vfs_lookup_path = 0x080194c0;
     public void mp_vfs_lookup_path(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_lookup_path, handler);
     }
 
-    // function: Function(address=134321888, size=156, name='mp_vfs_mount', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134321484, size=156, name='mp_vfs_mount', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_mount(int offset) throws Exception;
-    public static final int mp_vfs_mount = 0x080196e0;
+    public static final int mp_vfs_mount = 0x0801954c;
     public void mp_vfs_mount(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_mount, handler);
     }
 
-    // function: Function(address=134322044, size=54, name='lookup_path', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134321640, size=54, name='lookup_path', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void lookup_path(int offset) throws Exception;
-    public static final int lookup_path = 0x0801977c;
+    public static final int lookup_path = 0x080195e8;
     public void lookup_path(InterruptHandler handler) throws Exception
     {
         call(this::lookup_path, handler);
     }
 
-    // function: Function(address=134322100, size=48, name='mp_vfs_open', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134321696, size=48, name='mp_vfs_open', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_open(int offset) throws Exception;
-    public static final int mp_vfs_open = 0x080197b4;
+    public static final int mp_vfs_open = 0x08019620;
     public void mp_vfs_open(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_open, handler);
     }
 
-    // function: Function(address=134322148, size=72, name='mp_vfs_chdir', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134321744, size=72, name='mp_vfs_chdir', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_chdir(int offset) throws Exception;
-    public static final int mp_vfs_chdir = 0x080197e4;
+    public static final int mp_vfs_chdir = 0x08019650;
     public void mp_vfs_chdir(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_chdir, handler);
     }
 
-    // function: Function(address=134322220, size=104, name='mp_vfs_ilistdir', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134321816, size=104, name='mp_vfs_ilistdir', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_ilistdir(int offset) throws Exception;
-    public static final int mp_vfs_ilistdir = 0x0801982c;
+    public static final int mp_vfs_ilistdir = 0x08019698;
     public void mp_vfs_ilistdir(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_ilistdir, handler);
     }
 
-    // function: Function(address=134322324, size=50, name='mp_vfs_listdir', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134321920, size=50, name='mp_vfs_listdir', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_listdir(int offset) throws Exception;
-    public static final int mp_vfs_listdir = 0x08019894;
+    public static final int mp_vfs_listdir = 0x08019700;
     public void mp_vfs_listdir(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_listdir, handler);
     }
 
-    // function: Function(address=134322376, size=60, name='mp_vfs_mkdir', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134321972, size=60, name='mp_vfs_mkdir', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_mkdir(int offset) throws Exception;
-    public static final int mp_vfs_mkdir = 0x080198c8;
+    public static final int mp_vfs_mkdir = 0x08019734;
     public void mp_vfs_mkdir(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_mkdir, handler);
     }
 
-    // function: Function(address=134322436, size=22, name='mp_vfs_remove', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134322032, size=22, name='mp_vfs_remove', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_remove(int offset) throws Exception;
-    public static final int mp_vfs_remove = 0x08019904;
+    public static final int mp_vfs_remove = 0x08019770;
     public void mp_vfs_remove(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_remove, handler);
     }
 
-    // function: Function(address=134322458, size=46, name='mp_vfs_rename', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134322054, size=46, name='mp_vfs_rename', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_rename(int offset) throws Exception;
-    public static final int mp_vfs_rename = 0x0801991a;
+    public static final int mp_vfs_rename = 0x08019786;
     public void mp_vfs_rename(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_rename, handler);
     }
 
-    // function: Function(address=134322504, size=22, name='mp_vfs_rmdir', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134322100, size=22, name='mp_vfs_rmdir', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_rmdir(int offset) throws Exception;
-    public static final int mp_vfs_rmdir = 0x08019948;
+    public static final int mp_vfs_rmdir = 0x080197b4;
     public void mp_vfs_rmdir(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_rmdir, handler);
     }
 
-    // function: Function(address=134322528, size=60, name='mp_vfs_stat', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134322124, size=60, name='mp_vfs_stat', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_stat(int offset) throws Exception;
-    public static final int mp_vfs_stat = 0x08019960;
+    public static final int mp_vfs_stat = 0x080197cc;
     public void mp_vfs_stat(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_stat, handler);
     }
 
-    // function: Function(address=134322588, size=92, name='mp_vfs_statvfs', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134322184, size=92, name='mp_vfs_statvfs', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_statvfs(int offset) throws Exception;
-    public static final int mp_vfs_statvfs = 0x0801999c;
+    public static final int mp_vfs_statvfs = 0x08019808;
     public void mp_vfs_statvfs(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_statvfs, handler);
     }
 
-    // function: Function(address=134322680, size=124, name='mp_vfs_import_stat', path='build/extmod/vfs.o', has_indirect=False)
+    // function: Function(address=134322276, size=124, name='mp_vfs_import_stat', path='build/extmod/vfs.o', has_indirect=False)
     abstract protected void mp_vfs_import_stat(int offset) throws Exception;
-    public static final int mp_vfs_import_stat = 0x080199f8;
+    public static final int mp_vfs_import_stat = 0x08019864;
     public void mp_vfs_import_stat(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_import_stat, handler);
     }
 
-    // function: Function(address=134322804, size=20, name='mp_reader_vfs_close', path='build/extmod/vfs_reader.o', has_indirect=True)
+    // function: Function(address=134322400, size=20, name='mp_reader_vfs_close', path='build/extmod/vfs_reader.o', has_indirect=True)
     abstract protected void mp_reader_vfs_close(int offset) throws Exception;
-    public static final int mp_reader_vfs_close = 0x08019a74;
+    public static final int mp_reader_vfs_close = 0x080198e0;
     public void mp_reader_vfs_close(InterruptHandler handler) throws Exception
     {
         call(this::mp_reader_vfs_close, handler);
     }
 
-    // function: Function(address=134322824, size=70, name='mp_reader_vfs_readbyte', path='build/extmod/vfs_reader.o', has_indirect=True)
+    // function: Function(address=134322420, size=70, name='mp_reader_vfs_readbyte', path='build/extmod/vfs_reader.o', has_indirect=True)
     abstract protected void mp_reader_vfs_readbyte(int offset) throws Exception;
-    public static final int mp_reader_vfs_readbyte = 0x08019a88;
+    public static final int mp_reader_vfs_readbyte = 0x080198f4;
     public void mp_reader_vfs_readbyte(InterruptHandler handler) throws Exception
     {
         call(this::mp_reader_vfs_readbyte, handler);
     }
 
-    // function: Function(address=134322896, size=96, name='mp_reader_new_file', path='build/extmod/vfs_reader.o', has_indirect=False)
+    // function: Function(address=134322492, size=96, name='mp_reader_new_file', path='build/extmod/vfs_reader.o', has_indirect=False)
     abstract protected void mp_reader_new_file(int offset) throws Exception;
-    public static final int mp_reader_new_file = 0x08019ad0;
+    public static final int mp_reader_new_file = 0x0801993c;
     public void mp_reader_new_file(InterruptHandler handler) throws Exception
     {
         call(this::mp_reader_new_file, handler);
     }
 
-    // function: Function(address=134322992, size=28, name='time_ticks_diff', path='build/extmod/utime_mphal.o', has_indirect=False)
+    // function: Function(address=134322588, size=28, name='time_ticks_diff', path='build/extmod/utime_mphal.o', has_indirect=False)
     abstract protected void time_ticks_diff(int offset) throws Exception;
-    public static final int time_ticks_diff = 0x08019b30;
+    public static final int time_ticks_diff = 0x0801999c;
     public void time_ticks_diff(InterruptHandler handler) throws Exception
     {
         call(this::time_ticks_diff, handler);
     }
 
-    // function: Function(address=134323020, size=32, name='time_sleep', path='build/extmod/utime_mphal.o', has_indirect=False)
+    // function: Function(address=134322616, size=32, name='time_sleep', path='build/extmod/utime_mphal.o', has_indirect=False)
     abstract protected void time_sleep(int offset) throws Exception;
-    public static final int time_sleep = 0x08019b4c;
+    public static final int time_sleep = 0x080199b8;
     public void time_sleep(InterruptHandler handler) throws Exception
     {
         call(this::time_sleep, handler);
     }
 
-    // function: Function(address=134323052, size=24, name='time_sleep_ms', path='build/extmod/utime_mphal.o', has_indirect=False)
+    // function: Function(address=134322648, size=24, name='time_sleep_ms', path='build/extmod/utime_mphal.o', has_indirect=False)
     abstract protected void time_sleep_ms(int offset) throws Exception;
-    public static final int time_sleep_ms = 0x08019b6c;
+    public static final int time_sleep_ms = 0x080199d8;
     public void time_sleep_ms(InterruptHandler handler) throws Exception
     {
         call(this::time_sleep_ms, handler);
     }
 
-    // function: Function(address=134323076, size=32, name='time_ticks_add', path='build/extmod/utime_mphal.o', has_indirect=False)
+    // function: Function(address=134322672, size=32, name='time_ticks_add', path='build/extmod/utime_mphal.o', has_indirect=False)
     abstract protected void time_ticks_add(int offset) throws Exception;
-    public static final int time_ticks_add = 0x08019b84;
+    public static final int time_ticks_add = 0x080199f0;
     public void time_ticks_add(InterruptHandler handler) throws Exception
     {
         call(this::time_ticks_add, handler);
     }
 
-    // function: Function(address=134323108, size=24, name='time_ticks_ms', path='build/extmod/utime_mphal.o', has_indirect=False)
+    // function: Function(address=134322704, size=24, name='time_ticks_ms', path='build/extmod/utime_mphal.o', has_indirect=False)
     abstract protected void time_ticks_ms(int offset) throws Exception;
-    public static final int time_ticks_ms = 0x08019ba4;
+    public static final int time_ticks_ms = 0x08019a10;
     public void time_ticks_ms(InterruptHandler handler) throws Exception
     {
         call(this::time_ticks_ms, handler);
     }
 
-    // function: Function(address=134323132, size=24, name='time_ticks_cpu', path='build/extmod/utime_mphal.o', has_indirect=False)
+    // function: Function(address=134322728, size=24, name='time_ticks_cpu', path='build/extmod/utime_mphal.o', has_indirect=False)
     abstract protected void time_ticks_cpu(int offset) throws Exception;
-    public static final int time_ticks_cpu = 0x08019bbc;
+    public static final int time_ticks_cpu = 0x08019a28;
     public void time_ticks_cpu(InterruptHandler handler) throws Exception
     {
         call(this::time_ticks_cpu, handler);
     }
 
-    // function: Function(address=134323156, size=34, name='strn_print_strn', path='build/lib/utils/printf.o', has_indirect=True)
+    // function: Function(address=134322752, size=34, name='strn_print_strn', path='build/lib/utils/printf.o', has_indirect=True)
     abstract protected void strn_print_strn(int offset) throws Exception;
-    public static final int strn_print_strn = 0x08019bd4;
+    public static final int strn_print_strn = 0x08019a40;
     public void strn_print_strn(InterruptHandler handler) throws Exception
     {
         call(this::strn_print_strn, handler);
     }
 
-    // function: Function(address=134323192, size=28, name='printf', path='build/lib/utils/printf.o', has_indirect=False)
+    // function: Function(address=134322788, size=28, name='printf', path='build/lib/utils/printf.o', has_indirect=False)
     abstract protected void printf(int offset) throws Exception;
-    public static final int printf = 0x08019bf8;
+    public static final int printf = 0x08019a64;
     public void printf(InterruptHandler handler) throws Exception
     {
         call(this::printf, handler);
     }
 
-    // function: Function(address=134323220, size=20, name='putchar', path='build/lib/utils/printf.o', has_indirect=False)
+    // function: Function(address=134322816, size=20, name='putchar', path='build/lib/utils/printf.o', has_indirect=False)
     abstract protected void putchar(int offset) throws Exception;
-    public static final int putchar = 0x08019c14;
+    public static final int putchar = 0x08019a80;
     public void putchar(InterruptHandler handler) throws Exception
     {
         call(this::putchar, handler);
     }
 
-    // function: Function(address=134323240, size=34, name='puts', path='build/lib/utils/printf.o', has_indirect=False)
+    // function: Function(address=134322836, size=34, name='puts', path='build/lib/utils/printf.o', has_indirect=False)
     abstract protected void puts(int offset) throws Exception;
-    public static final int puts = 0x08019c28;
+    public static final int puts = 0x08019a94;
     public void puts(InterruptHandler handler) throws Exception
     {
         call(this::puts, handler);
     }
 
-    // function: Function(address=134323276, size=56, name='vsnprintf', path='build/lib/utils/printf.o', has_indirect=False)
+    // function: Function(address=134322872, size=56, name='vsnprintf', path='build/lib/utils/printf.o', has_indirect=False)
     abstract protected void vsnprintf(int offset) throws Exception;
-    public static final int vsnprintf = 0x08019c4c;
+    public static final int vsnprintf = 0x08019ab8;
     public void vsnprintf(InterruptHandler handler) throws Exception
     {
         call(this::vsnprintf, handler);
     }
 
-    // function: Function(address=134323332, size=22, name='snprintf', path='build/lib/utils/printf.o', has_indirect=False)
+    // function: Function(address=134322928, size=22, name='snprintf', path='build/lib/utils/printf.o', has_indirect=False)
     abstract protected void snprintf(int offset) throws Exception;
-    public static final int snprintf = 0x08019c84;
+    public static final int snprintf = 0x08019af0;
     public void snprintf(InterruptHandler handler) throws Exception
     {
         call(this::snprintf, handler);
     }
 
-    // function: Function(address=134323356, size=200, name='main', path='build/main.o', has_indirect=False)
+    // function: Function(address=134322952, size=200, name='main', path='build/main.o', has_indirect=False)
     abstract protected void main(int offset) throws Exception;
-    public static final int main = 0x08019c9c;
+    public static final int main = 0x08019b08;
     public void main(InterruptHandler handler) throws Exception
     {
         call(this::main, handler);
     }
 
-    // function: Function(address=134323556, size=44, name='Signal_Handler', path='build/machine.o', has_indirect=False)
+    // function: Function(address=134323152, size=44, name='Signal_Handler', path='build/machine.o', has_indirect=False)
     abstract protected void Signal_Handler(int offset) throws Exception;
-    public static final int Signal_Handler = 0x08019d64;
+    public static final int Signal_Handler = 0x08019bd0;
     public void Signal_Handler(InterruptHandler handler) throws Exception
     {
         call(this::Signal_Handler, handler);
     }
 
-    // function: Function(address=134323600, size=14, name='_exit', path='build/machine.o', has_indirect=False)
+    // function: Function(address=134323196, size=14, name='_exit', path='build/machine.o', has_indirect=False)
     abstract protected void _exit(int offset) throws Exception;
-    public static final int _exit = 0x08019d90;
+    public static final int _exit = 0x08019bfc;
     public void _exit(InterruptHandler handler) throws Exception
     {
         call(this::_exit, handler);
     }
 
-    // function: Function(address=134323614, size=16, name='_start', path='build/machine.o', has_indirect=False)
+    // function: Function(address=134323210, size=16, name='_start', path='build/machine.o', has_indirect=False)
     abstract protected void _start(int offset) throws Exception;
-    public static final int _start = 0x08019d9e;
+    public static final int _start = 0x08019c0a;
     public void _start(InterruptHandler handler) throws Exception
     {
         call(this::_start, handler);
     }
 
-    // function: Function(address=134323632, size=100, name='Reset_Handler', path='build/machine.o', has_indirect=False)
+    // function: Function(address=134323228, size=100, name='Reset_Handler', path='build/machine.o', has_indirect=False)
     abstract protected void Reset_Handler(int offset) throws Exception;
-    public static final int Reset_Handler = 0x08019db0;
+    public static final int Reset_Handler = 0x08019c1c;
     public void Reset_Handler(InterruptHandler handler) throws Exception
     {
         call(this::Reset_Handler, handler);
     }
 
-    // function: Function(address=134323732, size=16, name='__fatal_error', path='build/machine.o', has_indirect=False)
+    // function: Function(address=134323328, size=16, name='__fatal_error', path='build/machine.o', has_indirect=False)
     abstract protected void __fatal_error(int offset) throws Exception;
-    public static final int __fatal_error = 0x08019e14;
+    public static final int __fatal_error = 0x08019c80;
     public void __fatal_error(InterruptHandler handler) throws Exception
     {
         call(this::__fatal_error, handler);
     }
 
-    // function: Function(address=134323748, size=12, name='nlr_jump_fail', path='build/machine.o', has_indirect=False)
+    // function: Function(address=134323344, size=12, name='nlr_jump_fail', path='build/machine.o', has_indirect=False)
     abstract protected void nlr_jump_fail(int offset) throws Exception;
-    public static final int nlr_jump_fail = 0x08019e24;
+    public static final int nlr_jump_fail = 0x08019c90;
     public void nlr_jump_fail(InterruptHandler handler) throws Exception
     {
         call(this::nlr_jump_fail, handler);
     }
 
-    // function: Function(address=134323760, size=16, name='mp_hal_stdin_rx_chr', path='build/mphalport.o', has_indirect=False)
+    // function: Function(address=134323356, size=16, name='mp_hal_stdin_rx_chr', path='build/mphalport.o', has_indirect=False)
     abstract protected void mp_hal_stdin_rx_chr(int offset) throws Exception;
-    public static final int mp_hal_stdin_rx_chr = 0x08019e30;
+    public static final int mp_hal_stdin_rx_chr = 0x08019c9c;
     public void mp_hal_stdin_rx_chr(InterruptHandler handler) throws Exception
     {
         call(this::mp_hal_stdin_rx_chr, handler);
     }
 
-    // function: Function(address=134323776, size=32, name='mp_hal_stdout_tx_strn', path='build/mphalport.o', has_indirect=False)
+    // function: Function(address=134323372, size=32, name='mp_hal_stdout_tx_strn', path='build/mphalport.o', has_indirect=False)
     abstract protected void mp_hal_stdout_tx_strn(int offset) throws Exception;
-    public static final int mp_hal_stdout_tx_strn = 0x08019e40;
+    public static final int mp_hal_stdout_tx_strn = 0x08019cac;
     public void mp_hal_stdout_tx_strn(InterruptHandler handler) throws Exception
     {
         call(this::mp_hal_stdout_tx_strn, handler);
     }
 
-    // function: Function(address=134323808, size=40, name='mp_hal_delay_ms', path='build/mphalport.o', has_indirect=False)
+    // function: Function(address=134323404, size=40, name='mp_hal_delay_ms', path='build/mphalport.o', has_indirect=False)
     abstract protected void mp_hal_delay_ms(int offset) throws Exception;
-    public static final int mp_hal_delay_ms = 0x08019e60;
+    public static final int mp_hal_delay_ms = 0x08019ccc;
     public void mp_hal_delay_ms(InterruptHandler handler) throws Exception
     {
         call(this::mp_hal_delay_ms, handler);
     }
 
-    // function: Function(address=134323848, size=12, name='mp_hal_ticks_ms', path='build/mphalport.o', has_indirect=False)
+    // function: Function(address=134323444, size=12, name='mp_hal_ticks_ms', path='build/mphalport.o', has_indirect=False)
     abstract protected void mp_hal_ticks_ms(int offset) throws Exception;
-    public static final int mp_hal_ticks_ms = 0x08019e88;
+    public static final int mp_hal_ticks_ms = 0x08019cf4;
     public void mp_hal_ticks_ms(InterruptHandler handler) throws Exception
     {
         call(this::mp_hal_ticks_ms, handler);
     }
 
-    // function: Function(address=134323860, size=12, name='mp_hal_ticks_cpu', path='build/mphalport.o', has_indirect=False)
+    // function: Function(address=134323456, size=12, name='mp_hal_ticks_cpu', path='build/mphalport.o', has_indirect=False)
     abstract protected void mp_hal_ticks_cpu(int offset) throws Exception;
-    public static final int mp_hal_ticks_cpu = 0x08019e94;
+    public static final int mp_hal_ticks_cpu = 0x08019d00;
     public void mp_hal_ticks_cpu(InterruptHandler handler) throws Exception
     {
         call(this::mp_hal_ticks_cpu, handler);
     }
 
-    // function: Function(address=134323872, size=16, name='usystem_print_hook', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323468, size=16, name='usystem_print_hook', path='build/modusystem.o', has_indirect=False)
     abstract protected void usystem_print_hook(int offset) throws Exception;
-    public static final int usystem_print_hook = 0x08019ea0;
+    public static final int usystem_print_hook = 0x08019d0c;
     public void usystem_print_hook(InterruptHandler handler) throws Exception
     {
         call(this::usystem_print_hook, handler);
     }
 
-    // function: Function(address=134323888, size=32, name='usystem_debug', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323484, size=32, name='usystem_debug', path='build/modusystem.o', has_indirect=False)
     abstract protected void usystem_debug(int offset) throws Exception;
-    public static final int usystem_debug = 0x08019eb0;
+    public static final int usystem_debug = 0x08019d1c;
     public void usystem_debug(InterruptHandler handler) throws Exception
     {
         call(this::usystem_debug, handler);
     }
 
-    // function: Function(address=134323920, size=52, name='usystem_set_stdin_char', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323516, size=52, name='usystem_set_stdin_char', path='build/modusystem.o', has_indirect=False)
     abstract protected void usystem_set_stdin_char(int offset) throws Exception;
-    public static final int usystem_set_stdin_char = 0x08019ed0;
+    public static final int usystem_set_stdin_char = 0x08019d3c;
     public void usystem_set_stdin_char(InterruptHandler handler) throws Exception
     {
         call(this::usystem_set_stdin_char, handler);
     }
 
-    // function: Function(address=134323972, size=36, name='parse_2', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323568, size=36, name='parse_2', path='build/modusystem.o', has_indirect=False)
     abstract protected void parse_2(int offset) throws Exception;
-    public static final int parse_2 = 0x08019f04;
+    public static final int parse_2 = 0x08019d70;
     public void parse_2(InterruptHandler handler) throws Exception
     {
         call(this::parse_2, handler);
     }
 
-    // function: Function(address=134324008, size=30, name='usystem_syscall', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323604, size=30, name='usystem_syscall', path='build/modusystem.o', has_indirect=False)
     abstract protected void usystem_syscall(int offset) throws Exception;
-    public static final int usystem_syscall = 0x08019f28;
+    public static final int usystem_syscall = 0x08019d94;
     public void usystem_syscall(InterruptHandler handler) throws Exception
     {
         call(this::usystem_syscall, handler);
     }
 
-    // function: Function(address=134324038, size=20, name='usystem_signal', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323634, size=20, name='usystem_signal', path='build/modusystem.o', has_indirect=False)
     abstract protected void usystem_signal(int offset) throws Exception;
-    public static final int usystem_signal = 0x08019f46;
+    public static final int usystem_signal = 0x08019db2;
     public void usystem_signal(InterruptHandler handler) throws Exception
     {
         call(this::usystem_signal, handler);
     }
 
-    // function: Function(address=134324058, size=20, name='usystem_components', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323654, size=20, name='usystem_components', path='build/modusystem.o', has_indirect=False)
     abstract protected void usystem_components(int offset) throws Exception;
-    public static final int usystem_components = 0x08019f5a;
+    public static final int usystem_components = 0x08019dc6;
     public void usystem_components(InterruptHandler handler) throws Exception
     {
         call(this::usystem_components, handler);
     }
 
-    // function: Function(address=134324078, size=34, name='usystem_methods', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323674, size=34, name='usystem_methods', path='build/modusystem.o', has_indirect=False)
     abstract protected void usystem_methods(int offset) throws Exception;
-    public static final int usystem_methods = 0x08019f6e;
+    public static final int usystem_methods = 0x08019dda;
     public void usystem_methods(InterruptHandler handler) throws Exception
     {
         call(this::usystem_methods, handler);
     }
 
-    // function: Function(address=134324112, size=32, name='usystem_annotations', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323708, size=32, name='usystem_annotations', path='build/modusystem.o', has_indirect=False)
     abstract protected void usystem_annotations(int offset) throws Exception;
-    public static final int usystem_annotations = 0x08019f90;
+    public static final int usystem_annotations = 0x08019dfc;
     public void usystem_annotations(InterruptHandler handler) throws Exception
     {
         call(this::usystem_annotations, handler);
     }
 
-    // function: Function(address=134324144, size=20, name='usystem_get_stdout_str', path='build/modusystem.o', has_indirect=False)
+    // function: Function(address=134323740, size=20, name='usystem_get_stdout_str', path='build/modusystem.o', has_indirect=False)
     abstract protected void usystem_get_stdout_str(int offset) throws Exception;
-    public static final int usystem_get_stdout_str = 0x08019fb0;
+    public static final int usystem_get_stdout_str = 0x08019e1c;
     public void usystem_get_stdout_str(InterruptHandler handler) throws Exception
     {
         call(this::usystem_get_stdout_str, handler);
     }
 
-    // function: Function(address=134324164, size=36, name='gc_collect', path='build/gccollect.o', has_indirect=False)
+    // function: Function(address=134323760, size=36, name='gc_collect', path='build/gccollect.o', has_indirect=False)
     abstract protected void gc_collect(int offset) throws Exception;
-    public static final int gc_collect = 0x08019fc4;
+    public static final int gc_collect = 0x08019e30;
     public void gc_collect(InterruptHandler handler) throws Exception
     {
         call(this::gc_collect, handler);
     }
 
-    // function: Function(address=134324200, size=10, name='vfs_openpie_file___exit__', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134323796, size=10, name='vfs_openpie_file___exit__', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void vfs_openpie_file___exit__(int offset) throws Exception;
-    public static final int vfs_openpie_file___exit__ = 0x08019fe8;
+    public static final int vfs_openpie_file___exit__ = 0x08019e54;
     public void vfs_openpie_file___exit__(InterruptHandler handler) throws Exception
     {
         call(this::vfs_openpie_file___exit__, handler);
     }
 
-    // function: Function(address=134324212, size=32, name='vfs_openpie_file_print', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134323808, size=32, name='vfs_openpie_file_print', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void vfs_openpie_file_print(int offset) throws Exception;
-    public static final int vfs_openpie_file_print = 0x08019ff4;
+    public static final int vfs_openpie_file_print = 0x08019e60;
     public void vfs_openpie_file_print(InterruptHandler handler) throws Exception
     {
         call(this::vfs_openpie_file_print, handler);
     }
 
-    // function: Function(address=134324244, size=24, name='unlikely_check_fd_is_open_isra_0_part_1', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134323840, size=24, name='unlikely_check_fd_is_open_isra_0_part_1', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void unlikely_check_fd_is_open_isra_0_part_1(int offset) throws Exception;
-    public static final int unlikely_check_fd_is_open_isra_0_part_1 = 0x0801a014;
+    public static final int unlikely_check_fd_is_open_isra_0_part_1 = 0x08019e80;
     public void unlikely_check_fd_is_open_isra_0_part_1(InterruptHandler handler) throws Exception
     {
         call(this::unlikely_check_fd_is_open_isra_0_part_1, handler);
     }
 
-    // function: Function(address=134324268, size=18, name='vfs_openpie_file_fileno', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134323864, size=18, name='vfs_openpie_file_fileno', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void vfs_openpie_file_fileno(int offset) throws Exception;
-    public static final int vfs_openpie_file_fileno = 0x0801a02c;
+    public static final int vfs_openpie_file_fileno = 0x08019e98;
     public void vfs_openpie_file_fileno(InterruptHandler handler) throws Exception
     {
         call(this::vfs_openpie_file_fileno, handler);
     }
 
-    // function: Function(address=134324286, size=14, name='SVC_CALL_VFS', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134323882, size=14, name='SVC_CALL_VFS', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void SVC_CALL_VFS(int offset) throws Exception;
-    public static final int SVC_CALL_VFS = 0x0801a03e;
+    public static final int SVC_CALL_VFS = 0x08019eaa;
     public void SVC_CALL_VFS(InterruptHandler handler) throws Exception
     {
         call(this::SVC_CALL_VFS, handler);
     }
 
-    // function: Function(address=134324300, size=16, name='SVC_CALL_VFS_OUT', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134323896, size=16, name='SVC_CALL_VFS_OUT', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void SVC_CALL_VFS_OUT(int offset) throws Exception;
-    public static final int SVC_CALL_VFS_OUT = 0x0801a04c;
+    public static final int SVC_CALL_VFS_OUT = 0x08019eb8;
     public void SVC_CALL_VFS_OUT(InterruptHandler handler) throws Exception
     {
         call(this::SVC_CALL_VFS_OUT, handler);
     }
 
-    // function: Function(address=134324316, size=126, name='vfs_openpie_file_ioctl', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134323912, size=126, name='vfs_openpie_file_ioctl', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void vfs_openpie_file_ioctl(int offset) throws Exception;
-    public static final int vfs_openpie_file_ioctl = 0x0801a05c;
+    public static final int vfs_openpie_file_ioctl = 0x08019ec8;
     public void vfs_openpie_file_ioctl(InterruptHandler handler) throws Exception
     {
         call(this::vfs_openpie_file_ioctl, handler);
     }
 
-    // function: Function(address=134324442, size=54, name='vfs_openpie_file_write', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134324038, size=54, name='vfs_openpie_file_write', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void vfs_openpie_file_write(int offset) throws Exception;
-    public static final int vfs_openpie_file_write = 0x0801a0da;
+    public static final int vfs_openpie_file_write = 0x08019f46;
     public void vfs_openpie_file_write(InterruptHandler handler) throws Exception
     {
         call(this::vfs_openpie_file_write, handler);
     }
 
-    // function: Function(address=134324496, size=52, name='vfs_openpie_file_read', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134324092, size=52, name='vfs_openpie_file_read', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void vfs_openpie_file_read(int offset) throws Exception;
-    public static final int vfs_openpie_file_read = 0x0801a110;
+    public static final int vfs_openpie_file_read = 0x08019f7c;
     public void vfs_openpie_file_read(InterruptHandler handler) throws Exception
     {
         call(this::vfs_openpie_file_read, handler);
     }
 
-    // function: Function(address=134324548, size=92, name='mp_vfs_openpie_file_open', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134324144, size=92, name='mp_vfs_openpie_file_open', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void mp_vfs_openpie_file_open(int offset) throws Exception;
-    public static final int mp_vfs_openpie_file_open = 0x0801a144;
+    public static final int mp_vfs_openpie_file_open = 0x08019fb0;
     public void mp_vfs_openpie_file_open(InterruptHandler handler) throws Exception
     {
         call(this::mp_vfs_openpie_file_open, handler);
     }
 
-    // function: Function(address=134324640, size=48, name='vfs_openpie_file_make_new', path='build/openpie_vfs.o', has_indirect=False)
+    // function: Function(address=134324236, size=48, name='vfs_openpie_file_make_new', path='build/openpie_vfs.o', has_indirect=False)
     abstract protected void vfs_openpie_file_make_new(int offset) throws Exception;
-    public static final int vfs_openpie_file_make_new = 0x0801a1a0;
+    public static final int vfs_openpie_file_make_new = 0x0801a00c;
     public void vfs_openpie_file_make_new(InterruptHandler handler) throws Exception
     {
         call(this::vfs_openpie_file_make_new, handler);
     }
 
-    // function: Function(address=134324688, size=36, name='gc_helper_get_regs_and_sp', path='build/gchelper_m0.o', has_indirect=False)
+    // function: Function(address=134324284, size=36, name='gc_helper_get_regs_and_sp', path='build/gchelper_m0.o', has_indirect=False)
     abstract protected void gc_helper_get_regs_and_sp(int offset) throws Exception;
-    public static final int gc_helper_get_regs_and_sp = 0x0801a1d0;
+    public static final int gc_helper_get_regs_and_sp = 0x0801a03c;
     public void gc_helper_get_regs_and_sp(InterruptHandler handler) throws Exception
     {
         call(this::gc_helper_get_regs_and_sp, handler);
     }
 
-    // function: Function(address=134324724, size=8, name='stdio_obj___exit__', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
+    // function: Function(address=134324320, size=8, name='stdio_obj___exit__', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
     abstract protected void stdio_obj___exit__(int offset) throws Exception;
-    public static final int stdio_obj___exit__ = 0x0801a1f4;
+    public static final int stdio_obj___exit__ = 0x0801a060;
     public void stdio_obj___exit__(InterruptHandler handler) throws Exception
     {
         call(this::stdio_obj___exit__, handler);
     }
 
-    // function: Function(address=134324732, size=16, name='stdio_obj_print', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
+    // function: Function(address=134324328, size=16, name='stdio_obj_print', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
     abstract protected void stdio_obj_print(int offset) throws Exception;
-    public static final int stdio_obj_print = 0x0801a1fc;
+    public static final int stdio_obj_print = 0x0801a068;
     public void stdio_obj_print(InterruptHandler handler) throws Exception
     {
         call(this::stdio_obj_print, handler);
     }
 
-    // function: Function(address=134324748, size=16, name='stdio_buffer_write', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
+    // function: Function(address=134324344, size=16, name='stdio_buffer_write', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
     abstract protected void stdio_buffer_write(int offset) throws Exception;
-    public static final int stdio_buffer_write = 0x0801a20c;
+    public static final int stdio_buffer_write = 0x0801a078;
     public void stdio_buffer_write(InterruptHandler handler) throws Exception
     {
         call(this::stdio_buffer_write, handler);
     }
 
-    // function: Function(address=134324764, size=26, name='stdio_buffer_read', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
+    // function: Function(address=134324360, size=26, name='stdio_buffer_read', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
     abstract protected void stdio_buffer_read(int offset) throws Exception;
-    public static final int stdio_buffer_read = 0x0801a21c;
+    public static final int stdio_buffer_read = 0x0801a088;
     public void stdio_buffer_read(InterruptHandler handler) throws Exception
     {
         call(this::stdio_buffer_read, handler);
     }
 
-    // function: Function(address=134324790, size=36, name='stdio_write', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
+    // function: Function(address=134324386, size=36, name='stdio_write', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
     abstract protected void stdio_write(int offset) throws Exception;
-    public static final int stdio_write = 0x0801a236;
+    public static final int stdio_write = 0x0801a0a2;
     public void stdio_write(InterruptHandler handler) throws Exception
     {
         call(this::stdio_write, handler);
     }
 
-    // function: Function(address=134324826, size=50, name='stdio_read', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
+    // function: Function(address=134324422, size=50, name='stdio_read', path='build/lib/utils/sys_stdio_mphal.o', has_indirect=False)
     abstract protected void stdio_read(int offset) throws Exception;
-    public static final int stdio_read = 0x0801a25a;
+    public static final int stdio_read = 0x0801a0c6;
     public void stdio_read(InterruptHandler handler) throws Exception
     {
         call(this::stdio_read, handler);
     }
 
-    // function: Function(address=134324876, size=44, name='mp_hal_stdout_tx_strn_cooked', path='build/lib/utils/stdout_helpers.o', has_indirect=False)
+    // function: Function(address=134324472, size=44, name='mp_hal_stdout_tx_strn_cooked', path='build/lib/utils/stdout_helpers.o', has_indirect=False)
     abstract protected void mp_hal_stdout_tx_strn_cooked(int offset) throws Exception;
-    public static final int mp_hal_stdout_tx_strn_cooked = 0x0801a28c;
+    public static final int mp_hal_stdout_tx_strn_cooked = 0x0801a0f8;
     public void mp_hal_stdout_tx_strn_cooked(InterruptHandler handler) throws Exception
     {
         call(this::mp_hal_stdout_tx_strn_cooked, handler);
     }
 
-    // function: Function(address=134324920, size=18, name='mp_hal_stdout_tx_str', path='build/lib/utils/stdout_helpers.o', has_indirect=False)
+    // function: Function(address=134324516, size=18, name='mp_hal_stdout_tx_str', path='build/lib/utils/stdout_helpers.o', has_indirect=False)
     abstract protected void mp_hal_stdout_tx_str(int offset) throws Exception;
-    public static final int mp_hal_stdout_tx_str = 0x0801a2b8;
+    public static final int mp_hal_stdout_tx_str = 0x0801a124;
     public void mp_hal_stdout_tx_str(InterruptHandler handler) throws Exception
     {
         call(this::mp_hal_stdout_tx_str, handler);
     }
 
-    // function: Function(address=134324940, size=28, name='mp_hal_set_interrupt_char', path='build/lib/utils/interrupt_char.o', has_indirect=False)
+    // function: Function(address=134324536, size=28, name='mp_hal_set_interrupt_char', path='build/lib/utils/interrupt_char.o', has_indirect=False)
     abstract protected void mp_hal_set_interrupt_char(int offset) throws Exception;
-    public static final int mp_hal_set_interrupt_char = 0x0801a2cc;
+    public static final int mp_hal_set_interrupt_char = 0x0801a138;
     public void mp_hal_set_interrupt_char(InterruptHandler handler) throws Exception
     {
         call(this::mp_hal_set_interrupt_char, handler);
     }
 
-    // function: Function(address=134324968, size=308, name='parse_compile_execute', path='build/lib/utils/pyexec.o', has_indirect=False)
+    // function: Function(address=134324564, size=308, name='parse_compile_execute', path='build/lib/utils/pyexec.o', has_indirect=False)
     abstract protected void parse_compile_execute(int offset) throws Exception;
-    public static final int parse_compile_execute = 0x0801a2e8;
+    public static final int parse_compile_execute = 0x0801a154;
     public void parse_compile_execute(InterruptHandler handler) throws Exception
     {
         call(this::parse_compile_execute, handler);
     }
 
-    // function: Function(address=134325276, size=160, name='pyexec_raw_repl', path='build/lib/utils/pyexec.o', has_indirect=False)
+    // function: Function(address=134324872, size=160, name='pyexec_raw_repl', path='build/lib/utils/pyexec.o', has_indirect=False)
     abstract protected void pyexec_raw_repl(int offset) throws Exception;
-    public static final int pyexec_raw_repl = 0x0801a41c;
+    public static final int pyexec_raw_repl = 0x0801a288;
     public void pyexec_raw_repl(InterruptHandler handler) throws Exception
     {
         call(this::pyexec_raw_repl, handler);
     }
 
-    // function: Function(address=134325436, size=272, name='pyexec_friendly_repl', path='build/lib/utils/pyexec.o', has_indirect=False)
+    // function: Function(address=134325032, size=272, name='pyexec_friendly_repl', path='build/lib/utils/pyexec.o', has_indirect=False)
     abstract protected void pyexec_friendly_repl(int offset) throws Exception;
-    public static final int pyexec_friendly_repl = 0x0801a4bc;
+    public static final int pyexec_friendly_repl = 0x0801a328;
     public void pyexec_friendly_repl(InterruptHandler handler) throws Exception
     {
         call(this::pyexec_friendly_repl, handler);
     }
 
-    // function: Function(address=134325708, size=60, name='pyexec_frozen_module', path='build/lib/utils/pyexec.o', has_indirect=False)
+    // function: Function(address=134325304, size=60, name='pyexec_frozen_module', path='build/lib/utils/pyexec.o', has_indirect=False)
     abstract protected void pyexec_frozen_module(int offset) throws Exception;
-    public static final int pyexec_frozen_module = 0x0801a5cc;
+    public static final int pyexec_frozen_module = 0x0801a438;
     public void pyexec_frozen_module(InterruptHandler handler) throws Exception
     {
         call(this::pyexec_frozen_module, handler);
     }
 
-    // function: Function(address=134325768, size=70, name='memcpy', path='build/lib/libc/string0.o', has_indirect=False)
+    // function: Function(address=134325364, size=70, name='memcpy', path='build/lib/libc/string0.o', has_indirect=False)
     abstract protected void memcpy(int offset) throws Exception;
-    public static final int memcpy = 0x0801a608;
+    public static final int memcpy = 0x0801a474;
     public void memcpy(InterruptHandler handler) throws Exception
     {
         call(this::memcpy, handler);
     }
 
-    // function: Function(address=134325838, size=36, name='memmove', path='build/lib/libc/string0.o', has_indirect=False)
+    // function: Function(address=134325434, size=36, name='memmove', path='build/lib/libc/string0.o', has_indirect=False)
     abstract protected void memmove(int offset) throws Exception;
-    public static final int memmove = 0x0801a64e;
+    public static final int memmove = 0x0801a4ba;
     public void memmove(InterruptHandler handler) throws Exception
     {
         call(this::memmove, handler);
     }
 
-    // function: Function(address=134325874, size=64, name='memset', path='build/lib/libc/string0.o', has_indirect=False)
+    // function: Function(address=134325470, size=64, name='memset', path='build/lib/libc/string0.o', has_indirect=False)
     abstract protected void memset(int offset) throws Exception;
-    public static final int memset = 0x0801a672;
+    public static final int memset = 0x0801a4de;
     public void memset(InterruptHandler handler) throws Exception
     {
         call(this::memset, handler);
     }
 
-    // function: Function(address=134325938, size=36, name='memcmp', path='build/lib/libc/string0.o', has_indirect=False)
+    // function: Function(address=134325534, size=36, name='memcmp', path='build/lib/libc/string0.o', has_indirect=False)
     abstract protected void memcmp(int offset) throws Exception;
-    public static final int memcmp = 0x0801a6b2;
+    public static final int memcmp = 0x0801a51e;
     public void memcmp(InterruptHandler handler) throws Exception
     {
         call(this::memcmp, handler);
     }
 
-    // function: Function(address=134325974, size=18, name='strlen', path='build/lib/libc/string0.o', has_indirect=False)
+    // function: Function(address=134325570, size=18, name='strlen', path='build/lib/libc/string0.o', has_indirect=False)
     abstract protected void strlen(int offset) throws Exception;
-    public static final int strlen = 0x0801a6d6;
+    public static final int strlen = 0x0801a542;
     public void strlen(InterruptHandler handler) throws Exception
     {
         call(this::strlen, handler);
     }
 
-    // function: Function(address=134325992, size=46, name='strcmp', path='build/lib/libc/string0.o', has_indirect=False)
+    // function: Function(address=134325588, size=46, name='strcmp', path='build/lib/libc/string0.o', has_indirect=False)
     abstract protected void strcmp(int offset) throws Exception;
-    public static final int strcmp = 0x0801a6e8;
+    public static final int strcmp = 0x0801a554;
     public void strcmp(InterruptHandler handler) throws Exception
     {
         call(this::strcmp, handler);
     }
 
-    // function: Function(address=134326038, size=68, name='strncmp', path='build/lib/libc/string0.o', has_indirect=False)
+    // function: Function(address=134325634, size=68, name='strncmp', path='build/lib/libc/string0.o', has_indirect=False)
     abstract protected void strncmp(int offset) throws Exception;
-    public static final int strncmp = 0x0801a716;
+    public static final int strncmp = 0x0801a582;
     public void strncmp(InterruptHandler handler) throws Exception
     {
         call(this::strncmp, handler);
     }
 
-    // function: Function(address=134326106, size=24, name='strchr', path='build/lib/libc/string0.o', has_indirect=False)
+    // function: Function(address=134325702, size=24, name='strchr', path='build/lib/libc/string0.o', has_indirect=False)
     abstract protected void strchr(int offset) throws Exception;
-    public static final int strchr = 0x0801a75a;
+    public static final int strchr = 0x0801a5c6;
     public void strchr(InterruptHandler handler) throws Exception
     {
         call(this::strchr, handler);
     }
 
-    // function: Function(address=134326132, size=48, name='mp_hal_move_cursor_back', path='build/lib/mp-readline/readline.o', has_indirect=False)
+    // function: Function(address=134325728, size=48, name='mp_hal_move_cursor_back', path='build/lib/mp-readline/readline.o', has_indirect=False)
     abstract protected void mp_hal_move_cursor_back(int offset) throws Exception;
-    public static final int mp_hal_move_cursor_back = 0x0801a774;
+    public static final int mp_hal_move_cursor_back = 0x0801a5e0;
     public void mp_hal_move_cursor_back(InterruptHandler handler) throws Exception
     {
         call(this::mp_hal_move_cursor_back, handler);
     }
 
-    // function: Function(address=134326180, size=36, name='readline_init', path='build/lib/mp-readline/readline.o', has_indirect=False)
+    // function: Function(address=134325776, size=36, name='readline_init', path='build/lib/mp-readline/readline.o', has_indirect=False)
     abstract protected void readline_init(int offset) throws Exception;
-    public static final int readline_init = 0x0801a7a4;
+    public static final int readline_init = 0x0801a610;
     public void readline_init(InterruptHandler handler) throws Exception
     {
         call(this::readline_init, handler);
     }
 
-    // function: Function(address=134326216, size=96, name='readline_push_history', path='build/lib/mp-readline/readline.o', has_indirect=False)
+    // function: Function(address=134325812, size=96, name='readline_push_history', path='build/lib/mp-readline/readline.o', has_indirect=False)
     abstract protected void readline_push_history(int offset) throws Exception;
-    public static final int readline_push_history = 0x0801a7c8;
+    public static final int readline_push_history = 0x0801a634;
     public void readline_push_history(InterruptHandler handler) throws Exception
     {
         call(this::readline_push_history, handler);
     }
 
-    // function: Function(address=134326312, size=628, name='readline_process_char', path='build/lib/mp-readline/readline.o', has_indirect=False)
+    // function: Function(address=134325908, size=628, name='readline_process_char', path='build/lib/mp-readline/readline.o', has_indirect=False)
     abstract protected void readline_process_char(int offset) throws Exception;
-    public static final int readline_process_char = 0x0801a828;
+    public static final int readline_process_char = 0x0801a694;
     public void readline_process_char(InterruptHandler handler) throws Exception
     {
         call(this::readline_process_char, handler);
     }
 
-    // function: Function(address=134326940, size=20, name='readline', path='build/lib/mp-readline/readline.o', has_indirect=False)
+    // function: Function(address=134326536, size=20, name='readline', path='build/lib/mp-readline/readline.o', has_indirect=False)
     abstract protected void readline(int offset) throws Exception;
-    public static final int readline = 0x0801aa9c;
+    public static final int readline = 0x0801a908;
     public void readline(InterruptHandler handler) throws Exception
     {
         call(this::readline, handler);
     }
 
-    // function: Function(address=134326960, size=98, name='scalbnf', path='build/lib/libm/math.o', has_indirect=False)
+    // function: Function(address=134326556, size=98, name='scalbnf', path='build/lib/libm/math.o', has_indirect=False)
     abstract protected void scalbnf(int offset) throws Exception;
-    public static final int scalbnf = 0x0801aab0;
+    public static final int scalbnf = 0x0801a91c;
     public void scalbnf(InterruptHandler handler) throws Exception
     {
         call(this::scalbnf, handler);
     }
 
-    // function: Function(address=134327060, size=1696, name='powf', path='build/lib/libm/math.o', has_indirect=True)
+    // function: Function(address=134326656, size=1696, name='powf', path='build/lib/libm/math.o', has_indirect=True)
     abstract protected void powf(int offset) throws Exception;
-    public static final int powf = 0x0801ab14;
+    public static final int powf = 0x0801a980;
     public void powf(InterruptHandler handler) throws Exception
     {
         call(this::powf, handler);
     }
 
-    // function: Function(address=134328756, size=344, name='expf', path='build/lib/libm/math.o', has_indirect=True)
+    // function: Function(address=134328352, size=344, name='expf', path='build/lib/libm/math.o', has_indirect=True)
     abstract protected void expf(int offset) throws Exception;
-    public static final int expf = 0x0801b1b4;
+    public static final int expf = 0x0801b020;
     public void expf(InterruptHandler handler) throws Exception
     {
         call(this::expf, handler);
     }
 
-    // function: Function(address=134329100, size=664, name='expm1f', path='build/lib/libm/math.o', has_indirect=True)
+    // function: Function(address=134328696, size=664, name='expm1f', path='build/lib/libm/math.o', has_indirect=True)
     abstract protected void expm1f(int offset) throws Exception;
-    public static final int expm1f = 0x0801b30c;
+    public static final int expm1f = 0x0801b178;
     public void expm1f(InterruptHandler handler) throws Exception
     {
         call(this::expm1f, handler);
     }
 
-    // function: Function(address=134329764, size=36, name='__expo2f', path='build/lib/libm/math.o', has_indirect=False)
+    // function: Function(address=134329360, size=36, name='__expo2f', path='build/lib/libm/math.o', has_indirect=False)
     abstract protected void __expo2f(int offset) throws Exception;
-    public static final int __expo2f = 0x0801b5a4;
+    public static final int __expo2f = 0x0801b410;
     public void __expo2f(InterruptHandler handler) throws Exception
     {
         call(this::__expo2f, handler);
     }
 
-    // function: Function(address=134329800, size=340, name='logf', path='build/lib/libm/math.o', has_indirect=False)
+    // function: Function(address=134329396, size=340, name='logf', path='build/lib/libm/math.o', has_indirect=False)
     abstract protected void logf(int offset) throws Exception;
-    public static final int logf = 0x0801b5c8;
+    public static final int logf = 0x0801b434;
     public void logf(InterruptHandler handler) throws Exception
     {
         call(this::logf, handler);
     }
 
-    // function: Function(address=134330140, size=20, name='log10f', path='build/lib/libm/math.o', has_indirect=True)
+    // function: Function(address=134329736, size=20, name='log10f', path='build/lib/libm/math.o', has_indirect=True)
     abstract protected void log10f(int offset) throws Exception;
-    public static final int log10f = 0x0801b71c;
+    public static final int log10f = 0x0801b588;
     public void log10f(InterruptHandler handler) throws Exception
     {
         call(this::log10f, handler);
     }
 
-    // function: Function(address=134330160, size=144, name='coshf', path='build/lib/libm/math.o', has_indirect=True)
+    // function: Function(address=134329756, size=144, name='coshf', path='build/lib/libm/math.o', has_indirect=True)
     abstract protected void coshf(int offset) throws Exception;
-    public static final int coshf = 0x0801b730;
+    public static final int coshf = 0x0801b59c;
     public void coshf(InterruptHandler handler) throws Exception
     {
         call(this::coshf, handler);
     }
 
-    // function: Function(address=134330304, size=160, name='sinhf', path='build/lib/libm/math.o', has_indirect=True)
+    // function: Function(address=134329900, size=160, name='sinhf', path='build/lib/libm/math.o', has_indirect=True)
     abstract protected void sinhf(int offset) throws Exception;
-    public static final int sinhf = 0x0801b7c0;
+    public static final int sinhf = 0x0801b62c;
     public void sinhf(InterruptHandler handler) throws Exception
     {
         call(this::sinhf, handler);
     }
 
-    // function: Function(address=134330464, size=76, name='tanhf', path='build/lib/libm/math.o', has_indirect=True)
+    // function: Function(address=134330060, size=76, name='tanhf', path='build/lib/libm/math.o', has_indirect=True)
     abstract protected void tanhf(int offset) throws Exception;
-    public static final int tanhf = 0x0801b860;
+    public static final int tanhf = 0x0801b6cc;
     public void tanhf(InterruptHandler handler) throws Exception
     {
         call(this::tanhf, handler);
     }
 
-    // function: Function(address=134330540, size=88, name='ceilf', path='build/lib/libm/math.o', has_indirect=False)
+    // function: Function(address=134330136, size=88, name='ceilf', path='build/lib/libm/math.o', has_indirect=False)
     abstract protected void ceilf(int offset) throws Exception;
-    public static final int ceilf = 0x0801b8ac;
+    public static final int ceilf = 0x0801b718;
     public void ceilf(InterruptHandler handler) throws Exception
     {
         call(this::ceilf, handler);
     }
 
-    // function: Function(address=134330628, size=88, name='floorf', path='build/lib/libm/math.o', has_indirect=False)
+    // function: Function(address=134330224, size=88, name='floorf', path='build/lib/libm/math.o', has_indirect=False)
     abstract protected void floorf(int offset) throws Exception;
-    public static final int floorf = 0x0801b904;
+    public static final int floorf = 0x0801b770;
     public void floorf(InterruptHandler handler) throws Exception
     {
         call(this::floorf, handler);
     }
 
-    // function: Function(address=134330716, size=48, name='truncf', path='build/lib/libm/math.o', has_indirect=False)
+    // function: Function(address=134330312, size=48, name='truncf', path='build/lib/libm/math.o', has_indirect=False)
     abstract protected void truncf(int offset) throws Exception;
-    public static final int truncf = 0x0801b95c;
+    public static final int truncf = 0x0801b7c8;
     public void truncf(InterruptHandler handler) throws Exception
     {
         call(this::truncf, handler);
     }
 
-    // function: Function(address=134330764, size=160, name='acoshf', path='build/lib/libm/acoshf.o', has_indirect=True)
+    // function: Function(address=134330360, size=160, name='acoshf', path='build/lib/libm/acoshf.o', has_indirect=True)
     abstract protected void acoshf(int offset) throws Exception;
-    public static final int acoshf = 0x0801b98c;
+    public static final int acoshf = 0x0801b7f8;
     public void acoshf(InterruptHandler handler) throws Exception
     {
         call(this::acoshf, handler);
     }
 
-    // function: Function(address=134330924, size=80, name='text_R', path='build/lib/libm/asinfacosf.o', has_indirect=False)
+    // function: Function(address=134330520, size=80, name='text_R', path='build/lib/libm/asinfacosf.o', has_indirect=False)
     abstract protected void text_R(int offset) throws Exception;
-    public static final int text_R = 0x0801ba2c;
+    public static final int text_R = 0x0801b898;
     public void text_R(InterruptHandler handler) throws Exception
     {
         call(this::text_R, handler);
     }
 
-    // function: Function(address=134331004, size=196, name='asinf', path='build/lib/libm/asinfacosf.o', has_indirect=True)
+    // function: Function(address=134330600, size=196, name='asinf', path='build/lib/libm/asinfacosf.o', has_indirect=True)
     abstract protected void asinf(int offset) throws Exception;
-    public static final int asinf = 0x0801ba7c;
+    public static final int asinf = 0x0801b8e8;
     public void asinf(InterruptHandler handler) throws Exception
     {
         call(this::asinf, handler);
     }
 
-    // function: Function(address=134331200, size=288, name='acosf', path='build/lib/libm/asinfacosf.o', has_indirect=True)
+    // function: Function(address=134330796, size=288, name='acosf', path='build/lib/libm/asinfacosf.o', has_indirect=True)
     abstract protected void acosf(int offset) throws Exception;
-    public static final int acosf = 0x0801bb40;
+    public static final int acosf = 0x0801b9ac;
     public void acosf(InterruptHandler handler) throws Exception
     {
         call(this::acosf, handler);
     }
 
-    // function: Function(address=134331488, size=200, name='asinhf', path='build/lib/libm/asinhf.o', has_indirect=True)
+    // function: Function(address=134331084, size=200, name='asinhf', path='build/lib/libm/asinhf.o', has_indirect=True)
     abstract protected void asinhf(int offset) throws Exception;
-    public static final int asinhf = 0x0801bc60;
+    public static final int asinhf = 0x0801bacc;
     public void asinhf(InterruptHandler handler) throws Exception
     {
         call(this::asinhf, handler);
     }
 
-    // function: Function(address=134331688, size=304, name='atan2f', path='build/lib/libm/atan2f.o', has_indirect=True)
+    // function: Function(address=134331284, size=304, name='atan2f', path='build/lib/libm/atan2f.o', has_indirect=True)
     abstract protected void atan2f(int offset) throws Exception;
-    public static final int atan2f = 0x0801bd28;
+    public static final int atan2f = 0x0801bb94;
     public void atan2f(InterruptHandler handler) throws Exception
     {
         call(this::atan2f, handler);
     }
 
-    // function: Function(address=134331992, size=456, name='atanf', path='build/lib/libm/atanf.o', has_indirect=True)
+    // function: Function(address=134331588, size=456, name='atanf', path='build/lib/libm/atanf.o', has_indirect=True)
     abstract protected void atanf(int offset) throws Exception;
-    public static final int atanf = 0x0801be58;
+    public static final int atanf = 0x0801bcc4;
     public void atanf(InterruptHandler handler) throws Exception
     {
         call(this::atanf, handler);
     }
 
-    // function: Function(address=134332448, size=144, name='atanhf', path='build/lib/libm/atanhf.o', has_indirect=True)
+    // function: Function(address=134332044, size=144, name='atanhf', path='build/lib/libm/atanhf.o', has_indirect=True)
     abstract protected void atanhf(int offset) throws Exception;
-    public static final int atanhf = 0x0801c020;
+    public static final int atanhf = 0x0801be8c;
     public void atanhf(InterruptHandler handler) throws Exception
     {
         call(this::atanhf, handler);
     }
 
-    // function: Function(address=134332592, size=692, name='__ieee754_rem_pio2f', path='build/lib/libm/ef_rem_pio2.o', has_indirect=False)
+    // function: Function(address=134332188, size=692, name='__ieee754_rem_pio2f', path='build/lib/libm/ef_rem_pio2.o', has_indirect=False)
     abstract protected void __ieee754_rem_pio2f(int offset) throws Exception;
-    public static final int __ieee754_rem_pio2f = 0x0801c0b0;
+    public static final int __ieee754_rem_pio2f = 0x0801bf1c;
     public void __ieee754_rem_pio2f(InterruptHandler handler) throws Exception
     {
         call(this::__ieee754_rem_pio2f, handler);
     }
 
-    // function: Function(address=134333284, size=176, name='sqrtf', path='build/lib/libm/ef_sqrt.o', has_indirect=True)
+    // function: Function(address=134332880, size=176, name='sqrtf', path='build/lib/libm/ef_sqrt.o', has_indirect=True)
     abstract protected void sqrtf(int offset) throws Exception;
-    public static final int sqrtf = 0x0801c364;
+    public static final int sqrtf = 0x0801c1d0;
     public void sqrtf(InterruptHandler handler) throws Exception
     {
         call(this::sqrtf, handler);
     }
 
-    // function: Function(address=134333460, size=1976, name='__ieee754_lgammaf_r', path='build/lib/libm/erf_lgamma.o', has_indirect=False)
+    // function: Function(address=134333056, size=1976, name='__ieee754_lgammaf_r', path='build/lib/libm/erf_lgamma.o', has_indirect=False)
     abstract protected void __ieee754_lgammaf_r(int offset) throws Exception;
-    public static final int __ieee754_lgammaf_r = 0x0801c414;
+    public static final int __ieee754_lgammaf_r = 0x0801c280;
     public void __ieee754_lgammaf_r(InterruptHandler handler) throws Exception
     {
         call(this::__ieee754_lgammaf_r, handler);
     }
 
-    // function: Function(address=134335436, size=208, name='fmodf', path='build/lib/libm/fmodf.o', has_indirect=True)
+    // function: Function(address=134335032, size=208, name='fmodf', path='build/lib/libm/fmodf.o', has_indirect=True)
     abstract protected void fmodf(int offset) throws Exception;
-    public static final int fmodf = 0x0801cbcc;
+    public static final int fmodf = 0x0801ca38;
     public void fmodf(InterruptHandler handler) throws Exception
     {
         call(this::fmodf, handler);
     }
 
-    // function: Function(address=134335644, size=260, name='__kernel_cosf', path='build/lib/libm/kf_cos.o', has_indirect=False)
+    // function: Function(address=134335240, size=260, name='__kernel_cosf', path='build/lib/libm/kf_cos.o', has_indirect=False)
     abstract protected void __kernel_cosf(int offset) throws Exception;
-    public static final int __kernel_cosf = 0x0801cc9c;
+    public static final int __kernel_cosf = 0x0801cb08;
     public void __kernel_cosf(InterruptHandler handler) throws Exception
     {
         call(this::__kernel_cosf, handler);
     }
 
-    // function: Function(address=134335904, size=1428, name='__kernel_rem_pio2f', path='build/lib/libm/kf_rem_pio2.o', has_indirect=False)
+    // function: Function(address=134335500, size=1428, name='__kernel_rem_pio2f', path='build/lib/libm/kf_rem_pio2.o', has_indirect=False)
     abstract protected void __kernel_rem_pio2f(int offset) throws Exception;
-    public static final int __kernel_rem_pio2f = 0x0801cda0;
+    public static final int __kernel_rem_pio2f = 0x0801cc0c;
     public void __kernel_rem_pio2f(InterruptHandler handler) throws Exception
     {
         call(this::__kernel_rem_pio2f, handler);
     }
 
-    // function: Function(address=134337332, size=236, name='__kernel_sinf', path='build/lib/libm/kf_sin.o', has_indirect=False)
+    // function: Function(address=134336928, size=236, name='__kernel_sinf', path='build/lib/libm/kf_sin.o', has_indirect=False)
     abstract protected void __kernel_sinf(int offset) throws Exception;
-    public static final int __kernel_sinf = 0x0801d334;
+    public static final int __kernel_sinf = 0x0801d1a0;
     public void __kernel_sinf(InterruptHandler handler) throws Exception
     {
         call(this::__kernel_sinf, handler);
     }
 
-    // function: Function(address=134337568, size=604, name='__kernel_tanf', path='build/lib/libm/kf_tan.o', has_indirect=False)
+    // function: Function(address=134337164, size=604, name='__kernel_tanf', path='build/lib/libm/kf_tan.o', has_indirect=False)
     abstract protected void __kernel_tanf(int offset) throws Exception;
-    public static final int __kernel_tanf = 0x0801d420;
+    public static final int __kernel_tanf = 0x0801d28c;
     public void __kernel_tanf(InterruptHandler handler) throws Exception
     {
         call(this::__kernel_tanf, handler);
     }
 
-    // function: Function(address=134338172, size=448, name='log1pf', path='build/lib/libm/log1pf.o', has_indirect=False)
+    // function: Function(address=134337768, size=448, name='log1pf', path='build/lib/libm/log1pf.o', has_indirect=False)
     abstract protected void log1pf(int offset) throws Exception;
-    public static final int log1pf = 0x0801d67c;
+    public static final int log1pf = 0x0801d4e8;
     public void log1pf(InterruptHandler handler) throws Exception
     {
         call(this::log1pf, handler);
     }
 
-    // function: Function(address=134338620, size=74, name='nearbyintf', path='build/lib/libm/nearbyintf.o', has_indirect=False)
+    // function: Function(address=134338216, size=74, name='nearbyintf', path='build/lib/libm/nearbyintf.o', has_indirect=False)
     abstract protected void nearbyintf(int offset) throws Exception;
-    public static final int nearbyintf = 0x0801d83c;
+    public static final int nearbyintf = 0x0801d6a8;
     public void nearbyintf(InterruptHandler handler) throws Exception
     {
         call(this::nearbyintf, handler);
     }
 
-    // function: Function(address=134338696, size=108, name='cosf', path='build/lib/libm/sf_cos.o', has_indirect=True)
+    // function: Function(address=134338292, size=108, name='cosf', path='build/lib/libm/sf_cos.o', has_indirect=True)
     abstract protected void cosf(int offset) throws Exception;
-    public static final int cosf = 0x0801d888;
+    public static final int cosf = 0x0801d6f4;
     public void cosf(InterruptHandler handler) throws Exception
     {
         call(this::cosf, handler);
     }
 
-    // function: Function(address=134338804, size=1208, name='erff', path='build/lib/libm/sf_erf.o', has_indirect=True)
+    // function: Function(address=134338400, size=1208, name='erff', path='build/lib/libm/sf_erf.o', has_indirect=True)
     abstract protected void erff(int offset) throws Exception;
-    public static final int erff = 0x0801d8f4;
+    public static final int erff = 0x0801d760;
     public void erff(InterruptHandler handler) throws Exception
     {
         call(this::erff, handler);
     }
 
-    // function: Function(address=134340012, size=1212, name='erfcf', path='build/lib/libm/sf_erf.o', has_indirect=True)
+    // function: Function(address=134339608, size=1212, name='erfcf', path='build/lib/libm/sf_erf.o', has_indirect=True)
     abstract protected void erfcf(int offset) throws Exception;
-    public static final int erfcf = 0x0801ddac;
+    public static final int erfcf = 0x0801dc18;
     public void erfcf(InterruptHandler handler) throws Exception
     {
         call(this::erfcf, handler);
     }
 
-    // function: Function(address=134341224, size=84, name='frexpf', path='build/lib/libm/sf_frexp.o', has_indirect=False)
+    // function: Function(address=134340820, size=84, name='frexpf', path='build/lib/libm/sf_frexp.o', has_indirect=False)
     abstract protected void frexpf(int offset) throws Exception;
-    public static final int frexpf = 0x0801e268;
+    public static final int frexpf = 0x0801e0d4;
     public void frexpf(InterruptHandler handler) throws Exception
     {
         call(this::frexpf, handler);
     }
 
-    // function: Function(address=134341308, size=64, name='ldexpf', path='build/lib/libm/sf_ldexp.o', has_indirect=False)
+    // function: Function(address=134340904, size=64, name='ldexpf', path='build/lib/libm/sf_ldexp.o', has_indirect=False)
     abstract protected void ldexpf(int offset) throws Exception;
-    public static final int ldexpf = 0x0801e2bc;
+    public static final int ldexpf = 0x0801e128;
     public void ldexpf(InterruptHandler handler) throws Exception
     {
         call(this::ldexpf, handler);
     }
 
-    // function: Function(address=134341372, size=68, name='modff', path='build/lib/libm/sf_modf.o', has_indirect=False)
+    // function: Function(address=134340968, size=68, name='modff', path='build/lib/libm/sf_modf.o', has_indirect=False)
     abstract protected void modff(int offset) throws Exception;
-    public static final int modff = 0x0801e2fc;
+    public static final int modff = 0x0801e168;
     public void modff(InterruptHandler handler) throws Exception
     {
         call(this::modff, handler);
     }
 
-    // function: Function(address=134341440, size=112, name='sinf', path='build/lib/libm/sf_sin.o', has_indirect=True)
+    // function: Function(address=134341036, size=112, name='sinf', path='build/lib/libm/sf_sin.o', has_indirect=True)
     abstract protected void sinf(int offset) throws Exception;
-    public static final int sinf = 0x0801e340;
+    public static final int sinf = 0x0801e1ac;
     public void sinf(InterruptHandler handler) throws Exception
     {
         call(this::sinf, handler);
     }
 
-    // function: Function(address=134341552, size=68, name='tanf', path='build/lib/libm/sf_tan.o', has_indirect=True)
+    // function: Function(address=134341148, size=68, name='tanf', path='build/lib/libm/sf_tan.o', has_indirect=True)
     abstract protected void tanf(int offset) throws Exception;
-    public static final int tanf = 0x0801e3b0;
+    public static final int tanf = 0x0801e21c;
     public void tanf(InterruptHandler handler) throws Exception
     {
         call(this::tanf, handler);
     }
 
-    // function: Function(address=134341620, size=10, name='lgammaf', path='build/lib/libm/wf_lgamma.o', has_indirect=True)
+    // function: Function(address=134341216, size=10, name='lgammaf', path='build/lib/libm/wf_lgamma.o', has_indirect=True)
     abstract protected void lgammaf(int offset) throws Exception;
-    public static final int lgammaf = 0x0801e3f4;
+    public static final int lgammaf = 0x0801e260;
     public void lgammaf(InterruptHandler handler) throws Exception
     {
         call(this::lgammaf, handler);
     }
 
-    // function: Function(address=134341630, size=26, name='tgammaf', path='build/lib/libm/wf_tgamma.o', has_indirect=True)
+    // function: Function(address=134341226, size=26, name='tgammaf', path='build/lib/libm/wf_tgamma.o', has_indirect=True)
     abstract protected void tgammaf(int offset) throws Exception;
-    public static final int tgammaf = 0x0801e3fe;
+    public static final int tgammaf = 0x0801e26a;
     public void tgammaf(InterruptHandler handler) throws Exception
     {
         call(this::tgammaf, handler);
     }
 
-    // function: Function(address=134341656, size=276, name='__aeabi_uidiv', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_udivsi3.o)', has_indirect=False)
+    // function: Function(address=134341252, size=276, name='__aeabi_uidiv', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_udivsi3.o)', has_indirect=False)
     abstract protected void __aeabi_uidiv(int offset) throws Exception;
-    public static final int __aeabi_uidiv = 0x0801e418;
+    public static final int __aeabi_uidiv = 0x0801e284;
     public void __aeabi_uidiv(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_uidiv, handler);
     }
 
-    // function: Function(address=134341924, size=8, name='__aeabi_uidivmod', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_udivsi3.o)', has_indirect=False)
+    // function: Function(address=134341520, size=8, name='__aeabi_uidivmod', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_udivsi3.o)', has_indirect=False)
     abstract protected void __aeabi_uidivmod(int offset) throws Exception;
-    public static final int __aeabi_uidivmod = 0x0801e524;
+    public static final int __aeabi_uidivmod = 0x0801e390;
     public void __aeabi_uidivmod(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_uidivmod, handler);
     }
 
-    // function: Function(address=134341932, size=468, name='__divsi3', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_divsi3.o)', has_indirect=False)
+    // function: Function(address=134341528, size=468, name='__divsi3', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_divsi3.o)', has_indirect=False)
     abstract protected void __divsi3(int offset) throws Exception;
-    public static final int __divsi3 = 0x0801e52c;
+    public static final int __divsi3 = 0x0801e398;
     public void __divsi3(InterruptHandler handler) throws Exception
     {
         call(this::__divsi3, handler);
     }
 
-    // function: Function(address=134342392, size=8, name='__aeabi_idivmod', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_divsi3.o)', has_indirect=False)
+    // function: Function(address=134341988, size=8, name='__aeabi_idivmod', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_divsi3.o)', has_indirect=False)
     abstract protected void __aeabi_idivmod(int offset) throws Exception;
-    public static final int __aeabi_idivmod = 0x0801e6f8;
+    public static final int __aeabi_idivmod = 0x0801e564;
     public void __aeabi_idivmod(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_idivmod, handler);
     }
 
-    // function: Function(address=134342400, size=4, name='__aeabi_idiv0', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_dvmd_tls.o)', has_indirect=False)
+    // function: Function(address=134341996, size=4, name='__aeabi_idiv0', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_dvmd_tls.o)', has_indirect=False)
     abstract protected void __aeabi_idiv0(int offset) throws Exception;
-    public static final int __aeabi_idiv0 = 0x0801e700;
+    public static final int __aeabi_idiv0 = 0x0801e56c;
     public void __aeabi_idiv0(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_idiv0, handler);
     }
 
-    // function: Function(address=134342404, size=116, name='__aeabi_cfrcmple', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
+    // function: Function(address=134342000, size=116, name='__aeabi_cfrcmple', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
     abstract protected void __aeabi_cfrcmple(int offset) throws Exception;
-    public static final int __aeabi_cfrcmple = 0x0801e704;
+    public static final int __aeabi_cfrcmple = 0x0801e570;
     public void __aeabi_cfrcmple(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_cfrcmple, handler);
     }
 
-    // function: Function(address=134342412, size=16, name='__aeabi_cfcmpeq', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
+    // function: Function(address=134342008, size=16, name='__aeabi_cfcmpeq', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
     abstract protected void __aeabi_cfcmpeq(int offset) throws Exception;
-    public static final int __aeabi_cfcmpeq = 0x0801e70c;
+    public static final int __aeabi_cfcmpeq = 0x0801e578;
     public void __aeabi_cfcmpeq(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_cfcmpeq, handler);
     }
 
-    // function: Function(address=134342428, size=12, name='__aeabi_fcmpeq', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
+    // function: Function(address=134342024, size=12, name='__aeabi_fcmpeq', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
     abstract protected void __aeabi_fcmpeq(int offset) throws Exception;
-    public static final int __aeabi_fcmpeq = 0x0801e71c;
+    public static final int __aeabi_fcmpeq = 0x0801e588;
     public void __aeabi_fcmpeq(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fcmpeq, handler);
     }
 
-    // function: Function(address=134342440, size=20, name='__aeabi_fcmplt', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
+    // function: Function(address=134342036, size=20, name='__aeabi_fcmplt', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
     abstract protected void __aeabi_fcmplt(int offset) throws Exception;
-    public static final int __aeabi_fcmplt = 0x0801e728;
+    public static final int __aeabi_fcmplt = 0x0801e594;
     public void __aeabi_fcmplt(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fcmplt, handler);
     }
 
-    // function: Function(address=134342460, size=20, name='__aeabi_fcmple', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
+    // function: Function(address=134342056, size=20, name='__aeabi_fcmple', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
     abstract protected void __aeabi_fcmple(int offset) throws Exception;
-    public static final int __aeabi_fcmple = 0x0801e73c;
+    public static final int __aeabi_fcmple = 0x0801e5a8;
     public void __aeabi_fcmple(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fcmple, handler);
     }
 
-    // function: Function(address=134342480, size=20, name='__aeabi_fcmpgt', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
+    // function: Function(address=134342076, size=20, name='__aeabi_fcmpgt', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
     abstract protected void __aeabi_fcmpgt(int offset) throws Exception;
-    public static final int __aeabi_fcmpgt = 0x0801e750;
+    public static final int __aeabi_fcmpgt = 0x0801e5bc;
     public void __aeabi_fcmpgt(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fcmpgt, handler);
     }
 
-    // function: Function(address=134342500, size=20, name='__aeabi_fcmpge', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
+    // function: Function(address=134342096, size=20, name='__aeabi_fcmpge', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_arm_cmpsf2.o)', has_indirect=False)
     abstract protected void __aeabi_fcmpge(int offset) throws Exception;
-    public static final int __aeabi_fcmpge = 0x0801e764;
+    public static final int __aeabi_fcmpge = 0x0801e5d0;
     public void __aeabi_fcmpge(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fcmpge, handler);
     }
 
-    // function: Function(address=134342520, size=48, name='__fixunssfsi', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_fixunssfsi.o)', has_indirect=False)
+    // function: Function(address=134342116, size=48, name='__fixunssfsi', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_fixunssfsi.o)', has_indirect=False)
     abstract protected void __fixunssfsi(int offset) throws Exception;
-    public static final int __fixunssfsi = 0x0801e778;
+    public static final int __fixunssfsi = 0x0801e5e4;
     public void __fixunssfsi(InterruptHandler handler) throws Exception
     {
         call(this::__fixunssfsi, handler);
     }
 
-    // function: Function(address=134342568, size=820, name='__aeabi_fadd', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(addsf3.o)', has_indirect=False)
+    // function: Function(address=134342164, size=820, name='__aeabi_fadd', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(addsf3.o)', has_indirect=False)
     abstract protected void __aeabi_fadd(int offset) throws Exception;
-    public static final int __aeabi_fadd = 0x0801e7a8;
+    public static final int __aeabi_fadd = 0x0801e614;
     public void __aeabi_fadd(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fadd, handler);
     }
 
-    // function: Function(address=134343388, size=548, name='__aeabi_fdiv', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(divsf3.o)', has_indirect=False)
+    // function: Function(address=134342984, size=548, name='__aeabi_fdiv', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(divsf3.o)', has_indirect=False)
     abstract protected void __aeabi_fdiv(int offset) throws Exception;
-    public static final int __aeabi_fdiv = 0x0801eadc;
+    public static final int __aeabi_fdiv = 0x0801e948;
     public void __aeabi_fdiv(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fdiv, handler);
     }
 
-    // function: Function(address=134343936, size=80, name='__eqsf2', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(eqsf2.o)', has_indirect=False)
+    // function: Function(address=134343532, size=80, name='__eqsf2', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(eqsf2.o)', has_indirect=False)
     abstract protected void __eqsf2(int offset) throws Exception;
-    public static final int __eqsf2 = 0x0801ed00;
+    public static final int __eqsf2 = 0x0801eb6c;
     public void __eqsf2(InterruptHandler handler) throws Exception
     {
         call(this::__eqsf2, handler);
     }
 
-    // function: Function(address=134344016, size=156, name='__gesf2', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(gesf2.o)', has_indirect=False)
+    // function: Function(address=134343612, size=156, name='__gesf2', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(gesf2.o)', has_indirect=False)
     abstract protected void __gesf2(int offset) throws Exception;
-    public static final int __gesf2 = 0x0801ed50;
+    public static final int __gesf2 = 0x0801ebbc;
     public void __gesf2(InterruptHandler handler) throws Exception
     {
         call(this::__gesf2, handler);
     }
 
-    // function: Function(address=134344172, size=160, name='__ltsf2', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(lesf2.o)', has_indirect=False)
+    // function: Function(address=134343768, size=160, name='__ltsf2', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(lesf2.o)', has_indirect=False)
     abstract protected void __ltsf2(int offset) throws Exception;
-    public static final int __ltsf2 = 0x0801edec;
+    public static final int __ltsf2 = 0x0801ec58;
     public void __ltsf2(InterruptHandler handler) throws Exception
     {
         call(this::__ltsf2, handler);
     }
 
-    // function: Function(address=134344332, size=612, name='__aeabi_fmul', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(mulsf3.o)', has_indirect=False)
+    // function: Function(address=134343928, size=612, name='__aeabi_fmul', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(mulsf3.o)', has_indirect=False)
     abstract protected void __aeabi_fmul(int offset) throws Exception;
-    public static final int __aeabi_fmul = 0x0801ee8c;
+    public static final int __aeabi_fmul = 0x0801ecf8;
     public void __aeabi_fmul(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fmul, handler);
     }
 
-    // function: Function(address=134344944, size=904, name='__aeabi_fsub', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(subsf3.o)', has_indirect=False)
+    // function: Function(address=134344540, size=904, name='__aeabi_fsub', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(subsf3.o)', has_indirect=False)
     abstract protected void __aeabi_fsub(int offset) throws Exception;
-    public static final int __aeabi_fsub = 0x0801f0f0;
+    public static final int __aeabi_fsub = 0x0801ef5c;
     public void __aeabi_fsub(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fsub, handler);
     }
 
-    // function: Function(address=134345848, size=44, name='__aeabi_fcmpun', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(unordsf2.o)', has_indirect=False)
+    // function: Function(address=134345444, size=44, name='__aeabi_fcmpun', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(unordsf2.o)', has_indirect=False)
     abstract protected void __aeabi_fcmpun(int offset) throws Exception;
-    public static final int __aeabi_fcmpun = 0x0801f478;
+    public static final int __aeabi_fcmpun = 0x0801f2e4;
     public void __aeabi_fcmpun(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_fcmpun, handler);
     }
 
-    // function: Function(address=134345892, size=64, name='__aeabi_f2iz', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(fixsfsi.o)', has_indirect=False)
+    // function: Function(address=134345488, size=64, name='__aeabi_f2iz', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(fixsfsi.o)', has_indirect=False)
     abstract protected void __aeabi_f2iz(int offset) throws Exception;
-    public static final int __aeabi_f2iz = 0x0801f4a4;
+    public static final int __aeabi_f2iz = 0x0801f310;
     public void __aeabi_f2iz(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_f2iz, handler);
     }
 
-    // function: Function(address=134345956, size=148, name='__aeabi_i2f', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(floatsisf.o)', has_indirect=False)
+    // function: Function(address=134345552, size=148, name='__aeabi_i2f', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(floatsisf.o)', has_indirect=False)
     abstract protected void __aeabi_i2f(int offset) throws Exception;
-    public static final int __aeabi_i2f = 0x0801f4e4;
+    public static final int __aeabi_i2f = 0x0801f350;
     public void __aeabi_i2f(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_i2f, handler);
     }
 
-    // function: Function(address=134346104, size=128, name='__aeabi_ui2f', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(floatunsisf.o)', has_indirect=False)
+    // function: Function(address=134345700, size=128, name='__aeabi_ui2f', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(floatunsisf.o)', has_indirect=False)
     abstract protected void __aeabi_ui2f(int offset) throws Exception;
-    public static final int __aeabi_ui2f = 0x0801f578;
+    public static final int __aeabi_ui2f = 0x0801f3e4;
     public void __aeabi_ui2f(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_ui2f, handler);
     }
 
-    // function: Function(address=134346232, size=116, name='__aeabi_i2d', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(floatsidf.o)', has_indirect=False)
+    // function: Function(address=134345828, size=116, name='__aeabi_i2d', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(floatsidf.o)', has_indirect=False)
     abstract protected void __aeabi_i2d(int offset) throws Exception;
-    public static final int __aeabi_i2d = 0x0801f5f8;
+    public static final int __aeabi_i2d = 0x0801f464;
     public void __aeabi_i2d(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_i2d, handler);
     }
 
-    // function: Function(address=134346348, size=164, name='__aeabi_f2d', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(extendsfdf2.o)', has_indirect=False)
+    // function: Function(address=134345944, size=164, name='__aeabi_f2d', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(extendsfdf2.o)', has_indirect=False)
     abstract protected void __aeabi_f2d(int offset) throws Exception;
-    public static final int __aeabi_f2d = 0x0801f66c;
+    public static final int __aeabi_f2d = 0x0801f4d8;
     public void __aeabi_f2d(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_f2d, handler);
     }
 
-    // function: Function(address=134346512, size=264, name='__aeabi_d2f', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(truncdfsf2.o)', has_indirect=False)
+    // function: Function(address=134346108, size=264, name='__aeabi_d2f', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(truncdfsf2.o)', has_indirect=False)
     abstract protected void __aeabi_d2f(int offset) throws Exception;
-    public static final int __aeabi_d2f = 0x0801f710;
+    public static final int __aeabi_d2f = 0x0801f57c;
     public void __aeabi_d2f(InterruptHandler handler) throws Exception
     {
         call(this::__aeabi_d2f, handler);
     }
 
-    // function: Function(address=134346776, size=60, name='__clzsi2', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_clzsi2.o)', has_indirect=False)
+    // function: Function(address=134346372, size=60, name='__clzsi2', path='/opt/gcc-arm-none-eabi-7-2018-q2-update/bin/../lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m/libgcc.a(_clzsi2.o)', has_indirect=False)
     abstract protected void __clzsi2(int offset) throws Exception;
-    public static final int __clzsi2 = 0x0801f818;
+    public static final int __clzsi2 = 0x0801f684;
     public void __clzsi2(InterruptHandler handler) throws Exception
     {
         call(this::__clzsi2, handler);
