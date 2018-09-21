@@ -1,44 +1,16 @@
 package kr.pe.ecmaxp.openpie
 
-import com.google.common.io.ByteStreams
 import com.google.gson.Gson
 import com.mojang.realmsclient.util.Pair
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_CONTROL
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_CONTROL_CRASH
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_CONTROL_REBOOT
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_CONTROL_RETURN
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_CONTROL_SHUTDOWN
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_DEBUG
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_INVOKE
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_LEGACY
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_REQUEST
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_REQUEST_ANNOTATIONS
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_REQUEST_COMPONENTS
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_REQUEST_METHODS
-import kr.pe.ecmaxp.openpie.OpenPieSystemCallConsts.SYS_VFS
-import kr.pe.ecmaxp.openpie.PeripheralAddress.OP_CON_EXCEPTION
-import kr.pe.ecmaxp.openpie.PeripheralAddress.OP_CON_IDLE
-import kr.pe.ecmaxp.openpie.PeripheralAddress.OP_CON_INSNS
-import kr.pe.ecmaxp.openpie.PeripheralAddress.OP_CON_INTR_CHAR
-import kr.pe.ecmaxp.openpie.PeripheralAddress.OP_CON_PENDING
-import kr.pe.ecmaxp.openpie.PeripheralAddress.OP_CON_RAM_SIZE
-import kr.pe.ecmaxp.openpie.PeripheralAddress.OP_IO_RXR
-import kr.pe.ecmaxp.openpie.PeripheralAddress.OP_IO_TXR
-import kr.pe.ecmaxp.openpie.PeripheralAddress.OP_RTC_TICKS_MS
-import kr.pe.ecmaxp.openpie.micropython.MicroPyInternalError.MP_EBADF
-import kr.pe.ecmaxp.openpie.micropython.MicroPyInternalError.MP_EIO
-import kr.pe.ecmaxp.openpie.micropython.MicroPyInternalError.MP_ENOENT
-import kr.pe.ecmaxp.openpie.micropython.MicroPyInternalError.MP_EPERM
-import kr.pe.ecmaxp.thumbsk.CPU
-import kr.pe.ecmaxp.thumbsk.MemoryFlag
-import kr.pe.ecmaxp.thumbsk.exc.InvalidMemoryException
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.LR
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.PC
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.R0
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.SP
-import kr.pe.ecmaxp.thumbsk.signal.ControlPauseSignal
-import kr.pe.ecmaxp.thumbsk.signal.ControlSignal
-import kr.pe.ecmaxp.thumbsk.signal.ControlStopSignal
+import kr.pe.ecmaxp.openpie.micropython.*
+import kr.pe.ecmaxp.thumbsf.CPU
+import kr.pe.ecmaxp.thumbsf.InterruptHandler
+import kr.pe.ecmaxp.thumbsf.MemoryFlag
+import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
+import kr.pe.ecmaxp.thumbsf.helper.*
+import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
+import kr.pe.ecmaxp.thumbsf.signal.ControlSignal
+import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.LimitReachedException
 import li.cil.oc.api.machine.Machine
@@ -56,17 +28,6 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     private var cpu: CPU? = null
     var state: VMState? = null
 
-    private val interruptHandler = { imm: Int ->
-        val intr = Interrupt(cpu!!, imm)
-
-        try {
-            InterruptHandler(intr)
-        } catch (e: Exception) {
-            state!!.lastException = e
-            Crash(e.toString())
-        }
-    }
-
     @Throws(Exception::class)
     internal fun init(): Boolean {
         val KB = 1024
@@ -75,19 +36,17 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         close()
 
         cpu = CPU()
-        val Cpu = cpu!!;
-
-        Cpu.memory.map(0x08000000L, 256 * KB, MemoryFlag.RX) // flash
-        Cpu.memory.map(0x20000000L, 64 * KB, MemoryFlag.RW) // sram
-        Cpu.memory.map(0x40000000L, 4 * KB) { addr: Long, is_read: Boolean, size: Int, value: Int
+        val memory = cpu!!.memory
+        memory.map(0x08000000L, 256 * KB, MemoryFlag.RX) // flash
+        memory.map(0x20000000L, 64 * KB, MemoryFlag.RW) // sram
+        memory.map(0x40000000L, 4 * KB) { addr: Long, is_read: Boolean, size: Int, value: Int
             ->
             this.PeripheralHook(addr, is_read, size, value)
         } // peripheral
-        Cpu.memory.map(0x60000000L, 192 * KB, MemoryFlag.RW) // ram
-        Cpu.memory.map(0xE0000000L, 16 * KB, MemoryFlag.RW) // syscall
-        Cpu.memory.writeBuffer(0x08000000, firmware)
-        Cpu.regs.set(PC, cpu!!.memory.readInt(0x08000000 + 4))
-        Cpu.interruptHandler = interruptHandler
+        memory.map(0x60000000L, 192 * KB, MemoryFlag.RW) // ram
+        memory.map(0xE0000000L, 16 * KB, MemoryFlag.RW) // syscall
+        memory.writeBuffer(0x08000000, firmware)
+        cpu!!.regs.set(PC, memory.readInt(0x08000000 + 4))
 
         state = VMState()
 
@@ -464,7 +423,6 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
             // error!
             throw ControlStopSignal(e)
         }
-
     }
 
     @Throws(InvalidMemoryException::class)
@@ -577,11 +535,11 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
                 try {
                     cpuStep()
                 } catch (controlSignal: ControlSignal) {
-                    val `object` = controlSignal.`object`
-                    if (`object` is ExecutionResult)
-                        return `object`
+                    val value = controlSignal.value
+                    if (value is ExecutionResult)
+                        return value
 
-                    if (`object` != null)
+                    if (value != null)
                         throw Exception(controlSignal)
                 }
 
@@ -594,9 +552,9 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
             try {
                 cpuStep()
             } catch (controlSignal: ControlSignal) {
-                val `object` = controlSignal.`object`
-                if (`object` is ExecutionResult)
-                    return `object`
+                val value = controlSignal.value
+                if (value is ExecutionResult)
+                    return value
 
                 throw Exception(controlSignal)
             }
@@ -609,7 +567,16 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     private fun cpuStep() {
 
         try {
-            cpu!!.run(1000000)
+            cpu!!.run(1000000) {
+                val intr = Interrupt(cpu!!, it)
+
+                try {
+                    InterruptHandler(intr)
+                } catch (e: Exception) {
+                    state!!.lastException = e
+                    Crash(e.toString())
+                }
+            }
         } catch (controlSignal: ControlPauseSignal) {
             throw controlSignal
         } catch (controlSignal: ControlStopSignal) {
@@ -723,9 +690,9 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     }
 
     @Throws(InvalidMemoryException::class)
-    private fun interruptResponseJson(`object`: Any) {
+    private fun interruptResponseJson(value: Any) {
         // TODO: msgpack
-        interruptResponseBufferOrEmpty(Gson().toJson(`object`).toByteArray(StandardCharsets.UTF_8))
+        interruptResponseBufferOrEmpty(Gson().toJson(value).toByteArray(StandardCharsets.UTF_8))
     }
 
     @Throws(InvalidMemoryException::class)

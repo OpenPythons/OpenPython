@@ -1,10 +1,10 @@
 package kr.pe.ecmaxp.openpie.console
 
-import kr.pe.ecmaxp.thumbsk.CPU
-import kr.pe.ecmaxp.thumbsk.MemoryFlag
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.PC
-import kr.pe.ecmaxp.thumbsk.signal.ControlPauseSignal
-import kr.pe.ecmaxp.thumbsk.signal.ControlStopSignal
+import kr.pe.ecmaxp.thumbsk.RefCPU
+import kr.pe.ecmaxp.thumbsf.MemoryFlag
+import kr.pe.ecmaxp.thumbsf.helper.*
+import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
+import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 import java.io.File
 import java.nio.file.Files
 
@@ -15,7 +15,7 @@ object OpenPieMain {
     @Throws(Exception::class, ControlPauseSignal::class, ControlStopSignal::class)
     @JvmStatic
     fun main(args: Array<String>) {
-        val cpu = CPU()
+        val cpu = RefCPU()
 
         val file = File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\openpie\\oprom\\build\\firmware.bin")
         val firmware = Files.readAllBytes(file.toPath())

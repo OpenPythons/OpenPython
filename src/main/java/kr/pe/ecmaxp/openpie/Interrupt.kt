@@ -1,8 +1,7 @@
 package kr.pe.ecmaxp.openpie
 
-import kr.pe.ecmaxp.thumbsk.CPU
-
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex
+import kr.pe.ecmaxp.thumbsf.helper.*
+import kr.pe.ecmaxp.thumbsf.CPU
 
 class Interrupt(cpu: CPU, imm: Int) {
     val imm: Int
@@ -14,11 +13,11 @@ class Interrupt(cpu: CPU, imm: Int) {
 
     init {
         assert(imm == 0)
-        this.imm = cpu.regs[RegisterIndex.R7]
-        this.r0 = cpu.regs[RegisterIndex.R0]
-        this.r1 = cpu.regs[RegisterIndex.R1]
-        this.r2 = cpu.regs[RegisterIndex.R2]
-        this.r3 = cpu.regs[RegisterIndex.R3]
-        this.r4 = cpu.regs[RegisterIndex.R4]
+        this.imm = cpu.regs[R7]
+        this.r0 = cpu.regs[R0]
+        this.r1 = cpu.regs[R1]
+        this.r2 = cpu.regs[R2]
+        this.r3 = cpu.regs[R3]
+        this.r4 = cpu.regs[R4]
     }
 }
