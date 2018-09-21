@@ -1,8 +1,7 @@
 package kr.pe.ecmaxp.openpie.console
 
-import kr.pe.ecmaxp.thumbsk.RefCPU
 import kr.pe.ecmaxp.thumbsf.MemoryFlag
-import kr.pe.ecmaxp.thumbsf.helper.*
+import kr.pe.ecmaxp.thumbsf.helper.PC
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 import java.io.File

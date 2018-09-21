@@ -7,7 +7,6 @@ import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
 import kr.pe.ecmaxp.thumbsf.helper.*
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
-import kr.pe.ecmaxp.thumbsk.RefCPU
 
 const val RDEST = 8
 const val RSRC = 12

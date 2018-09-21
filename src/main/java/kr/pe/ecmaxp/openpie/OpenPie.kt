@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger
 @Suppress("UNUSED_PARAMETER")
 @Mod(modid = OpenPie.MODID, name = OpenPie.NAME, version = OpenPie.VERSION, dependencies = "required-after:forgelin;")
 class OpenPie {
-
     @EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
         logger = event.modLog

@@ -2,8 +2,7 @@ package kr.pe.ecmaxp.openpie
 
 import li.cil.oc.api.machine.LimitReachedException
 import li.cil.oc.api.machine.Machine
-
-import java.util.Arrays
+import java.util.*
 
 class Call(val component: String, val function: String, vararg args: Any?) {
     val args: Array<*> = args

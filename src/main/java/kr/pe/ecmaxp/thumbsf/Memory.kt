@@ -4,7 +4,8 @@ import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
 import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
 import kr.pe.ecmaxp.thumbsf.exc.UnsupportedInstructionException
-import kr.pe.ecmaxp.thumbsf.helper.*
+import kr.pe.ecmaxp.thumbsf.helper.ERROR
+import kr.pe.ecmaxp.thumbsf.helper.NULL
 import java.util.*
 
 class Memory {
