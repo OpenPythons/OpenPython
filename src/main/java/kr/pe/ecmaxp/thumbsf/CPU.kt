@@ -15,16 +15,9 @@ const val RNUM = 16
 const val RMASK = 0b1111
 const val RIMM = 16
 
-class CPU {
-    var regs = Registers()
-    var memory = Memory()
-    private var executedCount = 0
-
-    fun fork(): CPU {
-        val cpu = CPU()
-        cpu.memory = memory
-        return cpu
-    }
+class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
+    fun fork(): CPU = CPU(memory)
+    fun copy(): CPU = CPU(memory.copy(), regs.copy())
 
     fun call(sp: Int, addr: Int, r0: Int = 0, r1: Int = 0, r2: Int = 0, r3: Int = 0): Registers {
         val cpu = fork()
