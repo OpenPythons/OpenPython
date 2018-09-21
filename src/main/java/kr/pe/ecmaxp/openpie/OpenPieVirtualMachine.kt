@@ -439,7 +439,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
 
         val memory = this.cpu!!.memory
         for (pos in 0 until size) {
-            val ch = memory.readByte(start + pos)
+            val ch = memory.readByte(address + pos)
             buffer[pos] = ch
             if (ch == 0.toByte()) {
                 size = pos
