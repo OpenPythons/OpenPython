@@ -33,16 +33,6 @@ class CPU {
 
     @Throws(InvalidMemoryException::class, UnknownInstructionException::class, InvalidAddressArmException::class)
     fun run(insnCount: Int, handler: InterruptHandler) {
-        val refCPU: RefCPU? = null // kr.pe.ecmaxp.thumbsk.RefCPU()
-        if (refCPU != null) {
-            refCPU.interruptHandler = {
-                handler(it)
-            }
-
-            refCPU.regs = regs.copy()
-            refCPU.memory = memory.copy()
-        }
-
         val memory = this.memory
         val (buffer, base) = memory.loadExecCache()
 
@@ -65,20 +55,6 @@ class CPU {
             loop@ while (count-- > 0) {
                 val code = buffer[pc - base]
                 val prev_pc = pc
-
-                // debug mode
-                /*
-
-                try {
-                    refCPU!!.run(1)
-                } catch (e: ControlStopSignal) {
-                    println("ControlStopSignal")
-                } catch (e: ControlPauseSignal) {
-                    println("ControlPauseSignal")
-                }
-                 */
-
-                // show(code, buffer[pc - base + 1], pc)
 
                 when (code and 0xFF) {
                     NULL -> {
@@ -1025,54 +1001,10 @@ class CPU {
 
                     else -> UnexceptedLogicError()
                 }
-
-                executedCount++
-
-                if (refCPU != null) {
-                    /*
-                    if (executedCount < 1180762892) {
-                        refCPU.run(1)
-                        continue;
-                    }
-                     */
-                    if (prev_pc == pc) {
-                        show(code, buffer[pc - base], executedCount)
-                        break;
-                    }
-
-                    val refREGS = refCPU.regs.load()
-                    var diff = false
-                    for (reg in 0..CPSR) {
-                        val value = when (reg) {
-                            SP -> sp
-                            LR -> lr
-                            PC -> pc
-                            CPSR -> (if (q) FQ else 0) or
-                                    (if (v) FV else 0) or
-                                    (if (c) FC else 0) or
-                                    (if (z) FZ else 0) or
-                                    if (n) FN else 0
-                            else -> REGS[reg]
-                        }
-
-                        if (value != refREGS[reg]) {
-                            if (!diff) {
-                                show(code, buffer[pc - base], executedCount)
-                                diff = true
-                            }
-
-                            println("$reg  value=$value  ref=${refREGS[reg]}")
-                        }
-                    }
-
-                    if (diff)
-                        return
-                }
             }
         } finally {
             regs.setCPSR(q, v, c, z, n)
             regs.fastStore(REGS, sp, lr, pc)
-            executedCount += insnCount - count
         }
     }
 }
