@@ -27,7 +27,7 @@ class OpenPie {
     companion object {
         const val MODID = "openpie"
         const val NAME = "OpenPie"
-        const val VERSION = "0.4"
+        const val VERSION = "0.8"
 
         private var logger: Logger? = null
     }
