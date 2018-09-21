@@ -432,9 +432,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         if (region.flag == MemoryFlag.HOOK)
             throw InvalidMemoryException(address.toLong())
 
-        val start = (address - region.begin).toInt()
         var size = Math.min(region.end - addr, maxSize.toLong()).toInt()
-        val end = start + size
         val buffer = ByteArray(size)
 
         val memory = this.cpu!!.memory
@@ -543,8 +541,8 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
                         throw Exception(controlSignal)
                 }
 
-                // if runing
-                cpu!!.regs = regs
+                // if running
+                cpu!!.regs.store(regs.load())
                 return ExecutionResult.Sleep(0)
             }
 
