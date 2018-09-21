@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.thumbsk
+package kr.pe.ecmaxp.thumbsf
 
 enum class MemoryFlag {
     RX,

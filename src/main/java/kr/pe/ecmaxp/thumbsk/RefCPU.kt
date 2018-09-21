@@ -1,59 +1,26 @@
 package kr.pe.ecmaxp.thumbsk
 
-import kr.pe.ecmaxp.thumbsk.exc.InvalidAddressArmException
-import kr.pe.ecmaxp.thumbsk.exc.InvalidMemoryException
-import kr.pe.ecmaxp.thumbsk.exc.UnexceptedLogicError
-import kr.pe.ecmaxp.thumbsk.exc.UnsupportedInstructionException
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.FC
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.FN
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.FQ
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.FV
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.FZ
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.I0
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.I1
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.I10
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.I11
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.I12
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.I7
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.I8
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.I9
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.L1
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.L10
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.L11
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.L2
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.L3
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.L4
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.L5
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.L7
-import kr.pe.ecmaxp.thumbsk.helper.BitConsts.L8
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.CPSR
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.LR
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.PC
-import kr.pe.ecmaxp.thumbsk.helper.RegisterIndex.SP
-import kr.pe.ecmaxp.thumbsk.signal.ControlPauseSignal
-import kr.pe.ecmaxp.thumbsk.signal.ControlStopSignal
+import kr.pe.ecmaxp.thumbsf.InterruptHandler
+import kr.pe.ecmaxp.thumbsf.Memory
+import kr.pe.ecmaxp.thumbsf.Registers
+import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
+import kr.pe.ecmaxp.thumbsf.exc.InvalidAddressArmException
+import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
+import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
+import kr.pe.ecmaxp.thumbsf.exc.UnsupportedInstructionException
+import kr.pe.ecmaxp.thumbsf.helper.*
+import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
+import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
+
 
 @Suppress("LocalVariableName", "RedundantGetter", "RedundantSetter")
-class CPU {
+class RefCPU {
     var regs = Registers()
-        get() = field
-        set(value) {
-            field = value
-        }
-
     var memory = Memory()
-        get() = field
-        set(value) {
-            field = value
-        }
-
     var interruptHandler: InterruptHandler? = null
-        get() = field
-        set(value) {
-            field = value
-        }
 
     private var executedCount = 0
+    private var buffer: ShortArray? = null
 
     @Throws(InvalidMemoryException::class, UnknownInstructionException::class, InvalidAddressArmException::class, ControlPauseSignal::class, ControlStopSignal::class)
     fun run(inst_count: Int) {
@@ -67,15 +34,26 @@ class CPU {
         var c = REGS[CPSR] and FC != 0
         var z = REGS[CPSR] and FZ != 0
         var n = REGS[CPSR] and FN != 0
+        var pc = REGS[PC]
 
-        assert(REGS[PC] and I0 == 0)
-        REGS[PC] = REGS[PC] and I0.inv()
+        assert(pc and I0 == 0)
+        val region = memory.findRegion(pc.toLong(), 2)
+        if (buffer == null) {
+            buffer = ShortArray(region.size / 2)
+            for (i in 0 until buffer!!.size step 2)
+                buffer!![i] = memory.fetchCode(region.begin.toInt() + i).toShort()
+        }
+
+        val base = region.begin.toInt()
+
+        pc = pc and I0.inv()
 
         val totalCount = count
 
         try {
             while (count-- > 0) {
-                val code = memory.fetchCode(REGS[PC])
+                // val code = memory.fetchCode(pc)
+                val code = buffer!![pc - base].toInt() and 0xFFFF
 
                 when (code shr 12 and L4) {
                     0, 1 -> { // :000x
@@ -126,16 +104,16 @@ class CPU {
                                         val Lright = Integer.toUnsignedLong(right)
                                         val Lvalue = Lleft + Lright;
                                         value = Lvalue.toInt()
-                                        c = Lvalue > 0xFFFFFFFFL
-                                        v = left xor value and (right xor value) < 0
+                                        c = Lvalue > UINT_MAX
+                                        v = (left xor value) and (right xor value) < 0
                                     }
                                     1 -> { // :0001101 | :0001111 ; SUB Rd, Rs, Rn | SUB Rd, Rs, #Offset3
                                         val Lleft = Integer.toUnsignedLong(left)
                                         val LIright = Integer.toUnsignedLong(right.inv())
                                         val Lvalue = Lleft + LIright + 1L
                                         value = Lvalue.toInt()
-                                        c = Lvalue > 0xFFFFFFFFL
-                                        v = left xor right and (left xor value) < 0
+                                        c = Lvalue > UINT_MAX
+                                        v = (left xor right) and (left xor value) < 0
                                     }
                                     else -> throw UnexceptedLogicError()
                                 }
@@ -164,14 +142,14 @@ class CPU {
                                         (Integer.toUnsignedLong(right.inv())) + 1L
                                 value = Lvalue.toInt()
                                 // only compare (no write)
-                                c = Lvalue > 0xFFFFFFFFL
+                                c = Lvalue > UINT_MAX
                                 v = left xor right and (left xor value) < 0
                             }
                             2 -> { // :001110 ; ADD Rd, #Offset8
                                 Lvalue = (Integer.toUnsignedLong(left)) + (Integer.toUnsignedLong(right))
                                 value = Lvalue.toInt()
                                 REGS[Rd] = value
-                                c = Lvalue > 0xFFFFFFFFL
+                                c = Lvalue > UINT_MAX
                                 v = left xor value and (right xor value) < 0
                             }
                             3 -> { // :001111 ; SUB Rd, #Offset8
@@ -179,7 +157,7 @@ class CPU {
                                         (Integer.toUnsignedLong(right.inv())) + 1L
                                 value = Lvalue.toInt()
                                 REGS[Rd] = value
-                                c = Lvalue > 0xFFFFFFFFL
+                                c = Lvalue > UINT_MAX
                                 v = left xor right and (left xor value) < 0
                             }
                             else -> throw UnexceptedLogicError()
@@ -284,20 +262,20 @@ class CPU {
                                         Lvalue = (Integer.toUnsignedLong(right.inv())) + 1L
                                         value = Lvalue.toInt()
                                         REGS[Rd] = value
-                                        c = Lvalue > 0xFFFFFFFFL
+                                        c = Lvalue > UINT_MAX
                                         v = right and value < 0
                                     }
                                     10 -> { // :0100001010 ; CMP Rd, Rs ; set condition codes on Rd - Rs
                                         Lvalue = (Integer.toUnsignedLong(left)) +
                                                 (Integer.toUnsignedLong(right.inv())) + 1L
                                         value = Lvalue.toInt()
-                                        c = Lvalue > 0xFFFFFFFFL
+                                        c = Lvalue > UINT_MAX
                                         v = left xor right and (left xor value) < 0
                                     }
                                     11 -> { // :0100001011 ; CMN Rd, Rs ; set condition codes on Rd + Rs
                                         Lvalue = (Integer.toUnsignedLong(left)) + (Integer.toUnsignedLong(right))
                                         value = Lvalue.toInt()
-                                        c = Lvalue > 0xFFFFFFFFL
+                                        c = Lvalue > UINT_MAX
                                         v = left xor value and (right xor value) < 0
                                     }
                                     12 -> { // :0100001100 ; ORR Rd, Rs ; Rd := Rd OR Rs
@@ -331,6 +309,8 @@ class CPU {
                                 val Rd = (code and L3) + if (H1) 8 else 0
                                 val Rs = (code shr 3 and L3) + if (H2) 8 else 0
 
+                                REGS[PC] = pc
+
                                 when (code shr 8 and L2) {
                                     0 -> { // :01000100 ; ADD Rd, Hs ; ADD Hd, Rs ; ADD Hd, Hs
                                         val left = REGS[Rd]
@@ -349,7 +329,7 @@ class CPU {
                                         // only compare (no write)
                                         n = value < 0
                                         z = value == 0
-                                        c = Lvalue > 0xFFFFFFFFL
+                                        c = Lvalue > UINT_MAX
                                         v = left xor right and (left xor value) < 0
                                     }
                                     2 -> { // :01000110 ; MOV Rd, Hs ; MOV Hd, Rs ; MOV Hd, Hs
@@ -365,18 +345,20 @@ class CPU {
                                             throw UnknownInstructionException()
 
                                         if (H1)
-                                            REGS[LR] = REGS[PC] + 2 or I0
+                                            REGS[LR] = pc + 2 or I0
 
                                         REGS[PC] = value and I0.inv()
                                         increase_pc = false
                                     }
                                     else -> throw UnexceptedLogicError()
                                 }
+
+                                pc = REGS[PC]
                             }
                             2, 3 -> { // :01001 ; PC-relative load ; LDR Rd, [PC, #Imm]
                                 val Rd = code shr 8 and L3
                                 var addr = code and L8 shl 2
-                                addr += REGS[PC] + 4 and I1.inv()
+                                addr += pc + 4 and I1.inv()
 
                                 REGS[Rd] = memory.readInt(addr)
                             }
@@ -487,7 +469,7 @@ class CPU {
                         value += if (fSP) // :10101 ; ADD Rd, SP, #Imm
                             REGS[SP]
                         else // :10100 ; ADD Rd, PC, #Imm
-                            REGS[PC] + 4 and I1.inv()
+                            pc + 4 and I1.inv()
 
                         REGS[Rd] = value
                     }
@@ -507,7 +489,7 @@ class CPU {
                                 val offset = (code shr 4 and L5 shl 1) + 4
 
                                 if (REGS[Rd] == 0) {
-                                    REGS[PC] += offset
+                                    pc += offset
                                     increase_pc = false
                                 }
                             }
@@ -535,7 +517,7 @@ class CPU {
                                 val offset = (code shr 4 and L5 shl 1) + 4 + 0x40
 
                                 if (REGS[Rd] == 0) {
-                                    REGS[PC] += offset
+                                    pc += offset
                                     increase_pc = false
                                 }
                             }
@@ -568,7 +550,7 @@ class CPU {
                                 val offset = (code shr 4 and L5 shl 1) + 4
 
                                 if (REGS[Rd] != 0) {
-                                    REGS[PC] += offset
+                                    pc += offset
                                     increase_pc = false
                                 }
                             }
@@ -599,7 +581,7 @@ class CPU {
                                 val offset = (code shr 4 and L5 shl 1) + 4 + 0x40
 
                                 if (REGS[Rd] != 0) {
-                                    REGS[PC] += offset
+                                    pc += offset
                                     increase_pc = false
                                 }
                             }
@@ -622,7 +604,7 @@ class CPU {
                                         if (value and I0 != 1)
                                             throw InvalidAddressArmException()
 
-                                        REGS[PC] = value and I0.inv()
+                                        pc = value and I0.inv()
                                         addr += 4
                                         increase_pc = false
                                     }
@@ -662,24 +644,53 @@ class CPU {
                     13 -> { // :1101 ; conditional branch (or software interrupt)
                         val soffset = (code and L8).toByte()
                         val cond = when (code shr 8 and L4) {
-                            0 -> z // :11010000 ; BEQ label
-                            1 -> !z // :11010001 ; BNE label
-                            2 -> c // :11010010 ; BCS label
-                            3 -> !c // :11010011; BCC label
-                            4 -> n // :11010100 ; BMI label
-                            5 -> !n // :11010101 ; BPL label
-                            6 -> v // :11010110 ; BVS label
-                            7 -> !v // :11010111 ; BVC label
-                            8 -> c && !z // :11011000 ; BHI label
-                            9 -> !c || z // :11011001 ; BLS label
-                            10 -> n == v // :11011010 ; BGE label ; (n && v) || (!n && !v)
-                            11 -> n != v // :11011011 ; BLT label ; (n && !v) || (!n && v)
-                            12 -> !z && n == v // :11011100 ; BGT label ; !z && (n && v || !n && !v)
-                            13 -> z || n != v // :11011101 ; BLE label ; z || (n && !v) || (!n && v)
+                            0 -> z
+                            // :11010000 ; BEQ label
+
+                            1 -> !z
+                            // :11010001 ; BNE label
+
+                            2 -> c
+                            // :11010010 ; BCS label
+
+                            3 -> !c
+                            // :11010011; BCC label
+
+                            4 -> n
+                            // :11010100 ; BMI label
+
+                            5 -> !n
+                            // :11010101 ; BPL label
+
+                            6 -> v
+                            // :11010110 ; BVS label
+
+                            7 -> !v
+                            // :11010111 ; BVC label
+
+                            8 -> c && !z
+                            // :11011000 ; BHI label
+
+                            9 -> !c || z
+                            // :11011001 ; BLS label
+
+                            10 -> n == v
+                            // :11011010 ; BGE label ; (n && v) || (!n && !v)
+
+                            11 -> n != v
+                            // :11011011 ; BLT label ; (n && !v) || (!n && v)
+
+                            12 -> !z && n == v
+                            // :11011100 ; BGT label ; !z && (n && v || !n && !v)
+
+                            13 -> z || n != v
+                            // :11011101 ; BLE label ; z || (n && !v) || (!n && v)
+
                             14 -> throw UnknownInstructionException() // :11011110
                             15 -> { // :11011111 ; software interrupt
                                 // SWI Value8
 
+                                REGS[PC] = pc
                                 REGS[CPSR] = (if (q) FQ else 0) or
                                         (if (v) FV else 0) or
                                         (if (c) FC else 0) or
@@ -693,10 +704,11 @@ class CPU {
                                 } catch (e: ControlPauseSignal) {
                                     throw e
                                 } catch (e: ControlStopSignal) {
-                                    REGS[PC] += 2
+                                    pc += 2
                                     throw e
                                 } finally {
                                     REGS = regs.load()
+                                    pc = REGS[PC]
                                     q = REGS[CPSR] and FQ != 0
                                     v = REGS[CPSR] and FV != 0
                                     c = REGS[CPSR] and FC != 0
@@ -715,7 +727,7 @@ class CPU {
                                 value = value or L8.inv()
                             }
 
-                            REGS[PC] += 4 + value
+                            pc += 4 + value
                             increase_pc = false
                         }
                     }
@@ -728,7 +740,7 @@ class CPU {
                             value = value or L11.inv()
                         }
 
-                        REGS[PC] += 4 + value
+                        pc += 4 + value
                         increase_pc = false
                     }
                     15 -> { // :1111 ; long branch with link
@@ -743,8 +755,8 @@ class CPU {
                             if (addr and (1 shl 22) != 0)
                                 addr = addr or 8388607.inv()
 
-                            val lr = REGS[PC]
-                            REGS[PC] = lr + addr + 2
+                            val lr = pc
+                            pc = lr + addr + 2
                             REGS[LR] = lr + 3
                             increase_pc = false
                         }
@@ -753,12 +765,13 @@ class CPU {
                 } // CPSR condition are unaffected
 
                 if (increase_pc) {
-                    REGS[PC] += 2
+                    pc += 2
                 } else {
                     increase_pc = true
                 }
             }
         } finally {
+            REGS[PC] = pc
             REGS[CPSR] = (if (q) FQ else 0) or
                     (if (v) FV else 0) or
                     (if (c) FC else 0) or

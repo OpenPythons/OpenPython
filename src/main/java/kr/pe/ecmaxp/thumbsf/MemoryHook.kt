@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.thumbsk
+package kr.pe.ecmaxp.thumbsf
 
 typealias MemoryHook = (address: Long, read: Boolean, size: Int, value: Int) -> Int
 

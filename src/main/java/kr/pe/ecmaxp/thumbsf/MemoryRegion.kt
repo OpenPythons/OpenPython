@@ -1,8 +1,6 @@
-package kr.pe.ecmaxp.thumbsk
+package kr.pe.ecmaxp.thumbsf
 
-import kr.pe.ecmaxp.thumbsk.exc.InvalidMemoryException
-
-import java.util.Arrays
+import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 
 class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
     val end: Long
@@ -51,4 +49,3 @@ class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
         return ((address - begin) / 4).toInt()
     }
 }
-

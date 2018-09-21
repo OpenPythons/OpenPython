@@ -1,6 +1,10 @@
-package kr.pe.ecmaxp.thumbsk
+package kr.pe.ecmaxp.thumbsf
 
-import kr.pe.ecmaxp.thumbsk.exc.InvalidMemoryException
+import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
+import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
+import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
+import kr.pe.ecmaxp.thumbsf.exc.UnsupportedInstructionException
+import kr.pe.ecmaxp.thumbsf.helper.*
 import java.util.*
 
 class Memory {
@@ -10,7 +14,7 @@ class Memory {
     private var _execPage: MemoryRegion? = null
     private var _readPage: MemoryRegion? = null
     private var _writePage: MemoryRegion? = null
-    // internal var legacyMemory = LegacyMemory()
+    private var _execCache: IntArray? = null
 
     fun copy(): Memory {
         val memory = Memory()
@@ -26,15 +30,10 @@ class Memory {
             }
         }
 
-        // memory.legacyMemory = legacyMemory.copy()
         return memory;
     }
 
     internal fun map(region: MemoryRegion) {
-        // legacyMemory.map(region.begin, region.size, region.flag)
-        // val legacyRegion = legacyMemory.findRegion(region.begin, region.size.toLong())
-        // legacyRegion.Hook = region.Hook
-
         if (region.size % 4 != 0)
             throw Exception("invalid memory size")
 
@@ -47,6 +46,13 @@ class Memory {
 
             _execPage = region
         }
+    }
+
+    @Throws(InvalidMemoryException::class)
+    fun flash(address: Long, size: Int, firmware: ByteArray) {
+        map(address, size, MemoryFlag.RX)
+        writeBuffer(address.toInt(), firmware)
+        loadExecCache()
     }
 
     @Throws(InvalidMemoryException::class)
@@ -73,10 +79,6 @@ class Memory {
             buffer[i] = readByte(address + i)
         }
 
-        // val legacyBuf = legacyMemory.readBuffer(address, size)
-        // if (!legacyBuf.contentEquals(buffer)) throw Exception()
-
-        // System.arraycopy(page.buffer, (addr - page.begin).toInt(), buffer, 0, size)
         return buffer
     }
 
@@ -212,7 +214,6 @@ class Memory {
             }
         }
 
-        // if (legacyMemory.readByte(address) != rvalue) throw Exception()
         return rvalue
     }
 
@@ -238,8 +239,6 @@ class Memory {
                 }
             }
         }
-
-        // if (readInt(address - address % 4) != legacyMemory.readInt(address - address % 4)) throw Exception()
     }
 
     @Throws(InvalidMemoryException::class)
@@ -250,7 +249,6 @@ class Memory {
         val page = updateCache(_writePage, addr, size)
         _writePage = page
 
-        // legacyMemory.writeShort(address, shortValue)
         when (page.flag) {
             MemoryFlag.HOOK -> {
                 page.hook(addr, size, value)
@@ -268,8 +266,6 @@ class Memory {
                 }
             }
         }
-
-        // if (readInt(address - address % 4) != legacyMemory.readInt(address - address % 4)) throw Exception()
     }
 
     @Throws(InvalidMemoryException::class)
@@ -280,7 +276,6 @@ class Memory {
         val page = updateCache(_writePage, addr, size)
         _writePage = page
 
-        // legacyMemory.writeByte(address, byteValue)
         when (page.flag) {
             MemoryFlag.HOOK -> {
                 page.hook(addr, size, value)
@@ -302,8 +297,6 @@ class Memory {
                 }
             }
         }
-
-        // if (readInt(address - address % 4) != legacyMemory.readInt(address - address % 4)) throw Exception()
     }
 
     @Throws(InvalidMemoryException::class)
@@ -324,5 +317,38 @@ class Memory {
         }
 
         throw InvalidMemoryException(address)
+    }
+
+    fun loadExecCache(): Pair<IntArray, Int> {
+        val region = _execPage!!
+        val base = region.begin.toInt()
+        if (_execCache == null) {
+            _execCache = IntArray(region.size)
+
+            val buffer = _execCache!!
+            for (addr in region.begin.toInt() until region.end.toInt() step 2) {
+                var code: Int = ERROR
+                var imm32: Int = 0
+
+                try {
+                    val (first, second) = decode(this, addr)
+                    code = first
+                    imm32 = second
+                } catch (e: UnknownInstructionException) {
+                    code = ERROR
+                } catch (e: UnsupportedInstructionException) {
+                    code = ERROR
+                }
+
+                when (code and 0xFF) {
+                    NULL -> throw UnexceptedLogicError()
+                }
+
+                buffer[addr - base] = code
+                buffer[addr - base + 1] = imm32
+            }
+        }
+
+        return Pair(_execCache!!, base)
     }
 }
