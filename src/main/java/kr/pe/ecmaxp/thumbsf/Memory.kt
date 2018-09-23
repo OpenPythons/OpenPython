@@ -1,17 +1,18 @@
 package kr.pe.ecmaxp.thumbsf
 
+import kr.pe.ecmaxp.thumbsf.consts.ERROR
+import kr.pe.ecmaxp.thumbsf.consts.NULL
 import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
 import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
 import kr.pe.ecmaxp.thumbsf.exc.UnsupportedInstructionException
-import kr.pe.ecmaxp.thumbsf.helper.ERROR
-import kr.pe.ecmaxp.thumbsf.helper.NULL
 import java.util.*
 
-class Memory {
-    private val _list = ArrayList<MemoryRegion>()
+class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
+    fun fork(): Memory {
+        return Memory(_list)
+    }
 
-    // cached
     private var _execPage: MemoryRegion? = null
     private var _readPage: MemoryRegion? = null
     private var _writePage: MemoryRegion? = null
@@ -53,7 +54,7 @@ class Memory {
     fun flash(address: Long, size: Int, firmware: ByteArray) {
         map(address, size, MemoryFlag.RX)
         writeBuffer(address.toInt(), firmware)
-        loadExecCache()
+        loadExecCache(address.toInt())
     }
 
     @Throws(InvalidMemoryException::class)
@@ -72,15 +73,7 @@ class Memory {
         val page = updateCache(_readPage, addr, size)
         _readPage = page
 
-        if (page.flag != MemoryFlag.RX && page.flag != MemoryFlag.RW)
-            throw InvalidMemoryException(addr)
-
-        val buffer = ByteArray(size)
-        for (i in 0 until size) {
-            buffer[i] = readByte(address + i)
-        }
-
-        return buffer
+        return page.readBuffer(address, size)
     }
 
     @Throws(InvalidMemoryException::class)
@@ -90,38 +83,17 @@ class Memory {
         val page = updateCache(_writePage, addr, size)
         _writePage = page
 
-        if (page.flag != MemoryFlag.RX && page.flag != MemoryFlag.RW)
-            throw InvalidMemoryException(addr)
-
-        for (i in 0 until size) {
-            writeByte(address + i, buffer[i])
-        }
-
-        // legacyMemory.writeBuffer(address, buffer)
-        // val legacyBuf = legacyMemory.readBuffer(address, size)
-        // if (!legacyBuf.contentEquals(buffer)) throw Exception()
-
-        // System.arraycopy(buffer, 0, page.buffer, (addr - page.begin).toInt(), size)
+        return page.writeBuffer(address, buffer)
     }
 
     @Throws(InvalidMemoryException::class)
     fun fetchCode(address: Int): Int {
         val size = 2
         val addr = Integer.toUnsignedLong(address)
-        _execPage = updateCache(_execPage, addr, size)
-        val page = _execPage!!
+        val page= updateCache(_execPage, addr, size)
+        _execPage = page
 
-        val pos = page.loadKey(addr)
-        val bufferCode = page.buffer
-        val mvalue = bufferCode[pos]
-        val rvalue = when (addr % 4) {
-            0L -> mvalue and 0xFFFF
-            2L -> (mvalue shr 16) and 0xFFFF
-            else -> throw Exception("not align")
-        }
-
-        // if (legacyMemory.fetchCode(address) != rvalue) throw Exception()
-        return rvalue
+        return page.fetchCode(address)
     }
 
     @Throws(InvalidMemoryException::class)
@@ -131,24 +103,7 @@ class Memory {
         val page = updateCache(_readPage, addr, size)
         _readPage = page
 
-        val rvalue = when (page.flag) {
-            MemoryFlag.HOOK -> {
-                page.hook(addr, size)
-            }
-            else -> {
-                val pos = page.loadKey(addr)
-                val buffer = page.buffer
-                val mvalue = buffer[pos]
-                when (addr % 4) {
-                    0L ->
-                        mvalue
-                    else -> throw Exception("not align")
-                }
-            }
-        }
-
-        // if (legacyMemory.readInt(address) != rvalue) throw Exception()
-        return rvalue
+        return page.readInt(address)
     }
 
     @Throws(InvalidMemoryException::class)
@@ -158,32 +113,7 @@ class Memory {
         val page = updateCache(_readPage, addr, size)
         _readPage = page
 
-        /*
-                return (buffer[pos++].toInt() and 0xFF) or
-                (buffer[pos++].toInt() and 0xFF shl 8) or
-                (buffer[pos++].toInt() and 0xFF shl 16) or
-                (buffer[pos].toInt() and 0xFF shl 24)
-         */
-        val rvalue = when (page.flag) {
-            MemoryFlag.HOOK -> {
-                page.hook(addr, size).toShort()
-            }
-            else -> {
-                val pos = page.loadKey(addr)
-                val buffer = page.buffer
-                val mvalue = buffer[pos]
-                when (addr % 4) {
-                    0L ->
-                        mvalue.toShort()
-                    2L ->
-                        (mvalue shr 16).toShort()
-                    else -> throw Exception("not align")
-                }
-            }
-        }
-
-        // if (legacyMemory.readShort(address) != rvalue) throw Exception()
-        return rvalue
+        return page.readShort(address)
     }
 
     @Throws(InvalidMemoryException::class)
@@ -193,29 +123,7 @@ class Memory {
         val page = updateCache(_readPage, addr, size)
         _readPage = page
 
-        val rvalue = when (page.flag) {
-            MemoryFlag.HOOK -> {
-                page.hook(addr, size).toByte()
-            }
-            else -> {
-                val pos = page.loadKey(addr)
-                val buffer = page.buffer
-                val mvalue = buffer[pos]
-                when (addr % 4) {
-                    0L ->
-                        mvalue.toByte()
-                    1L ->
-                        (mvalue shr 8).toByte()
-                    2L ->
-                        (mvalue shr 16).toByte()
-                    3L ->
-                        (mvalue shr 24).toByte()
-                    else -> throw Exception("not align")
-                }
-            }
-        }
-
-        return rvalue
+        return page.readByte(address)
     }
 
     @Throws(InvalidMemoryException::class)
@@ -225,79 +133,27 @@ class Memory {
         val page = updateCache(_writePage, addr, size)
         _writePage = page
 
-        // legacyMemory.writeInt(address, value)
-        when (page.flag) {
-            MemoryFlag.HOOK -> {
-                page.hook(addr, size, value)
-            }
-            else -> {
-                val pos = page.loadKey(addr)
-                val buffer = page.buffer
-                buffer[pos] = when (addr % 4) {
-                    0L ->
-                        value
-                    else -> throw Exception("not align")
-                }
-            }
-        }
+        return page.writeInt(address, value)
     }
 
     @Throws(InvalidMemoryException::class)
     fun writeShort(address: Int, shortValue: Short) {
         val size = 2
         val addr = Integer.toUnsignedLong(address)
-        val value = shortValue.toInt() and 0xFFFF
         val page = updateCache(_writePage, addr, size)
         _writePage = page
 
-        when (page.flag) {
-            MemoryFlag.HOOK -> {
-                page.hook(addr, size, value)
-            }
-            else -> {
-                val pos = page.loadKey(addr)
-                val buffer = page.buffer
-                val mvalue = buffer[pos]
-                buffer[pos] = when (addr % 4) {
-                    0L ->
-                        (mvalue and 0xFFFF.inv()) or value
-                    2L ->
-                        (mvalue and 0xFFFF) or (value shl 16)
-                    else -> throw Exception("not align")
-                }
-            }
-        }
+        return page.writeShort(address, shortValue)
     }
 
     @Throws(InvalidMemoryException::class)
     fun writeByte(address: Int, byteValue: Byte) {
         val size = 1
         val addr = Integer.toUnsignedLong(address)
-        val value = byteValue.toInt() and 0xFF
         val page = updateCache(_writePage, addr, size)
         _writePage = page
 
-        when (page.flag) {
-            MemoryFlag.HOOK -> {
-                page.hook(addr, size, value)
-            }
-            else -> {
-                val pos = page.loadKey(addr)
-                val buffer = page.buffer
-                val mvalue = buffer[pos]
-                buffer[pos] = when (addr % 4) {
-                    0L ->
-                        (mvalue and 0x000000FF.inv()) or value
-                    1L ->
-                        (mvalue and 0x0000FF00.inv()) or (value shl 8)
-                    2L ->
-                        (mvalue and 0x00FF0000.inv()) or (value shl 16)
-                    3L ->
-                        (mvalue and 0x00FFFFFF) or (value shl 24)
-                    else -> throw Exception("not align")
-                }
-            }
-        }
+        return page.writeByte(address, byteValue)
     }
 
     @Throws(InvalidMemoryException::class)
@@ -320,16 +176,16 @@ class Memory {
         throw InvalidMemoryException(address)
     }
 
-    fun loadExecCache(): Pair<IntArray, Int> {
-        val region = _execPage!!
+    fun loadExecCache(pc: Int): Pair<IntArray, Int> {
+        val region = findRegion(Integer.toUnsignedLong(pc), 2)
         val base = region.begin.toInt()
         if (_execCache == null) {
             _execCache = IntArray(region.size)
 
             val buffer = _execCache!!
             for (addr in region.begin.toInt() until region.end.toInt() step 2) {
-                var code: Int = ERROR
-                var imm32: Int = 0
+                var code: Int
+                var imm32 = 0
 
                 try {
                     val (first, second) = decode(this, addr)

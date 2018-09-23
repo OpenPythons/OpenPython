@@ -1,10 +1,10 @@
 package kr.pe.ecmaxp.thumbsf
 
+import kr.pe.ecmaxp.thumbsf.consts.*
 import kr.pe.ecmaxp.thumbsf.exc.InvalidAddressArmException
 import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
 import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
-import kr.pe.ecmaxp.thumbsf.helper.*
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 
@@ -15,18 +15,18 @@ const val RMASK = 0b1111
 const val RIMM = 16
 
 class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
-    fun fork(): CPU = CPU(memory)
     fun copy(): CPU = CPU(memory.copy(), regs.copy())
 
-    fun call(sp: Int, addr: Int, r0: Int = 0, r1: Int = 0, r2: Int = 0, r3: Int = 0): Registers {
-        val cpu = fork()
-        return Registers()
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun fork(regs: Registers = Registers()): CPU = CPU(memory.fork(), regs)
+
+    fun call(sp: Int, pc: Int, addr: Int, a1: Int = 0, a2: Int = 0, a3: Int = 0): CPU {
+        return fork(Registers(r0 = addr, r1 = a1, r2 = a2, r3 = a3, sp = sp, pc = pc))
     }
 
     @Throws(InvalidMemoryException::class, UnknownInstructionException::class, InvalidAddressArmException::class)
     fun run(insnCount: Int, handler: InterruptHandler) {
         val memory = this.memory
-        val (buffer, base) = memory.loadExecCache()
 
         var REGS = regs.fastLoad()
         var lr = regs.lr
@@ -41,12 +41,12 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
         assert(pc and I0 == 0)
         pc = pc and I0.inv()
 
+        val (buffer, base) = memory.loadExecCache(pc)
         var count = insnCount
 
         try {
             loop@ while (count-- > 0) {
                 val code = buffer[pc - base]
-                val prev_pc = pc
 
                 when (code and 0xFF) {
                     NULL -> {
@@ -63,7 +63,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                     }
                     ERROR -> throw UnknownInstructionException()
 
-                    // Format 1
+                    // Format 1: move shifted register
                     LSLSI -> { // LSL Rd, Rs, #Offset5
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
@@ -80,7 +80,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         REGS[Rd] = value
                         pc += 2
                     }
-                    LSRSI -> {
+                    LSRSI -> { // LSR Rd, Rs, #Offset5
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -99,7 +99,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    ASRSI -> {
+                    ASRSI -> { // ASR Rd, Rs, #Offset5
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -119,8 +119,8 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 2
-                    ADD3S -> {
+                    // Format 2: add/subtract
+                    ADD3S -> { // ADD Rd, Rs, Rn
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -137,7 +137,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         REGS[Rd] = value
                         pc += 2
                     }
-                    ADD3SI -> {
+                    ADD3SI -> { // ADD Rd, Rs, #Offset3
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -154,7 +154,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         REGS[Rd] = value
                         pc += 2
                     }
-                    SUB3S -> {
+                    SUB3S -> { // SUB Rd, Rs, Rn
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -171,7 +171,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         REGS[Rd] = value
                         pc += 2
                     }
-                    SUB3SI -> {
+                    SUB3SI -> { // SUB Rd, Rs, #Offset3
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -189,8 +189,8 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 3
-                    MOVSI -> {
+                    // Format 3: move/compare/add/subtract immediate
+                    MOVSI -> { // MOV Rd, #Offset8
                         val Rd = code shr RDEST and RMASK
                         val imm16 = code shr RIMM
                         val value = imm16
@@ -199,7 +199,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    CMPI -> {
+                    CMPI -> { // CMP Rd, #Offset8
                         val Rd = code shr RDEST and RMASK
                         val imm16 = code shr RIMM
                         val left = REGS[Rd]
@@ -214,7 +214,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         v = left xor right and (left xor value) < 0
                         pc += 2
                     }
-                    ADDSI -> {
+                    ADDSI -> { // ADD Rd, #Offset8
                         val Rd = code shr RDEST and RMASK
                         val imm16 = code shr RIMM
                         val left = REGS[Rd]
@@ -228,7 +228,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         v = left xor value and (right xor value) < 0
                         pc += 2
                     }
-                    SUBSI -> {
+                    SUBSI -> { // SUB Rd, #Offset8
                         val Rd = code shr RDEST and RMASK
                         val imm16 = code shr RIMM
                         val left = REGS[Rd]
@@ -244,8 +244,8 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 4
-                    ANDS -> {
+                    // Format 4: ALU operations
+                    ANDS -> { // AND Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -258,7 +258,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    EORS -> {
+                    EORS -> { // EOR Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -271,7 +271,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    LSLS -> {
+                    LSLS -> { // LSL Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -298,7 +298,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    LSRS -> {
+                    LSRS -> { // LSR Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -327,7 +327,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    ASRS -> {
+                    ASRS -> { // ASR Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -351,7 +351,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    ADCS -> {
+                    ADCS -> { // ADC Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -368,7 +368,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         v = left > 0 && right > 0 && value < 0 || left < 0 && right < 0 && value > 0
                         pc += 2
                     }
-                    SBCS -> {
+                    SBCS -> { // SBC Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -384,7 +384,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         v = Lvalue != value.toLong()
                         pc += 2
                     }
-                    RORS -> {
+                    RORS -> { // ROR Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -400,7 +400,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         c = left.ushr(right - 1) and I0 != 0
                         pc += 2
                     }
-                    TSTS -> {
+                    TSTS -> { // TST Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -412,7 +412,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    RSBS -> {
+                    RSBS -> { // NEG Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val right = REGS[Rs]
@@ -427,7 +427,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         v = right and value < 0
                         pc += 2
                     }
-                    CMP -> {
+                    CMP -> { // CMP Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -442,7 +442,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         v = left xor right and (left xor value) < 0
                         pc += 2
                     }
-                    CMN -> {
+                    CMN -> { // CMN Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -456,7 +456,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         v = left xor value and (right xor value) < 0
                         pc += 2
                     }
-                    ORRS -> {
+                    ORRS -> { // ORR Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -469,7 +469,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    MULS -> {
+                    MULS -> { // MUL Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -485,7 +485,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         v = false // svalue != value?
                         pc += 2
                     }
-                    BICS -> {
+                    BICS -> { // BIC Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -498,7 +498,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         z = value == 0
                         pc += 2
                     }
-                    MVNS -> {
+                    MVNS -> { // MVN Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val right = REGS[Rs]
@@ -511,8 +511,8 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 5
-                    ADD -> {
+                    // Format 5: Hi register operations/branch exchange
+                    ADD -> { // ADD Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -524,7 +524,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
 
                         pc += 2
                     }
-                    ADDX -> {
+                    ADDX -> { // ADD Rd, Rs (SP, LR, PC)
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = when (Rd) {
@@ -562,7 +562,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                             }
                         }
                     }
-                    CMPX -> {
+                    CMPX -> { // CMP Rd, Rs (SP, LR, PC)
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val left = REGS[Rd]
@@ -577,13 +577,13 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         v = left xor right and (left xor value) < 0
                         pc += 2
                     }
-                    MOV -> {
+                    MOV -> { // MOV Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         REGS[Rd] = REGS[Rs]
                         pc += 2
                     }
-                    MOVX -> {
+                    MOVX -> { // MOV Rd, Rs (SP, LR, PC)
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val value = when (Rs) {
@@ -609,7 +609,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                             }
                         }
                     }
-                    BX -> {
+                    BX -> { // BX Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val value = when (Rs) {
@@ -626,7 +626,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
 
                         pc = value and I0.inv()
                     }
-                    BLX -> {
+                    BLX -> { // BLX Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val value = when (Rs) {
@@ -645,16 +645,16 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc = value and I0.inv()
                     }
 
-                    // Format 6
-                    MOVI -> {
+                    // Format 6: PC-relative load
+                    MOVI -> { // LDR Rd, [PC, #Imm]
                         val Rd = code shr RDEST and RMASK
                         val imm32 = buffer[pc - base + 1]
                         REGS[Rd] = imm32
                         pc += 2
                     }
 
-                    // Format 7
-                    STR -> {
+                    // Format 7: load/store with register offset
+                    STR -> { // STR Rd, [Rb, Ro]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -663,7 +663,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         memory.writeInt(addr, value)
                         pc += 2
                     }
-                    STRB -> {
+                    STRB -> { // STRB Rd, [Rb, Ro]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -672,7 +672,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         memory.writeByte(addr, value.toByte())
                         pc += 2
                     }
-                    LDR -> {
+                    LDR -> { // LDR Rd, [Rb, Ro]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -680,7 +680,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         REGS[Rd] = memory.readInt(addr)
                         pc += 2
                     }
-                    LDRB -> {
+                    LDRB -> { // LDRB Rd, [Rb, Ro]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -689,7 +689,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
                     // Format 8
-                    STRH -> {
+                    STRH -> { // STRH Rd, [Rb, Ro]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -697,7 +697,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         memory.writeShort(addr, REGS[Rd].toShort())
                         pc += 2
                     }
-                    LDRH -> {
+                    LDRH -> { // LDRH Rd, [Rb, Ro]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -705,7 +705,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         REGS[Rd] = memory.readShort(addr).toInt() and 0xFFFF
                         pc += 2
                     }
-                    LDSB -> {
+                    LDSB -> { // LDSB Rd, [Rb, Ro]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -713,7 +713,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         REGS[Rd] = memory.readByte(addr).toInt()
                         pc += 2
                     }
-                    LDSH -> {
+                    LDSH -> { // LDSH Rd, [Rb, Ro]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val Rn = code shr RNUM and RMASK
@@ -722,8 +722,8 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 9
-                    STRI -> {
+                    // Format 9: load/store with immediate offset
+                    STRI -> { // STR Rd, [Rb, #Imm]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -732,7 +732,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         memory.writeInt(addr, value)
                         pc += 2
                     }
-                    STRBI -> {
+                    STRBI -> { // STRB Rd, [Rb, #Imm]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -741,7 +741,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         memory.writeByte(addr, value.toByte())
                         pc += 2
                     }
-                    LDRI -> {
+                    LDRI -> { // LDR Rd, [Rb, #Imm]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -749,7 +749,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         REGS[Rd] = memory.readInt(addr)
                         pc += 2
                     }
-                    LDRBI -> {
+                    LDRBI -> { // LDRB Rd, [Rb, #Imm]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -758,8 +758,8 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 10
-                    STRHI -> {
+                    // Format 10: load/store halfword
+                    STRHI -> { // STRH Rd, [Rb, #Imm]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -767,7 +767,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         memory.writeShort(addr, REGS[Rd].toShort())
                         pc += 2
                     }
-                    LDRHI -> {
+                    LDRHI -> { // LDRH Rd, [Rb, #Imm]
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -776,8 +776,8 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 11
-                    STRSPI -> {
+                    // Format 11: SP-relative load/store
+                    STRSPI -> { // STR Rd, [SP, #Imm]
                         val Rd = code shr RDEST and RMASK
                         val imm16 = code shr RIMM
                         val addr = sp + imm16
@@ -785,7 +785,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         memory.writeInt(addr, value)
                         pc += 2
                     }
-                    LDRSPI -> {
+                    LDRSPI -> { // LDR Rd, [SP, #Imm]
                         val Rd = code shr RDEST and RMASK
                         val imm16 = code shr RIMM
                         val addr = sp + imm16
@@ -793,8 +793,8 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 12
-                    ADDXI -> {
+                    // Format 12: load address
+                    ADDXI -> { // ADD Rd, SP, #Imm | ADD Rd, PC, #Imm
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val imm16 = code shr RIMM
@@ -808,15 +808,15 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 13
-                    ADDSPI -> {
+                    // Format 13: add offset to Stack Pointer
+                    ADDSPI -> { // ADD SP, #Imm | ADD SP, #-Imm
                         val imm16 = code shr RIMM
                         sp += imm16
                         pc += 2
                     }
 
-                    // Format 14
-                    PUSH -> {
+                    // Format 14: push/pop registers
+                    PUSH -> { // PUSH { Rlist }
                         val imm16 = code shr RIMM
                         for (i in 7 downTo 0) {
                             if (imm16 and (1 shl i) != 0) {
@@ -827,7 +827,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
 
                         pc += 2
                     }
-                    PUSHR -> {
+                    PUSHR -> { // PUSH { Rlist, LR }
                         val imm16 = code shr RIMM
                         sp -= 4
                         memory.writeInt(sp, lr)
@@ -841,7 +841,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
 
                         pc += 2
                     }
-                    POP -> {
+                    POP -> { // POP { Rlist }
                         val imm16 = code shr RIMM
                         for (i in 0..7) {
                             if (imm16 and (1 shl i) != 0) {
@@ -852,7 +852,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
 
                         pc += 2
                     }
-                    POPR -> {
+                    POPR -> { // POP { Rlist, PC }
                         val imm16 = code shr RIMM
                         for (i in 0..7) {
                             if (imm16 and (1 shl i) != 0) {
@@ -869,8 +869,8 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         sp += 4
                     }
 
-                    // Format 15
-                    STMIA -> {
+                    // Format 15: multiple load/store
+                    STMIA -> { // STMIA Rb!, { Rlist }
                         val Rd = code shr RDEST and RMASK
                         val imm16 = code shr RIMM
                         var addr = REGS[Rd]
@@ -883,7 +883,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         REGS[Rd] = addr
                         pc += 2
                     }
-                    LDMIA -> {
+                    LDMIA -> { // LDMIA Rb!, { Rlist }
                         val Rd = code shr RDEST and RMASK
                         val imm16 = code shr RIMM
                         var addr = REGS[Rd]
@@ -897,26 +897,26 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 16
-                    BEQ -> pc += if (z) code shr RIMM else 2
-                    BNE -> pc += if (!z) code shr RIMM else 2
-                    BCS -> pc += if (c) code shr RIMM else 2
-                    BCC -> pc += if (!c) code shr RIMM else 2
-                    BMI -> pc += if (n) code shr RIMM else 2
-                    BPL -> pc += if (!n) code shr RIMM else 2
-                    BVS -> pc += if (v) code shr RIMM else 2
-                    BVC -> pc += if (!v) code shr RIMM else 2
-                    BHI -> pc += if (c && !z) code shr RIMM else 2
-                    BLS -> pc += if (!c || z) code shr RIMM else 2
-                    BGE -> pc += if (n == v) code shr RIMM else 2
-                    BLT -> pc += if (n != v) code shr RIMM else 2
-                    BGT -> pc += if (!z && n == v) code shr RIMM else 2
-                    BLE -> pc += if (z || n != v) code shr RIMM else 2
+                    // Format 16: conditional branch
+                    BEQ -> pc += if (z) code shr RIMM else 2 // BEQ label
+                    BNE -> pc += if (!z) code shr RIMM else 2 // BNE label
+                    BCS -> pc += if (c) code shr RIMM else 2 // BCS label
+                    BCC -> pc += if (!c) code shr RIMM else 2 // BCC label
+                    BMI -> pc += if (n) code shr RIMM else 2 // BMI label
+                    BPL -> pc += if (!n) code shr RIMM else 2 // BPL label
+                    BVS -> pc += if (v) code shr RIMM else 2 // BVS label
+                    BVC -> pc += if (!v) code shr RIMM else 2 // BVC label
+                    BHI -> pc += if (c && !z) code shr RIMM else 2 // BHI label
+                    BLS -> pc += if (!c || z) code shr RIMM else 2 // BLS label
+                    BGE -> pc += if (n == v) code shr RIMM else 2 // BGE label
+                    BLT -> pc += if (n != v) code shr RIMM else 2 // BLT label
+                    BGT -> pc += if (!z && n == v) code shr RIMM else 2 // BGT label
+                    BLE -> pc += if (z || n != v) code shr RIMM else 2 // BLE label
 
-                    // Format 17
-                    SVC -> {
+                    // Format 17: software interrupt
+                    SVC -> { // SWI Value8
                         val imm16 = code shr RIMM
-                        println("SVC $imm16:${REGS[7]} r0=${REGS[0]} r1=${REGS[1]} r2=${REGS[2]} r3=${REGS[3]}")
+                        // println("SVC $imm16:${REGS[7]} r0=${REGS[0]} r1=${REGS[1]} r2=${REGS[2]} r3=${REGS[3]}")
                         regs.setCPSR(q, v, c, z, n)
                         regs.fastStore(REGS, sp, lr, pc)
 
@@ -942,45 +942,45 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         pc += 2
                     }
 
-                    // Format 18
-                    B -> {
+                    // Format 18: unconditional branch
+                    B -> { // B label
                         val imm16 = code shr RIMM
                         pc += imm16
                     }
 
-                    // Format 19
-                    BL -> {
+                    // Format 19: long branch with link
+                    BL -> { // BL label
                         val imm32 = buffer[pc - base + 1]
                         lr = pc + 3 + 2
                         pc += imm32 + 2
                     }
 
-                    //
-                    SXTH -> {
+                    // Format X
+                    SXTH -> { // SXTH Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         REGS[Rd] = REGS[Rs].toShort().toInt()
                         pc += 2
                     }
-                    SXTB -> {
+                    SXTB -> { // SXTB Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         REGS[Rd] = REGS[Rs].toByte().toInt()
                         pc += 2
                     }
-                    UXTH -> {
+                    UXTH -> { // UXTH Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         REGS[Rd] = REGS[Rs] and 0xFFFF
                         pc += 2
                     }
-                    UXTB -> {
+                    UXTB -> { // UXTB Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         REGS[Rd] = REGS[Rs] and 0xFF
                         pc += 2
                     }
-                    REV -> {
+                    REV -> { // REV Rd, Rs
                         val Rd = code shr RDEST and RMASK
                         val Rs = code shr RSRC and RMASK
                         val value = REGS[Rs]

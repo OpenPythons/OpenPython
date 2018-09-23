@@ -1,9 +1,31 @@
 package kr.pe.ecmaxp.thumbsf
 
-import kr.pe.ecmaxp.thumbsf.helper.*
+import kr.pe.ecmaxp.thumbsf.consts.*
 
-class Registers {
+class Registers() {
     private var _regs: IntArray = IntArray(CPSR + 1)
+
+    constructor(r0: Int = 0, r1: Int = 0, r2: Int = 0, r3: Int = 0,
+                r4: Int = 0, r5: Int = 0, r6: Int = 0, r7: Int = 0,
+                r8: Int = 0, r9: Int = 0, r10: Int = 0, r11: Int = 0,
+                r12: Int = 0, sp: Int = 0, lr: Int = 0, pc: Int = 0) : this() {
+        _regs[R0] = r0
+        _regs[R1] = r1
+        _regs[R2] = r2
+        _regs[R3] = r3
+        _regs[R4] = r4
+        _regs[R5] = r5
+        _regs[R6] = r6
+        _regs[R7] = r7
+        _regs[R8] = r8
+        _regs[R9] = r9
+        _regs[R10] = r10
+        _regs[R11] = r11
+        _regs[R12] = r12
+        _regs[SP] = sp
+        _regs[LR] = lr
+        _regs[PC] = pc
+    }
 
     init {
         _regs[CPSR] = FZ // set Zero
