@@ -1,5 +1,6 @@
 package kr.pe.ecmaxp.openpie
 
+import kr.pe.ecmaxp.openpie.arch.OpenPieArchitecture
 import li.cil.oc.api.Machine
 import net.minecraft.init.Blocks
 import net.minecraftforge.fml.common.Mod
@@ -11,6 +12,14 @@ import org.apache.logging.log4j.Logger
 @Suppress("UNUSED_PARAMETER")
 @Mod(modid = OpenPie.MODID, name = OpenPie.NAME, version = OpenPie.VERSION, dependencies = "required-after:forgelin;")
 class OpenPie {
+    companion object {
+        const val MODID = "openpie"
+        const val NAME = "OpenPie"
+        const val VERSION = "0.8"
+    }
+
+    private var logger: Logger? = null
+
     @EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
         logger = event.modLog
@@ -22,13 +31,5 @@ class OpenPie {
         logger!!.info("DIRT BLOCK >> {}", Blocks.DIRT.registryName)
 
         Machine.add(OpenPieArchitecture::class.java)
-    }
-
-    companion object {
-        const val MODID = "openpie"
-        const val NAME = "OpenPie"
-        const val VERSION = "0.8"
-
-        private var logger: Logger? = null
     }
 }

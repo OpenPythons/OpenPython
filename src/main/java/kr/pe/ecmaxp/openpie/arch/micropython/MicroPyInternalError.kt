@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpie.micropython
+package kr.pe.ecmaxp.openpie.arch.micropython
 
 /*
  * This file is part of the MicroPython project, http://micropython.org/

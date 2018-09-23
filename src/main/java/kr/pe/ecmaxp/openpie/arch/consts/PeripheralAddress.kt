@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpie
+package kr.pe.ecmaxp.openpie.arch.consts
 
 const val OP_IO_TXR = 0x40000000
 const val OP_IO_RXR = 0x40000001

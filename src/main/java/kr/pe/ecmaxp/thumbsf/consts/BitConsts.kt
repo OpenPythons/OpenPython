@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.thumbsf.helper
+package kr.pe.ecmaxp.thumbsf.consts
 
 const val UINT_MAX = 0xFFFFFFFFL
 const val I0 = 1

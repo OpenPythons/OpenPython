@@ -1,7 +1,7 @@
-package kr.pe.ecmaxp.openpie
+package kr.pe.ecmaxp.openpie.arch.types
 
 import kr.pe.ecmaxp.thumbsf.CPU
-import kr.pe.ecmaxp.thumbsf.helper.*
+import kr.pe.ecmaxp.thumbsf.consts.*
 
 class Interrupt(cpu: CPU, imm: Int) {
     val imm: Int

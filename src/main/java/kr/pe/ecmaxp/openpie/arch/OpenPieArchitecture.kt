@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpie
+package kr.pe.ecmaxp.openpie.arch
 
 import li.cil.oc.api.machine.Architecture
 import li.cil.oc.api.machine.ExecutionResult
@@ -11,6 +11,7 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.attribute.FileTime
 
+@Suppress("unused")
 @Architecture.Name("OpenPie (micropython 3)")
 class OpenPieArchitecture(private val machine: Machine) : Architecture {
     private var initialized: Boolean = false
@@ -46,10 +47,8 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
     }
 
     override fun close() {
-        if (vm != null) {
-            vm!!.close()
-            vm = null
-        }
+        vm?.close()
+        vm = null
     }
 
     @Synchronized
@@ -115,8 +114,6 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
     }
 
     override fun toString(): String {
-        return "OpenPieArchitecture{" +
-                "vm=" + vm +
-                '}'.toString()
+        return "OpenPieArchitecture(machine=$machine, initialized=$initialized, vm=$vm)"
     }
 }

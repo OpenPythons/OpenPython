@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpie
+package kr.pe.ecmaxp.openpie.arch.types
 
 class Result {
     val call: Call?

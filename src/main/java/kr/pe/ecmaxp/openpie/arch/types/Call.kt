@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpie
+package kr.pe.ecmaxp.openpie.arch.types
 
 import li.cil.oc.api.machine.LimitReachedException
 import li.cil.oc.api.machine.Machine

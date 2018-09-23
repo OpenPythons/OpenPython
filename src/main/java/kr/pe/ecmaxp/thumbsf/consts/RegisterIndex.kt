@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.thumbsf.helper
+package kr.pe.ecmaxp.thumbsf.consts
 
 const val R0 = 0
 const val R1 = 1

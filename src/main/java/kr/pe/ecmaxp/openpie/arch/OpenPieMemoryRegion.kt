@@ -1,6 +1,6 @@
-package kr.pe.ecmaxp.openpie
+package kr.pe.ecmaxp.openpie.arch
 
-enum class OpenPieMemoryRegion private constructor(val address: Long, val size: Long, val perms: Int) {
+enum class OpenPieMemoryRegion(val address: Long, val size: Long, val perms: Int) {
     FLASH(0x08000000, 0x100000, 0),
     SRAM(0x20000000, 0x80000, 0),
     STACK(0x3FFF0000, 0x10000, 0),

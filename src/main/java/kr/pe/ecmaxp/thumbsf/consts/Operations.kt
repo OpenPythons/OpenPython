@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.thumbsf.helper
+package kr.pe.ecmaxp.thumbsf.consts
 
 import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
 
