@@ -503,7 +503,6 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         return rvalue
     }
 
-    @Synchronized
     @Throws(Exception::class)
     internal fun step(isSynchronized: Boolean): ExecutionResult? {
         if (isSynchronized) {
@@ -557,7 +556,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     private fun cpuStep() {
 
         try {
-            cpu.run(1000000) {
+            cpu.run(10000000) {
                 val intr = Interrupt(cpu, it)
 
                 try {
@@ -657,7 +656,6 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         return result
     }
 
-    @Synchronized
     internal fun onSignal(signal: Signal) {
         if (state.redirectKeyEvent) {
             if (signal.name() == "key_down") {
@@ -672,7 +670,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         }
 
         val caller = cpu.fork(Registers(
-                sp = 0xE1000000L.toInt(),
+                sp = 0xE10003F0L.toInt(),
                 pc = cpu.memory.readInt(0x08000000 + 8)
         ))
 
@@ -680,7 +678,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
 
         try {
             caller.run(Int.MAX_VALUE) {
-                val intr = Interrupt(cpu, it)
+                val intr = Interrupt(caller, it)
 
                 try {
                     InterruptHandler(intr)

@@ -51,7 +51,6 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         vm = null
     }
 
-    @Synchronized
     override fun runSynchronized() {
         try {
             this.lastSynchronizedResult = vm!!.step(true)
@@ -62,7 +61,6 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
 
     }
 
-    @Synchronized
     override fun runThreaded(isSynchronizedReturn: Boolean): ExecutionResult? {
         val prev = DebugFirmwareGetLastModifiedTime()
         val result: ExecutionResult?
