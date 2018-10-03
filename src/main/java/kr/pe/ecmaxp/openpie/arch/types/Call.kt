@@ -30,11 +30,11 @@ class Call(val component: String, val function: String, vararg args: Any?) {
     }
 
     companion object {
-        fun FromObjectArray(array: Array<Any>): Call? {
+        fun FromObjectArray(array: Array<*>): Call? {
             if (array.size < 2)
                 return null
 
-            val args = arrayOfNulls<Any>(array.size - 2)
+            val args = arrayOfNulls<Any?>(array.size - 2)
             System.arraycopy(array, 2, args, 0, args.size)
 
             return Call(array[0] as String, array[1] as String, *args)

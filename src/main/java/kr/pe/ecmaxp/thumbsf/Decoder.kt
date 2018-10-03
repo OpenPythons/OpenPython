@@ -168,39 +168,21 @@ fun decode(memory: Memory, pc: Int): Pair<Int, Int> {
                         else -> throw UnexceptedLogicError()
                     }
 
-                    when (op) {
-                        ADD -> {
-                            op = when (Rd) {
-                                PC, SP, LR -> ADDX
-                                else -> op
+                    val isSpecialRegs =
+                            when (Rd) {
+                                PC, SP, LR -> true
+                                else -> false
+                            } || when (Rs) {
+                                PC, SP, LR -> true
+                                else -> false
                             }
 
-                            op = when (Rs) {
-                                PC, SP, LR -> ADDX
-                                else -> op
-                            }
-                        }
-                        CMP -> {
-                            op = when (Rd) {
-                                PC, SP, LR -> CMPX
-                                else -> op
-                            }
-
-                            op = when (Rs) {
-                                PC, SP, LR -> CMPX
-                                else -> op
-                            }
-                        }
-                        MOV -> {
-                            op = when (Rd) {
-                                PC, SP, LR -> MOVX
-                                else -> op
-                            }
-
-                            op = when (Rs) {
-                                PC, SP, LR -> MOVX
-                                else -> op
-                            }
+                    if (isSpecialRegs) {
+                        op = when (op) {
+                            ADD -> ADDX
+                            CMP -> CMPX
+                            MOV -> MOVX
+                            else -> op
                         }
                     }
 

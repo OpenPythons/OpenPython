@@ -2,10 +2,10 @@
 {
   "modid": "openpie",
   "name": "OpenPie",
-  "description": "Unicorn + Micropython for OpenComputer ",
+  "description": "Micropython for OpenComputer",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
+  "url": "https://github.com/EcmaXp/OpenPie",
   "updateUrl": "",
   "authorList": ["EcmaXp"],
   "credits": "OpenComputers, micropython, unicorn, ...",

@@ -62,25 +62,31 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
     }
 
     override fun runThreaded(isSynchronizedReturn: Boolean): ExecutionResult? {
-        val prev = DebugFirmwareGetLastModifiedTime()
-        val result: ExecutionResult?
+        try{
+            val prev = DebugFirmwareGetLastModifiedTime()
+            val result: ExecutionResult?
 
-        if (!isSynchronizedReturn) {
-            // calling
-            try {
-                result = vm!!.step(false)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return ExecutionResult.Error(e.toString())
+            if (!isSynchronizedReturn) {
+                // calling
+                try {
+                    result = vm!!.step(false)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    return ExecutionResult.Error(e.toString())
+                }
+
+                val next = DebugFirmwareGetLastModifiedTime()
+                return if (prev != null && prev != next) ExecutionResult.Shutdown(true) else result
+
+            } else {
+                result = this.lastSynchronizedResult
+                this.lastSynchronizedResult = null
+                return result
             }
-
-            val next = DebugFirmwareGetLastModifiedTime()
-            return if (prev != null && prev != next) ExecutionResult.Shutdown(true) else result
-
-        } else {
-            result = this.lastSynchronizedResult
-            this.lastSynchronizedResult = null
-            return result
+        } catch (e: Throwable)
+        {
+            e.printStackTrace();
+            throw e;
         }
     }
 

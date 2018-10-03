@@ -25,6 +25,7 @@ package kr.pe.ecmaxp.openpie.arch.micropython
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+const val MP_OK = 0 // ?
 const val MP_EPERM = 1 // Operation not permitted
 const val MP_ENOENT = 2 // No such file or directory
 const val MP_ESRCH = 3 // No such process

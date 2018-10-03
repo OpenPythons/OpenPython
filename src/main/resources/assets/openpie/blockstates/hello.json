@@ -1,0 +1,13 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "all": "blocks/dirt"
+    },
+    "model": "cube_all",
+    "uvlock": true
+  },
+  "variants": {
+    "normal": [{}]
+  }
+}

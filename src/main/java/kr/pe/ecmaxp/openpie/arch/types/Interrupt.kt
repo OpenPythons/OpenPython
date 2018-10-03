@@ -1,9 +1,11 @@
 package kr.pe.ecmaxp.openpie.arch.types
 
+import kr.pe.ecmaxp.openpie.arch.msgpack.Msgpack
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.consts.*
 
 class Interrupt(cpu: CPU, imm: Int) {
+
     val imm: Int
     val r0: Int
     val r1: Int
@@ -19,5 +21,23 @@ class Interrupt(cpu: CPU, imm: Int) {
         this.r2 = cpu.regs[R2]
         this.r3 = cpu.regs[R3]
         this.r4 = cpu.regs[R4]
+    }
+
+    fun loadBuffer0(cpu: CPU): ByteArray {
+        return cpu.memory.readBuffer(r0, r1)
+    }
+
+    fun loadObject0(cpu: CPU): Any? {
+        val buf = loadBuffer0(cpu)
+        return Msgpack.loads(buf)
+    }
+
+    fun loadBuffer1(cpu: CPU): ByteArray {
+        return cpu.memory.readBuffer(r1, r2)
+    }
+
+    fun loadObject1(cpu: CPU): Any? {
+        val buf = loadBuffer1(cpu)
+        return Msgpack.loads(buf)
     }
 }
