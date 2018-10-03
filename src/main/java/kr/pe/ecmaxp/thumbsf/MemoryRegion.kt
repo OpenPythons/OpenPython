@@ -122,7 +122,6 @@ class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
             }
         }
 
-        // if (legacyMemory.readInt(address) != rvalue) throw Exception()
         return rvalue
     }
 

@@ -925,7 +925,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         } catch (e: ControlPauseSignal) {
                             throw e
                         } catch (e: ControlStopSignal) {
-                            pc += 2
+                            regs[PC] += 2
                             throw e
                         } finally {
                             sp = regs.sp

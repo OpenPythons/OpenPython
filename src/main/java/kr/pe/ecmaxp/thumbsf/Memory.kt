@@ -6,6 +6,7 @@ import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
 import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
 import kr.pe.ecmaxp.thumbsf.exc.UnsupportedInstructionException
+import java.nio.charset.StandardCharsets
 import java.util.*
 
 class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
@@ -84,6 +85,28 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
         _writePage = page
 
         return page.writeBuffer(address, buffer)
+    }
+
+    @Throws(InvalidMemoryException::class)
+    fun readString(address: Int, maxSize: Int): String {
+        val addr = Integer.toUnsignedLong(address)
+        val region = findRegion(addr, 0)
+        if (region.flag == MemoryFlag.HOOK)
+            throw InvalidMemoryException(address.toLong())
+
+        var size = Math.min(region.end - addr, maxSize.toLong()).toInt()
+        val buffer = ByteArray(size)
+
+        for (pos in 0 until size) {
+            val ch = readByte(address + pos)
+            buffer[pos] = ch
+            if (ch == 0.toByte()) {
+                size = pos
+                break
+            }
+        }
+
+        return String(buffer, 0, size, StandardCharsets.UTF_8)
     }
 
     @Throws(InvalidMemoryException::class)
