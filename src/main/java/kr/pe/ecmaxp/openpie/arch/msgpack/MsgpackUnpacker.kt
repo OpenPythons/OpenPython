@@ -11,36 +11,40 @@ class MsgpackUnpacker(buffer: ByteArray) {
         if (!unpacker.hasNext())
             throw Exception("invalid unpack")
 
-        val format = unpacker.nextFormat
-        return when (format.valueType) {
-            null -> throw Exception()
-            ValueType.NIL -> null
-            ValueType.BOOLEAN -> unpacker.unpackBoolean()
-            ValueType.INTEGER -> unpacker.unpackInt()
-            ValueType.FLOAT -> unpacker.unpackFloat()
-            ValueType.STRING -> unpacker.unpackString()
-            ValueType.BINARY -> {
-                val length = unpacker.unpackBinaryHeader()
-                unpacker.readPayload(length)
-            }
-            ValueType.ARRAY -> {
-                val length = unpacker.unpackArrayHeader()
-                val list = arrayOfNulls<Any?>(length)
-                for (i in 0 until length)
-                    list[i] = unpack()
+        unpacker.apply {
+            return when (nextFormat.valueType) {
+                null -> throw Exception()
+                ValueType.NIL -> null
+                ValueType.BOOLEAN -> unpackBoolean()
+                ValueType.INTEGER -> unpackInt()
+                ValueType.FLOAT -> unpackFloat()
+                ValueType.STRING -> unpackString()
+                ValueType.BINARY -> {
+                    val length = unpackBinaryHeader()
+                    readPayload(length)
+                }
+                ValueType.ARRAY -> {
+                    val length = unpackArrayHeader()
+                    val list = arrayOfNulls<Any?>(length)
+                    for (i in 0 until length)
+                        list[i] = unpack()
 
-                list
-            }
-            ValueType.MAP -> {
-                val length = unpacker.unpackMapHeader()
-                val map = HashMap<Any?, Any?>()
-                for (i in 0 until length)
-                    map.put(unpack(), unpack())
+                    list
+                }
+                ValueType.MAP -> {
+                    val length = unpackMapHeader()
+                    val map = HashMap<Any?, Any?>()
+                    for (i in 0 until length)
+                        map.put(unpack(), unpack())
 
-                map
+                    map
+                }
+                ValueType.EXTENSION -> TODO()
+                else -> throw Exception()
             }
-            ValueType.EXTENSION -> TODO()
         }
+
+        throw Exception()
     }
 
     fun unpack_obj(): Any? {

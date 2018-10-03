@@ -1,9 +1,17 @@
 package kr.pe.ecmaxp.openpie.arch
 
-enum class OpenPieMemoryRegion(val address: Long, val size: Long, val perms: Int) {
-    FLASH(0x08000000, 0x100000, 0),
-    SRAM(0x20000000, 0x80000, 0),
-    STACK(0x3FFF0000, 0x10000, 0),
-    PERIPHERAL(0x40000000, 0x10000, 0),
-    SYSCALL_BUFFER(-0x20000000, 0x10000, 0)
+import kr.pe.ecmaxp.thumbsf.MemoryFlag
+import kr.pe.ecmaxp.thumbsf.MemoryFlag.RX
+import kr.pe.ecmaxp.thumbsf.MemoryFlag.RW
+import kr.pe.ecmaxp.thumbsf.MemoryFlag.HOOK
+
+const val KB = 1024
+
+enum class OpenPieMemoryRegion(val address: Long, val size: Int, val flag: MemoryFlag) {
+    FLASH(0x08000000L, 256 * KB, RX),
+    SRAM(0x20000000L, 64 * KB, RW),
+    PERIPHERAL(0x40000000L, 4 * KB, HOOK),
+    RAM(0x60000000L, 192 * KB, RW),
+    SYSCALL(0xE0000000L, 16 * KB, RW),
+    EXTERNAL_STACK(0xE1000000L, 2 * KB, RW)
 }

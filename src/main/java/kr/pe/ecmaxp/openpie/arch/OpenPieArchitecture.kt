@@ -12,7 +12,7 @@ import java.nio.file.Files
 import java.nio.file.attribute.FileTime
 
 @Suppress("unused")
-@Architecture.Name("OpenPie (micropython 3)")
+@Architecture.Name("micropython (OpenPie)")
 class OpenPieArchitecture(private val machine: Machine) : Architecture {
     private var initialized: Boolean = false
 
@@ -20,7 +20,7 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
     private var lastSynchronizedResult: ExecutionResult? = null
 
     override fun isInitialized(): Boolean {
-        return initialized
+        return vm != null
     }
 
     override fun recomputeMemory(iterable: Iterable<ItemStack>): Boolean {
@@ -36,14 +36,11 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
 
         try {
             vm = OpenPieVirtualMachine(machine)
-            initialized = vm!!.init()
-            return initialized
         } catch (e: Exception) {
             e.printStackTrace()
-            initialized = false
-            return initialized
         }
 
+        return isInitialized
     }
 
     override fun close() {
@@ -53,16 +50,16 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
 
     override fun runSynchronized() {
         try {
-            this.lastSynchronizedResult = vm!!.step(true)
+            lastSynchronizedResult = vm!!.step(true)
         } catch (e: Exception) {
             e.printStackTrace()
-            this.lastSynchronizedResult = ExecutionResult.Error(e.toString())
+            lastSynchronizedResult = ExecutionResult.Error(e.toString())
         }
 
     }
 
     override fun runThreaded(isSynchronizedReturn: Boolean): ExecutionResult? {
-        try{
+        try {
             val prev = DebugFirmwareGetLastModifiedTime()
             val result: ExecutionResult?
 
@@ -77,14 +74,15 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
 
                 val next = DebugFirmwareGetLastModifiedTime()
                 return if (prev != null && prev != next) ExecutionResult.Shutdown(true) else result
-
             } else {
-                result = this.lastSynchronizedResult
-                this.lastSynchronizedResult = null
+                result = lastSynchronizedResult
+                lastSynchronizedResult = null
                 return result
             }
-        } catch (e: Throwable)
-        {
+        } catch (e: Exception) {
+            e.printStackTrace();
+            return ExecutionResult.Error(e.toString())
+        } catch (e: Throwable) {
             e.printStackTrace();
             throw e;
         }
