@@ -31,12 +31,6 @@ import java.util.*
 
 
 class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
-    companion object {
-        private val KB = 1024
-        private val bufAddress = -0x20000000
-        private val bufMaxSize = 16 * KB
-    }
-
     private var cpu: CPU = CPU()
     var state: VMState = VMState()
 
@@ -105,7 +99,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         }
     }
 
-    private fun SysCallHandler_Control(intr: Interrupt): Int {
+    private fun handleSystemControl(intr: Interrupt): Int {
         when (intr.r0) {
             SYS_CONTROL_SHUTDOWN -> throw ControlStopSignal(ExecutionResult.Shutdown(false))
             SYS_CONTROL_REBOOT -> throw ControlStopSignal(ExecutionResult.Shutdown(true))
@@ -125,7 +119,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         throw ControlStopSignal(ExecutionResult.Shutdown(false))
     }
 
-    private fun SysCallHandler_Invoke(intr: Interrupt): Int {
+    private fun handleSystemInvoke(intr: Interrupt): Int {
         val obj = intr.loadObject0(cpu)
         val call = Call.FromObjectArray(obj as Array<*>)
         val ret = when (call) {
@@ -142,7 +136,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         return intrResponse(arrayOf<Any?>(ret.args, ret.error))
     }
 
-    private fun SysCallHandler_Request(intr: Interrupt): Int {
+    private fun handleSystemRequest(intr: Interrupt): Int {
         when (intr.r0) {
             0 -> {
                 if (!state.pendingSignals.isEmpty()) {
@@ -184,7 +178,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         }
     }
 
-    private fun SysCallHandler_VirtualFileSystem(intr: Interrupt): Int {
+    private fun handleSystemVirtualFileSystem(intr: Interrupt): Int {
         val ret: Result
         val command = intr.r0
         if (command == 1) {
@@ -193,30 +187,26 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
             val mode = readString(intr.r3, 16)
 
             ret = invoke(Call(address, "open", path, mode))
-            if (ret.error is FileNotFoundException) {
-                return MP_ENOENT
-            } else if (ret.args != null) {
-                if (ret.args.size != 1) {
-                    return MP_EPERM
+            when {
+                ret.error is FileNotFoundException -> return MP_ENOENT
+                ret.args != null -> {
+                    if (ret.args.size != 1)
+                        return MP_EPERM
+    
+                    val fdPtr = intr.r4
+                    val fd = state.fdCount++
+                    val handle = Integer.parseInt(ret.args[0].toString()) // handle
+    
+                    state.fdMap[fd] = FileHandle(address, handle)
+    
+                    cpu.memory.writeInt(fdPtr, fd)
+                    return MP_OK
                 }
-
-                val fdPtr = intr.r4
-                val fd = state.fdCount++
-                val handle = Integer.parseInt(ret.args[0].toString()) // handle
-
-                state.fdMap[fd] = FileHandle(address, handle)
-
-                cpu.memory.writeInt(fdPtr, fd)
-                return MP_OK
-            } else {
-                return MP_EPERM
+                else -> return MP_EPERM
             }
         } else {
             val fd = intr.r1
-            val fh = (state.fdMap as Map<Int, FileHandle>).getOrDefault(fd, null)
-            if (fh == null) {
-                return MP_EBADF
-            }
+            val fh = state.fdMap.getOrDefault(fd, null) ?: return MP_EBADF
 
             when (command) {
                 2 // VFS_VALID
@@ -241,28 +231,30 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
                 -> {
                     ret = invoke(fh.call("read", intr.r2))
                     val buf: ByteArray
-                    if (ret.error != null) {
-                        ret.error.printStackTrace()
-                        return 1
-                    } else if (ret.args != null) {
-                        if (ret.args.size != 1) {
-                            return MP_EPERM
+                    when {
+                        ret.error != null -> {
+                            ret.error.printStackTrace()
+                            return 1
                         }
+                        ret.args != null -> {
+                            if (ret.args.size != 1) {
+                                return MP_EPERM
+                            }
 
-                        val arg = ret.args[0]
-                        if (arg is ByteArray) {
-                            buf = arg
-                            cpu.memory.writeBuffer(intr.r3, buf)
-                            cpu.memory.writeInt(intr.r4, buf.size)
-                            return 0
-                        } else if (arg == null) {
-                            // EOF
-                            return 0
-                        } else {
-                            return MP_EPERM
+                            val arg = ret.args[0]
+                            return if (arg is ByteArray) {
+                                buf = arg
+                                cpu.memory.writeBuffer(intr.r3, buf)
+                                cpu.memory.writeInt(intr.r4, buf.size)
+                                0
+                            } else if (arg == null) {
+                                // EOF
+                                0
+                            } else {
+                                MP_EPERM
+                            }
                         }
-                    } else {
-                        return MP_EPERM
+                        else -> return MP_EPERM
                     }
                 }
                 6 // VFS_WRITE
@@ -343,19 +335,19 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     }
 
 
-    private fun SysCallHandler_Debug(intr: Interrupt): Int {
+    private fun handleSystemDebug(intr: Interrupt): Int {
         val buf = cpu.memory.readBuffer(intr.r0, intr.r1)
         val str = String(buf, StandardCharsets.UTF_8)
         if (str.length > 2 && str.endsWith("}")) {
             println(str)
-            return 0;
+            return 0
         }
 
         print(str)
-        return 0;
+        return 0
     }
 
-    private fun SysCallHandler_Legacy(intr: Interrupt): Int {
+    private fun handleSystemLegacy(intr: Interrupt): Int {
         when (intr.r0) {
             0 -> {
                 val buf = state.outputBuffer.toString().toByteArray(StandardCharsets.UTF_8)
@@ -371,12 +363,12 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     private fun InterruptHandler(intr: Interrupt) {
         try {
             val code: Int = when (intr.imm) {
-                SYS_CONTROL -> SysCallHandler_Control(intr)
-                SYS_INVOKE -> SysCallHandler_Invoke(intr)
-                SYS_REQUEST -> SysCallHandler_Request(intr)
-                SYS_VFS -> SysCallHandler_VirtualFileSystem(intr)
-                SYS_DEBUG -> SysCallHandler_Debug(intr)
-                SYS_LEGACY -> SysCallHandler_Legacy(intr)
+                SYS_CONTROL -> handleSystemControl(intr)
+                SYS_INVOKE -> handleSystemInvoke(intr)
+                SYS_REQUEST -> handleSystemRequest(intr)
+                SYS_VFS -> handleSystemVirtualFileSystem(intr)
+                SYS_DEBUG -> handleSystemDebug(intr)
+                SYS_LEGACY -> handleSystemLegacy(intr)
                 else -> throw UnknownInterrupt()
             }
 
@@ -572,41 +564,6 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
         }
     }
 
-    private fun loadFirmware(): ByteArray {
-        val file = File(OpenPieFilePaths.FirmwareFile)
-        return Files.readAllBytes(file.toPath())
-    }
-
-    private fun loadMapping(): List<Pair<Long, String>> {
-        val file = File(OpenPieFilePaths.MapFile)
-        val lines = Files.readAllLines(file.toPath())
-        val result = ArrayList<Pair<Long, String>>()
-
-        var last_name: String? = null
-        for (line in lines) {
-            val tokens = line.trim { it <= ' ' }.split("\\s+".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
-            var last_pair: Pair<Long, String>?
-            if (tokens.size >= 1) {
-                if (tokens[0].startsWith(".text")) {
-                    last_name = tokens[0]
-                } else if (tokens[0].startsWith("0x")) {
-                    val addr = java.lang.Long.parseLong(tokens[0].substring(2), 16)
-                    if (tokens.size == 2) {
-                        last_pair = Pair.of(addr, tokens[1])
-                        result.add(last_pair)
-                    } else if (last_name != null) {
-                        last_pair = Pair.of(addr, last_name)
-                        result.add(last_pair)
-                    }
-                } else {
-                    last_name = null
-                }
-            }
-        }
-
-        return result
-    }
-
     internal fun onSignal(signal: Signal) {
         if (state.redirectKeyEvent) {
             if (signal.name() == "key_down") {
@@ -640,7 +597,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
                 }
             }
         } catch (controlSignal: ControlSignal) {
-            return;
+            return
             // TODO: this is bug (unexcepted behavior)
             val value = controlSignal.value
             if (value is ExecutionResult)
@@ -654,7 +611,13 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     }
 
     private fun intrResponse(value: Any): Int {
-        return intrResponseBuffer(Msgpack.dumps(value))
+        val bufAddress = OpenPieMemoryRegion.SYSCALL_BUFFER.address.toInt()
+        val buffer = Msgpack.dumps(value)
+        cpu.memory.writeInt(bufAddress, bufAddress + 8) // + 0
+        cpu.memory.writeInt(bufAddress + 4, buffer.size) // + 4
+        cpu.memory.writeBuffer(bufAddress + 8, buffer) // + 8
+        cpu.memory.writeByte(bufAddress + 8 + buffer.size, 0.toByte()) // + 8 + n
+        return bufAddress
     }
 
     private fun intrResponseBuffer(buffer: ByteArray?): Int {
@@ -665,6 +628,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     }
 
     private fun interruptResponseBuffer(buffer: ByteArray): Int {
+        val bufAddress = OpenPieMemoryRegion.SYSCALL_BUFFER.address.toInt()
         cpu.memory.writeInt(bufAddress, bufAddress + 8) // + 0
         cpu.memory.writeInt(bufAddress + 4, buffer.size) // + 4
         cpu.memory.writeBuffer(bufAddress + 8, buffer) // + 8
