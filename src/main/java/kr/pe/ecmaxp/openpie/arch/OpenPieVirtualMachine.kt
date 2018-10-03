@@ -1,7 +1,6 @@
 package kr.pe.ecmaxp.openpie.arch
 
 import com.mojang.realmsclient.util.Pair
-import kr.pe.ecmaxp.openpie.OpenPieFilePaths
 import kr.pe.ecmaxp.openpie.arch.consts.*
 import kr.pe.ecmaxp.openpie.arch.micropython.*
 import kr.pe.ecmaxp.openpie.arch.msgpack.Msgpack
@@ -23,10 +22,8 @@ import li.cil.oc.api.machine.LimitReachedException
 import li.cil.oc.api.machine.Machine
 import li.cil.oc.api.machine.Signal
 import li.cil.oc.api.network.Component
-import java.io.File
 import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.util.*
 
 
@@ -120,7 +117,8 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
     }
 
     private fun handleSystemInvoke(intr: Interrupt): Int {
-        val obj = intr.loadObject0(cpu)
+        // intr.r0 => unused
+        val obj = intr.loadObject(cpu)
         val call = Call.FromObjectArray(obj as Array<*>)
         val ret = when (call) {
             null -> Result(null, Exception("Invaild call"))
@@ -148,7 +146,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
             }
             SYS_REQUEST_COMPONENTS -> return intrResponse(machine.components())
             SYS_REQUEST_METHODS -> {
-                val req = intr.loadObject1(cpu) as Array<*>
+                val req = intr.loadObject(cpu) as Array<*>
                 val node = machine.node().network().node(req[0] as String)
 
                 if (node is Component) {
@@ -158,7 +156,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine) {
                 return 0
             }
             SYS_REQUEST_ANNOTATIONS -> {
-                val req = intr.loadObject1(cpu) as Array<*>
+                val req = intr.loadObject(cpu) as Array<*>
                 if (req.size == 2) {
                     val node = machine.node().network().node(req[0] as String)
                     if (node is Component) {

@@ -23,21 +23,12 @@ class Interrupt(cpu: CPU, imm: Int) {
         this.r4 = cpu.regs[R4]
     }
 
-    fun loadBuffer0(cpu: CPU): ByteArray {
-        return cpu.memory.readBuffer(r0, r1)
-    }
-
-    fun loadObject0(cpu: CPU): Any? {
-        val buf = loadBuffer0(cpu)
-        return Msgpack.loads(buf)
-    }
-
-    fun loadBuffer1(cpu: CPU): ByteArray {
+    fun loadBuffer(cpu: CPU): ByteArray {
         return cpu.memory.readBuffer(r1, r2)
     }
 
-    fun loadObject1(cpu: CPU): Any? {
-        val buf = loadBuffer1(cpu)
+    fun loadObject(cpu: CPU): Any? {
+        val buf = loadBuffer(cpu)
         return Msgpack.loads(buf)
     }
 }

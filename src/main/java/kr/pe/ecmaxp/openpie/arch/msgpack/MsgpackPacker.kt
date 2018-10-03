@@ -14,6 +14,8 @@ class MsgpackPacker {
             packer.packBoolean(o)
         } else if (o is Int) {
             packer.packInt(o)
+        } else if (o is Long) {
+            packer.packLong(o)
         } else if (o is Float) {
             packer.packFloat(o)
         } else if (o is Double) {
