@@ -116,7 +116,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
         val page= updateCache(_execPage, addr, size)
         _execPage = page
 
-        return page.fetchCode(address)
+        return page.readShort(address).toInt() and 0xFFFF
     }
 
     @Throws(InvalidMemoryException::class)
