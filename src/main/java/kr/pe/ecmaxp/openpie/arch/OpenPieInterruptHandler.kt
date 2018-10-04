@@ -3,17 +3,18 @@ package kr.pe.ecmaxp.openpie.arch
 import kr.pe.ecmaxp.openpie.arch.consts.*
 import kr.pe.ecmaxp.openpie.arch.micropython.*
 import kr.pe.ecmaxp.openpie.arch.msgpack.Msgpack
+import kr.pe.ecmaxp.openpie.arch.state.FileHandle
+import kr.pe.ecmaxp.openpie.arch.state.VMState
 import kr.pe.ecmaxp.openpie.arch.types.Call
 import kr.pe.ecmaxp.openpie.arch.types.Interrupt
 import kr.pe.ecmaxp.openpie.arch.types.Result
 import kr.pe.ecmaxp.thumbsf.CPU
-import kr.pe.ecmaxp.thumbsf.MemoryFlag
-import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.LimitReachedException
 import li.cil.oc.api.machine.Machine
+import li.cil.oc.api.machine.Signal
 import li.cil.oc.api.network.Component
 import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
@@ -56,26 +57,29 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
             }
         }
 
-        return intrResponse(arrayOf<Any?>(ret.args, ret.error))
+        return response(arrayOf<Any?>(ret.args, ret.error))
     }
 
     private fun handleSystemRequest(intr: Interrupt): Int {
         when (intr.r0) {
             0 -> {
-                if (!state.pendingSignals.isEmpty()) {
-                    val signal = state.pendingSignals.pop()
-                    return intrResponse(signal)
-                }
+                val signal: Signal? = if (!state.signals.isEmpty())
+                    state.signals.pop()
+                else
+                    machine.popSignal()
+
+                if (signal != null)
+                    return response(signal)
 
                 return 0
             }
-            SYS_REQUEST_COMPONENTS -> return intrResponse(machine.components())
+            SYS_REQUEST_COMPONENTS -> return response(machine.components())
             SYS_REQUEST_METHODS -> {
                 val req = intr.loadObject(cpu) as Array<*>
                 val node = machine.node().network().node(req[0] as String)
 
                 if (node is Component) {
-                    return intrResponse(node.methods())
+                    return response(node.methods())
                 }
 
                 return 0
@@ -87,7 +91,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
                     if (node is Component) {
                         try {
                             val callback = node.annotation(req[1] as String)
-                            return intrResponse(callback.doc)
+                            return response(callback.doc)
                         } catch (exc: Exception) {
                             // how to handle?
                             exc.printStackTrace()
@@ -101,7 +105,6 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
         }
     }
 
-    var test = 0;
     private fun handleSystemVirtualFileSystem(intr: Interrupt): Int {
         val command = intr.r0
         if (command == 1) {
@@ -271,7 +274,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
             0 -> {
                 val buf = state.outputBuffer.toString().toByteArray(StandardCharsets.UTF_8)
                 state.outputBuffer = StringBuilder()
-                return intrResponseBuffer(buf)
+                return responseBuffer(buf)
             }
             else -> throw UnknownInterrupt()
         }
@@ -299,33 +302,21 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
         }
     }
 
-    private fun intrResponse(value: Any): Int {
-        val bufAddress = OpenPieMemoryRegion.SYSCALL.address.toInt()
+    private fun response(value: Any): Int {
         val buffer = Msgpack.dumps(value)
-        cpu.memory.writeInt(bufAddress, bufAddress + 8) // + 0
-        cpu.memory.writeInt(bufAddress + 4, buffer.size) // + 4
-        cpu.memory.writeBuffer(bufAddress + 8, buffer) // + 8
-        cpu.memory.writeByte(bufAddress + 8 + buffer.size, 0.toByte()) // + 8 + n
-        return bufAddress
+        return responseBuffer(buffer, false)
     }
 
-    private fun intrResponseBuffer(buffer: ByteArray?): Int {
-        if (buffer != null && buffer.size > 0)
-            return interruptResponseBuffer(buffer)
-        else
-            return 0
-    }
-
-    private fun interruptResponseBuffer(buffer: ByteArray): Int {
+    private fun responseBuffer(buffer: ByteArray, isCString: Boolean = true): Int {
         val bufAddress = OpenPieMemoryRegion.SYSCALL.address.toInt()
         cpu.memory.writeInt(bufAddress, bufAddress + 8) // + 0
         cpu.memory.writeInt(bufAddress + 4, buffer.size) // + 4
         cpu.memory.writeBuffer(bufAddress + 8, buffer) // + 8
-        cpu.memory.writeByte(bufAddress + 8 + buffer.size, 0.toByte()) // + 8 + n
+        if (isCString)
+            cpu.memory.writeByte(bufAddress + 8 + buffer.size, 0.toByte()) // + 8 + n
+
         return bufAddress
     }
 
-    private fun invoke(call: Call): Result {
-        return call.invoke(machine)
-    }
+    private fun invoke(call: Call): Result = call.invoke(machine)
 }

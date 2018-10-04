@@ -5,7 +5,6 @@ import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
-
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -49,11 +48,11 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
     }
 
     override fun runSynchronized() {
-        try {
-            lastSynchronizedResult = vm!!.step(true)
+        lastSynchronizedResult = try {
+            vm!!.step(true)
         } catch (e: Exception) {
             e.printStackTrace()
-            lastSynchronizedResult = ExecutionResult.Error(e.toString())
+            ExecutionResult.Error(e.toString())
         }
 
     }
@@ -99,8 +98,7 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
     }
 
     override fun onSignal() {
-        val signal = machine.popSignal()
-        vm!!.onSignal(signal)
+        vm!!.onSignal()
     }
 
     override fun onConnect() {
@@ -116,6 +114,6 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
     }
 
     override fun toString(): String {
-        return "OpenPieArchitecture(machine=$machine, initialized=$initialized, vm=$vm)"
+        return "OpenPieArchitecture(machine=$machine, initialized=$initialized, vm=$vm, lastSynchronizedResult=$lastSynchronizedResult)"
     }
 }

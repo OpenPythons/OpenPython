@@ -2,9 +2,12 @@ package kr.pe.ecmaxp.openpie.arch
 
 import com.mojang.realmsclient.util.Pair
 import kr.pe.ecmaxp.openpie.OpenPieFilePaths
+import kr.pe.ecmaxp.thumbsf.CPU
+import kr.pe.ecmaxp.thumbsf.consts.LR
+import kr.pe.ecmaxp.thumbsf.consts.PC
 import java.io.File
 import java.nio.file.Files
-import java.util.ArrayList
+import java.util.*
 
 fun loadFirmware(): ByteArray {
     val file = File(OpenPieFilePaths.FirmwareFile)
@@ -39,4 +42,45 @@ fun loadMapping(): List<Pair<Long, String>> {
     }
 
     return result
+}
+
+fun printLastTracebackCPU(cpu: CPU) {
+    val pc = Integer.toUnsignedLong(cpu.regs.get(PC))
+    val mapping = loadMapping()
+    var selected: Pair<Long, String>? = null
+    var found = false
+    for (pair in mapping) {
+        val addr = pair.first()
+        if (addr > pc) {
+            found = true
+            break
+        }
+
+        selected = pair
+    }
+
+    if (found && selected != null) {
+        println("last function :" + selected.second() + " (+" + java.lang.Long.toString(pc - selected.first()) + ")")
+    } else {
+        println("last function : (null)")
+    }
+
+    val lr = Integer.toUnsignedLong(cpu.regs.get(LR))
+    selected = null
+    found = false
+    for (pair in mapping) {
+        val addr = pair.first()
+        if (addr > lr) {
+            found = true
+            break
+        }
+
+        selected = pair
+    }
+
+    if (found && selected != null) {
+        println("last function :" + selected.second() + " (+" + java.lang.Long.toString(lr - selected.first()) + ")")
+    } else {
+        println("last function : (null)")
+    }
 }
