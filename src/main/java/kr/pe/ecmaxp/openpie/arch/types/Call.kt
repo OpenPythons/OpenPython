@@ -8,11 +8,7 @@ class Call(val component: String, val function: String, vararg args: Any?) {
     val args: Array<*> = args
 
     override fun toString(): String {
-        return "Call{" +
-                "component='" + component + '\''.toString() +
-                ", function='" + function + '\''.toString() +
-                ", args=" + Arrays.toString(args) +
-                '}'.toString()
+        return "Call(component='$component', function='$function', args=${Arrays.toString(args)})"
     }
 
     @Throws(LimitReachedException::class)
@@ -30,7 +26,7 @@ class Call(val component: String, val function: String, vararg args: Any?) {
     }
 
     companion object {
-        fun FromObjectArray(array: Array<*>): Call? {
+        fun fromArray(array: Array<*>): Call? {
             if (array.size < 2)
                 return null
 

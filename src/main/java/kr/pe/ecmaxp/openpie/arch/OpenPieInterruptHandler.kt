@@ -45,7 +45,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
     private fun handleSystemInvoke(intr: Interrupt): Int {
         // intr.r0 => unused
         val obj = intr.loadObject(cpu)
-        val call = Call.FromObjectArray(obj as Array<*>)
+        val call = Call.fromArray(obj as Array<*>)
         val ret = when (call) {
             null -> Result(null, Exception("Invaild call"))
             else -> {
