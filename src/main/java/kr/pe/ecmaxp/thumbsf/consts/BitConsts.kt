@@ -18,7 +18,6 @@ const val L7 = 127
 const val L8 = 255
 const val L10 = 1023
 const val L11 = 2047
-const val FQ = 1 shl 27
 const val FV = 1 shl 28
 const val FC = 1 shl 29
 const val FZ = 1 shl 30

@@ -32,7 +32,6 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
         var lr = regs.lr
         var sp = regs.sp
         var pc = regs.pc
-        var q = regs.q
         var v = regs.v
         var c = regs.c
         var z = regs.z
@@ -917,7 +916,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                     SVC -> { // SWI Value8
                         val imm16 = code shr RIMM
                         // println("SVC $imm16:${REGS[7]} r0=${REGS[0]} r1=${REGS[1]} r2=${REGS[2]} r3=${REGS[3]}")
-                        regs.setCPSR(q, v, c, z, n)
+                        regs.setCPSR(v, c, z, n)
                         regs.fastStore(REGS, sp, lr, pc)
 
                         try {
@@ -932,7 +931,6 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                             lr = regs.lr
                             pc = regs.pc
                             REGS = regs.fastLoad()
-                            q = regs.q
                             v = regs.v
                             c = regs.c
                             z = regs.z
@@ -995,7 +993,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                 }
             }
         } finally {
-            regs.setCPSR(q, v, c, z, n)
+            regs.setCPSR(v, c, z, n)
             regs.fastStore(REGS, sp, lr, pc)
         }
     }
