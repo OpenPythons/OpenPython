@@ -26,8 +26,8 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
                 memory.map(region)
             } else {
                 val newRegion = MemoryRegion(region.begin, region.size, region.flag)
-                for (i in 0 until region.buffer.size)
-                    newRegion.buffer[i] = region.buffer[i]
+                val size = region.buffer.size
+                System.arraycopy(region.buffer, 0, newRegion.buffer, 0, size)
 
                 memory.map(newRegion)
             }
@@ -36,10 +36,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
         return memory;
     }
 
-    internal fun map(region: MemoryRegion) {
-        if (region.size % 4 != 0)
-            throw Exception("invalid memory size")
-
+    private fun map(region: MemoryRegion) {
         _list.add(region)
 
         if (region.flag == MemoryFlag.RX) {
@@ -52,26 +49,27 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
     }
 
     @Throws(InvalidMemoryException::class)
-    fun flash(address: Long, size: Int, firmware: ByteArray) {
+    fun flash(address: Int, size: Int, firmware: ByteArray) {
         map(address, size, MemoryFlag.RX)
-        writeBuffer(address.toInt(), firmware)
-        loadExecCache(address.toInt())
+        writeBuffer(address, firmware)
+        loadExecCache(address)
     }
 
     @Throws(InvalidMemoryException::class)
-    fun map(address: Long, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int) {
+    fun map(address: Int, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int) {
+        // TODO: MemoryHookRegion
         map(MemoryRegion(address, size, hook))
     }
 
     @Throws(InvalidMemoryException::class)
-    fun map(address: Long, size: Int, flag: MemoryFlag) {
+    fun map(address: Int, size: Int, flag: MemoryFlag) {
+        // TODO: MemoryBufferRegion
         map(MemoryRegion(address, size, flag))
     }
 
     @Throws(InvalidMemoryException::class)
     fun readBuffer(address: Int, size: Int): ByteArray {
-        val addr = Integer.toUnsignedLong(address)
-        val page = updateCache(_readPage, addr, size)
+        val page = updateCache(_readPage, address, size)
         _readPage = page
 
         return page.readBuffer(address, size)
@@ -80,8 +78,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
     @Throws(InvalidMemoryException::class)
     fun writeBuffer(address: Int, buffer: ByteArray) {
         val size = buffer.size
-        val addr = Integer.toUnsignedLong(address)
-        val page = updateCache(_writePage, addr, size)
+        val page = updateCache(_writePage, address, size)
         _writePage = page
 
         return page.writeBuffer(address, buffer)
@@ -89,12 +86,11 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
 
     @Throws(InvalidMemoryException::class)
     fun readString(address: Int, maxSize: Int): String {
-        val addr = Integer.toUnsignedLong(address)
-        val region = findRegion(addr, 0)
+        val region = findRegion(address, 0)
         if (region.flag == MemoryFlag.HOOK)
-            throw InvalidMemoryException(address.toLong())
+            throw InvalidMemoryException(address)
 
-        var size = Math.min(region.end - addr, maxSize.toLong()).toInt()
+        var size = Math.min(region.end - address, maxSize)
         val buffer = ByteArray(size)
 
         for (pos in 0 until size) {
@@ -111,9 +107,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
 
     @Throws(InvalidMemoryException::class)
     fun fetchCode(address: Int): Int {
-        val size = 2
-        val addr = Integer.toUnsignedLong(address)
-        val page= updateCache(_execPage, addr, size)
+        val page = updateCache(_execPage, address, 2)
         _execPage = page
 
         return page.readShort(address).toInt() and 0xFFFF
@@ -121,9 +115,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
 
     @Throws(InvalidMemoryException::class)
     fun readInt(address: Int): Int {
-        val size = 4
-        val addr = Integer.toUnsignedLong(address)
-        val page = updateCache(_readPage, addr, size)
+        val page = updateCache(_readPage, address, 4)
         _readPage = page
 
         return page.readInt(address)
@@ -131,9 +123,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
 
     @Throws(InvalidMemoryException::class)
     fun readShort(address: Int): Short {
-        val size = 2
-        val addr = Integer.toUnsignedLong(address)
-        val page = updateCache(_readPage, addr, size)
+        val page = updateCache(_readPage, address, 2)
         _readPage = page
 
         return page.readShort(address)
@@ -141,9 +131,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
 
     @Throws(InvalidMemoryException::class)
     fun readByte(address: Int): Byte {
-        val size = 1
-        val addr = Integer.toUnsignedLong(address)
-        val page = updateCache(_readPage, addr, size)
+        val page = updateCache(_readPage, address, 1)
         _readPage = page
 
         return page.readByte(address)
@@ -151,9 +139,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
 
     @Throws(InvalidMemoryException::class)
     fun writeInt(address: Int, value: Int) {
-        val size = 4
-        val addr = Integer.toUnsignedLong(address)
-        val page = updateCache(_writePage, addr, size)
+        val page = updateCache(_writePage, address, 4)
         _writePage = page
 
         return page.writeInt(address, value)
@@ -161,9 +147,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
 
     @Throws(InvalidMemoryException::class)
     fun writeShort(address: Int, shortValue: Short) {
-        val size = 2
-        val addr = Integer.toUnsignedLong(address)
-        val page = updateCache(_writePage, addr, size)
+        val page = updateCache(_writePage, address, 2)
         _writePage = page
 
         return page.writeShort(address, shortValue)
@@ -171,16 +155,14 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
 
     @Throws(InvalidMemoryException::class)
     fun writeByte(address: Int, byteValue: Byte) {
-        val size = 1
-        val addr = Integer.toUnsignedLong(address)
-        val page = updateCache(_writePage, addr, size)
+        val page = updateCache(_writePage, address, 1)
         _writePage = page
 
         return page.writeByte(address, byteValue)
     }
 
     @Throws(InvalidMemoryException::class)
-    private fun updateCache(region: MemoryRegion?, address: Long, size: Int): MemoryRegion {
+    private fun updateCache(region: MemoryRegion?, address: Int, size: Int): MemoryRegion {
         return if (region != null && region.begin <= address && address + size <= region.end) {
             region
         } else {
@@ -190,7 +172,7 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
     }
 
     @Throws(InvalidMemoryException::class)
-    fun findRegion(address: Long, size: Int): MemoryRegion {
+    fun findRegion(address: Int, size: Int): MemoryRegion {
         for (page in _list) {
             if (!(page.begin <= address && address + size <= page.end)) continue
             return page
@@ -200,25 +182,27 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
     }
 
     fun loadExecCache(pc: Int): Pair<IntArray, Int> {
-        val region = findRegion(Integer.toUnsignedLong(pc), 2)
-        val base = region.begin.toInt()
+        val region = findRegion(pc, 2)
+        val base = region.begin
+        if (region.flag != MemoryFlag.RX)
+            throw InvalidMemoryException(pc)
+
         if (_execCache == null) {
             _execCache = IntArray(region.size)
 
             val buffer = _execCache!!
-            for (addr in region.begin.toInt() until region.end.toInt() step 2) {
-                var code: Int
-                var imm32 = 0
+            for (addr in region.begin until region.end step 2) {
+                var result: Pair<Int, Int>
 
                 try {
-                    val (first, second) = decode(this, addr)
-                    code = first
-                    imm32 = second
+                    result = decode(this, addr)
                 } catch (e: UnknownInstructionException) {
-                    code = ERROR
+                    result = insni(ERROR, buffer[addr - region.begin])
                 } catch (e: UnsupportedInstructionException) {
-                    code = ERROR
+                    result = insni(ERROR, buffer[addr - region.begin])
                 }
+
+                val (code, imm32) = result
 
                 when (code and 0xFF) {
                     NULL -> throw UnexceptedLogicError()

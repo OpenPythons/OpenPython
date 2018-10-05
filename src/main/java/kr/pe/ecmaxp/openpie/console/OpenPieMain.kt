@@ -43,7 +43,7 @@ object OpenPieMain {
             return 0;
         }
 
-        memory.map(0x40000000L, 4 * KB) { addr: Long, is_read: Boolean, size: Int, value: Int
+        memory.map(0x40000000, 4 * KB) { addr: Long, is_read: Boolean, size: Int, value: Int
             ->
             handle(addr, is_read, size, value)
         }

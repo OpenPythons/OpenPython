@@ -2,89 +2,68 @@ package kr.pe.ecmaxp.thumbsf
 
 import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 
-class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
-    val start: Int = begin.toInt()
-    val end: Long
-    internal val buffer: ByteArray
-    internal var Hook: MemoryHook? = null
+class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
+    val end: Int = begin + size
+    internal val buffer: ByteArray = ByteArray(size)
+    private var hook: MemoryHook? = null
 
-    init {
-        if (size % 4 != 0)
-            throw Exception("invalid memory size")
-
-        end = begin + size
-        buffer = ByteArray(size)
-    }
-
-    constructor(begin: Long, size: Int, hook: MemoryHook) : this(begin, size, MemoryFlag.HOOK) {
-        Hook = hook
+    constructor(begin: Int, size: Int, hook: MemoryHook) : this(begin, size, MemoryFlag.HOOK) {
+        this.hook = hook
     }
 
     override fun toString(): String {
-        return "MemoryRegion{" +
-                "Begin=" + begin +
-                ", End=" + end +
-                ", Flag=" + flag +
-                '}'.toString()
+        return "MemoryRegion(begin=$begin, size=$size, flag=$flag)"
     }
 
     @Throws(InvalidMemoryException::class)
-    private fun hook(address: Long, read: Boolean, size: Int, value: Int): Int {
-        if (Hook == null)
+    private fun hook(address: Int, read: Boolean, size: Int, value: Int): Int {
+        if (hook == null)
             throw InvalidMemoryException(address)
 
-        return Hook!!(address, read, size, value)
+        return hook!!(Integer.toUnsignedLong(address), read, size, value)
     }
 
     @Throws(InvalidMemoryException::class)
-    fun hook(address: Long, size: Int): Int {
+    fun hook(address: Int, size: Int): Int {
         return hook(address, true, size, 0)
     }
 
     @Throws(InvalidMemoryException::class)
-    fun hook(address: Long, size: Int, value: Int) {
+    fun hook(address: Int, size: Int, value: Int) {
         hook(address, false, size, value)
     }
 
     @Throws(InvalidMemoryException::class)
     fun readBuffer(address: Int, size: Int): ByteArray {
-        val addr = Integer.toUnsignedLong(address)
-
         if (flag != MemoryFlag.RX && flag != MemoryFlag.RW)
-            throw InvalidMemoryException(addr)
+            throw InvalidMemoryException(address)
 
-        val buffer = ByteArray(size)
-        for (i in 0 until size)
-            buffer[i] = readByte(address + i)
-
-        return buffer
+        val pos = loadKey(address)
+        return buffer.copyOfRange(pos, pos + size)
     }
 
     @Throws(InvalidMemoryException::class)
-    fun writeBuffer(address: Int, buffer: ByteArray) {
-        val addr = Integer.toUnsignedLong(address)
-        val size = buffer.size
-
+    fun writeBuffer(address: Int, buf: ByteArray) {
         if (flag != MemoryFlag.RX && flag != MemoryFlag.RW)
-            throw InvalidMemoryException(addr)
+            throw InvalidMemoryException(address)
 
-        for (i in 0 until size)
-            writeByte(address + i, buffer[i])
+        val pos = loadKey(address)
+        val size = buf.size
+        System.arraycopy(buf, 0, buffer, pos, size)
     }
 
-    fun loadKey(address: Long): Int = (address - begin).toInt()
+    private fun loadKey(address: Int): Int = address - begin
 
     @Throws(InvalidMemoryException::class)
     fun readInt(address: Int): Int {
-        val addr = Integer.toUnsignedLong(address)
         val size = 4
 
         val rvalue = when (flag) {
             MemoryFlag.HOOK -> {
-                hook(addr, size)
+                hook(address, size)
             }
             else -> {
-                var pos = loadKey(addr)
+                var pos = loadKey(address)
                 val buf = buffer
                 (buf[pos++].toInt() and 0xFF) or
                         (buf[pos++].toInt() and 0xFF shl 8) or
@@ -98,15 +77,14 @@ class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
 
     @Throws(InvalidMemoryException::class)
     fun readShort(address: Int): Short {
-        val addr = Integer.toUnsignedLong(address)
         val size = 2
 
         val rvalue = when (flag) {
             MemoryFlag.HOOK -> {
-                hook(addr, size).toShort()
+                hook(address, size).toShort()
             }
             else -> {
-                var pos = loadKey(addr)
+                var pos = loadKey(address)
                 val buf = buffer
                 ((buf[pos++].toInt() and 0xFF) or
                         (buf[pos].toInt() shl 8)).toShort()
@@ -118,15 +96,14 @@ class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
 
     @Throws(InvalidMemoryException::class)
     fun readByte(address: Int): Byte {
-        val addr = Integer.toUnsignedLong(address)
         val size = 1
 
         val rvalue = when (flag) {
             MemoryFlag.HOOK -> {
-                hook(addr, size).toByte()
+                hook(address, size).toByte()
             }
             else -> {
-                val pos = loadKey(addr)
+                val pos = loadKey(address)
                 val buf = buffer
                 buf[pos]
             }
@@ -137,15 +114,14 @@ class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
 
     @Throws(InvalidMemoryException::class)
     fun writeInt(address: Int, value: Int) {
-        val addr = Integer.toUnsignedLong(address)
         val size = 4
 
         when (flag) {
             MemoryFlag.HOOK -> {
-                hook(addr, size, value)
+                hook(address, size, value)
             }
             else -> {
-                var pos = loadKey(addr)
+                var pos = loadKey(address)
                 val buf = buffer
                 buf[pos++] = value.toByte()
                 buf[pos++] = (value shr 8).toByte()
@@ -157,16 +133,15 @@ class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
 
     @Throws(InvalidMemoryException::class)
     fun writeShort(address: Int, shortValue: Short) {
-        val addr = Integer.toUnsignedLong(address)
         val size = 2
 
         when (flag) {
             MemoryFlag.HOOK -> {
                 val value = shortValue.toInt() and 0xFFFF
-                hook(addr, size, value)
+                hook(address, size, value)
             }
             else -> {
-                var pos = loadKey(addr)
+                var pos = loadKey(address)
                 val buf = buffer
                 buf[pos++] = shortValue.toByte()
                 buf[pos] = (shortValue.toInt() shr 8).toByte()
@@ -176,16 +151,15 @@ class MemoryRegion(val begin: Long, val size: Int, val flag: MemoryFlag) {
 
     @Throws(InvalidMemoryException::class)
     fun writeByte(address: Int, byteValue: Byte) {
-        val addr = Integer.toUnsignedLong(address)
         val size = 1
 
         when (flag) {
             MemoryFlag.HOOK -> {
                 val value = byteValue.toInt() and 0xFF
-                hook(addr, size, value)
+                hook(address, size, value)
             }
             else -> {
-                val pos = loadKey(addr)
+                val pos = loadKey(address)
                 val buf = buffer
                 buf[pos] = byteValue
             }
