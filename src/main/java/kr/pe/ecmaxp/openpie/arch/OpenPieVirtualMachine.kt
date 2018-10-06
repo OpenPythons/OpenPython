@@ -14,8 +14,8 @@ import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
 
 
-class OpenPieVirtualMachine internal constructor(private val machine: Machine, val firmware: ByteArray = loadFirmware()) {
-    private val cpu: CPU = CPU()
+class OpenPieVirtualMachine internal constructor(private val machine: Machine, val memorySize: Int, val firmware: ByteArray = loadFirmware()) {
+    val cpu: CPU = CPU()
     var state: VMState = VMState()
     var interruptHandler: OpenPieInterruptHandler = OpenPieInterruptHandler(cpu, machine, state)
 
@@ -27,7 +27,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
                 ->
                 PeripheralHook(addr, is_read, size, value)
             }
-            map(RAM.address, RAM.size, RAM.flag)
+            map(RAM.address, memorySize, RAM.flag)
             map(SYSCALL.address, SYSCALL.size, SYSCALL.flag)
             map(EXTERNAL_STACK.address, EXTERNAL_STACK.size, EXTERNAL_STACK.flag)
         }
@@ -49,8 +49,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
                         throw ControlPauseSignal(ExecutionResult.Sleep(0))
                 }
                 OP_IO_TXR -> 0
-                OP_CON_RAM_SIZE -> 0x80000
-
+                OP_CON_RAM_SIZE -> memorySize
                 OP_CON_PENDING, OP_CON_EXCEPTION, OP_CON_INTR_CHAR -> 0 // TODO
                 OP_CON_IDLE, OP_CON_INSNS -> 0 // TODO
                 OP_RTC_TICKS_MS -> System.currentTimeMillis().toInt()

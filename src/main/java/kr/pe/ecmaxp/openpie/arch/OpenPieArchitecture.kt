@@ -1,5 +1,8 @@
 package kr.pe.ecmaxp.openpie.arch
 
+import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
+import li.cil.oc.api.Driver
+import li.cil.oc.api.driver.item.Memory
 import li.cil.oc.api.machine.Architecture
 import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
@@ -15,6 +18,8 @@ import java.nio.file.attribute.FileTime
 class OpenPieArchitecture(private val machine: Machine) : Architecture {
     private var initialized: Boolean = false
 
+    private var totalMemory = 0
+    private var vmMemory = 0
     private var vm: OpenPieVirtualMachine? = null
     private var lastSynchronizedResult: ExecutionResult? = null
 
@@ -23,9 +28,16 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
     }
 
     override fun recomputeMemory(iterable: Iterable<ItemStack>): Boolean {
-        // vm.getTotalMemorySize();
-        // System.out.println(toString() + ": recomputeMemory()");
-        return true
+        var totalRam = 0.0
+        for (stack in iterable) {
+            val driver = Driver.driverFor(stack)
+            if (driver is Memory) {
+                totalRam += driver.amount(stack) * 1024
+            }
+        }
+
+        totalMemory = totalRam.toInt()
+        return (vm?.memorySize ?: 0) <= totalRam
     }
 
     // TODO: report exception handler?
@@ -34,7 +46,7 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         close()
 
         try {
-            vm = OpenPieVirtualMachine(machine)
+            vm = OpenPieVirtualMachine(machine, totalMemory)
         } catch (e: Exception) {
             e.printStackTrace()
         }
