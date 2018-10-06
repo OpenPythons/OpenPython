@@ -7,21 +7,22 @@ import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
 import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
 import kr.pe.ecmaxp.thumbsf.exc.UnsupportedInstructionException
 import java.nio.charset.StandardCharsets
-import java.util.*
 
-class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
+val EmptyPage = MemoryRegion(0, 0, MemoryFlag.RW)
+
+class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }) {
+    private var _execCache: IntArray? = null
+
     fun fork(): Memory {
         return Memory(_list)
     }
 
-    private var _execPage: MemoryRegion? = null
-    private var _readPage: MemoryRegion? = null
-    private var _writePage: MemoryRegion? = null
-    private var _execCache: IntArray? = null
-
     fun copy(): Memory {
         val memory = Memory()
         for (region in _list) {
+            if (region == EmptyPage)
+                continue;
+
             if (region.flag == MemoryFlag.HOOK) {
                 memory.map(region)
             } else {
@@ -36,17 +37,23 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
         return memory;
     }
 
+    @Throws(InvalidMemoryException::class)
     private fun map(region: MemoryRegion) {
-        _list.add(region)
+        val key = region.begin ushr 24
+        if (_list[key] != EmptyPage)
+            throw InvalidMemoryException(region.begin)
 
-        if (region.flag == MemoryFlag.RX) {
-            if (_execPage != null) {
-                throw InvalidMemoryException(region.begin)
-            }
+        if (region.begin shl 8 ushr 24 != 0)
+            throw InvalidMemoryException(region.begin)
 
-            _execPage = region
-        }
+        _list[key] = region
     }
+
+    @Throws(InvalidMemoryException::class)
+    fun map(address: Int, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int)  = map(MemoryRegion(address, size, hook))
+
+    @Throws(InvalidMemoryException::class)
+    fun map(address: Int, size: Int, flag: MemoryFlag) = map(MemoryRegion(address, size, flag))
 
     @Throws(InvalidMemoryException::class)
     fun flash(address: Int, size: Int, firmware: ByteArray) {
@@ -55,38 +62,17 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
         loadExecCache(address)
     }
 
-    @Throws(InvalidMemoryException::class)
-    fun map(address: Int, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int) {
-        // TODO: MemoryHookRegion
-        map(MemoryRegion(address, size, hook))
-    }
+    private fun findRegion(address: Int): MemoryRegion = _list[address ushr 24]
 
     @Throws(InvalidMemoryException::class)
-    fun map(address: Int, size: Int, flag: MemoryFlag) {
-        // TODO: MemoryBufferRegion
-        map(MemoryRegion(address, size, flag))
-    }
+    fun readBuffer(address: Int, size: Int): ByteArray = findRegion(address).readBuffer(address, size)
 
     @Throws(InvalidMemoryException::class)
-    fun readBuffer(address: Int, size: Int): ByteArray {
-        val page = updateCache(_readPage, address, size)
-        _readPage = page
-
-        return page.readBuffer(address, size)
-    }
-
-    @Throws(InvalidMemoryException::class)
-    fun writeBuffer(address: Int, buffer: ByteArray) {
-        val size = buffer.size
-        val page = updateCache(_writePage, address, size)
-        _writePage = page
-
-        return page.writeBuffer(address, buffer)
-    }
+    fun writeBuffer(address: Int, buffer: ByteArray) = findRegion(address).writeBuffer(address, buffer)
 
     @Throws(InvalidMemoryException::class)
     fun readString(address: Int, maxSize: Int): String {
-        val region = findRegion(address, 0)
+        val region = findRegion(address)
         if (region.flag == MemoryFlag.HOOK)
             throw InvalidMemoryException(address)
 
@@ -106,83 +92,29 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
     }
 
     @Throws(InvalidMemoryException::class)
-    fun fetchCode(address: Int): Int {
-        val page = updateCache(_execPage, address, 2)
-        _execPage = page
-
-        return page.readShort(address).toInt() and 0xFFFF
-    }
+    fun fetchCode(address: Int): Int = findRegion(address).readShort(address).toInt() and 0xFFFF
 
     @Throws(InvalidMemoryException::class)
-    fun readInt(address: Int): Int {
-        val page = updateCache(_readPage, address, 4)
-        _readPage = page
-
-        return page.readInt(address)
-    }
+    fun readInt(address: Int): Int = findRegion(address).readInt(address)
 
     @Throws(InvalidMemoryException::class)
-    fun readShort(address: Int): Short {
-        val page = updateCache(_readPage, address, 2)
-        _readPage = page
-
-        return page.readShort(address)
-    }
+    fun readShort(address: Int): Short = findRegion(address).readShort(address)
 
     @Throws(InvalidMemoryException::class)
-    fun readByte(address: Int): Byte {
-        val page = updateCache(_readPage, address, 1)
-        _readPage = page
-
-        return page.readByte(address)
-    }
+    fun readByte(address: Int): Byte = findRegion(address).readByte(address)
 
     @Throws(InvalidMemoryException::class)
-    fun writeInt(address: Int, value: Int) {
-        val page = updateCache(_writePage, address, 4)
-        _writePage = page
-
-        return page.writeInt(address, value)
-    }
+    fun writeInt(address: Int, value: Int) = findRegion(address).writeInt(address, value)
 
     @Throws(InvalidMemoryException::class)
-    fun writeShort(address: Int, shortValue: Short) {
-        val page = updateCache(_writePage, address, 2)
-        _writePage = page
-
-        return page.writeShort(address, shortValue)
-    }
+    fun writeShort(address: Int, shortValue: Short) = findRegion(address).writeShort(address, shortValue)
 
     @Throws(InvalidMemoryException::class)
-    fun writeByte(address: Int, byteValue: Byte) {
-        val page = updateCache(_writePage, address, 1)
-        _writePage = page
-
-        return page.writeByte(address, byteValue)
-    }
+    fun writeByte(address: Int, byteValue: Byte) = findRegion(address).writeByte(address, byteValue)
 
     @Throws(InvalidMemoryException::class)
-    private fun updateCache(region: MemoryRegion?, address: Int, size: Int): MemoryRegion {
-        return if (region != null && region.begin <= address && address + size <= region.end) {
-            region
-        } else {
-            findRegion(address, size)
-        }
-
-    }
-
-    @Throws(InvalidMemoryException::class)
-    fun findRegion(address: Int, size: Int): MemoryRegion {
-        for (page in _list) {
-            if (!(page.begin <= address && address + size <= page.end)) continue
-            return page
-        }
-
-        throw InvalidMemoryException(address)
-    }
-
     fun loadExecCache(pc: Int): Pair<IntArray, Int> {
-        val region = findRegion(pc, 2)
+        val region = findRegion(pc)
         val base = region.begin
         if (region.flag != MemoryFlag.RX)
             throw InvalidMemoryException(pc)

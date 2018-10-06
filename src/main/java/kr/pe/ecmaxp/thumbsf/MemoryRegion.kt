@@ -43,7 +43,7 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
         if (flag != MemoryFlag.RX && flag != MemoryFlag.RW)
             throw InvalidMemoryException(address)
 
-        val pos = loadKey(address)
+        val pos = loadKey(address, size)
         return buffer.copyOfRange(pos, pos + size)
     }
 
@@ -52,19 +52,25 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
         if (flag != MemoryFlag.RX && flag != MemoryFlag.RW)
             throw InvalidMemoryException(address)
 
-        val pos = loadKey(address)
         val size = buf.size
+        val pos = loadKey(address, size)
         System.arraycopy(buf, 0, buffer, pos, size)
     }
 
-    private fun loadKey(address: Int): Int = address - begin
+    private fun loadKey(address: Int, size: Int): Int {
+        val key = address - begin
+        if (key < 0 || end < address + size)
+            throw InvalidMemoryException(address)
+
+        return key
+    }
 
     @Throws(InvalidMemoryException::class)
     fun readInt(address: Int): Int {
         val rvalue = if (isHook) {
             hook(address, 4)
         } else {
-            var pos = loadKey(address)
+            var pos = loadKey(address, 4)
             val buf = buffer
             (buf[pos++].toInt() and 0xFF) or
                     (buf[pos++].toInt() and 0xFF shl 8) or
@@ -80,7 +86,7 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
         val rvalue = if (isHook) {
             hook(address, 2).toShort()
         } else {
-            var pos = loadKey(address)
+            var pos = loadKey(address, 2)
             val buf = buffer
             ((buf[pos++].toInt() and 0xFF) or
                     (buf[pos].toInt() shl 8)).toShort()
@@ -94,7 +100,7 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
         val rvalue = if (isHook) {
             hook(address, 1).toByte()
         } else {
-            val pos = loadKey(address)
+            val pos = loadKey(address, 1)
             val buf = buffer
             buf[pos]
         }
@@ -107,7 +113,7 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
         if (isHook) {
             hook(address, 4, value)
         } else {
-            var pos = loadKey(address)
+            var pos = loadKey(address, 4)
             val buf = buffer
             buf[pos++] = value.toByte()
             buf[pos++] = (value shr 8).toByte()
@@ -122,7 +128,7 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
             val value = shortValue.toInt() and 0xFFFF
             hook(address, 2, value)
         } else {
-            var pos = loadKey(address)
+            var pos = loadKey(address, 2)
             val buf = buffer
             buf[pos++] = shortValue.toByte()
             buf[pos] = (shortValue.toInt() shr 8).toByte()
@@ -135,7 +141,7 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
             val value = byteValue.toInt() and 0xFF
             hook(address, 1, value)
         } else {
-            val pos = loadKey(address)
+            val pos = loadKey(address, 1)
             val buf = buffer
             buf[pos] = byteValue
         }
