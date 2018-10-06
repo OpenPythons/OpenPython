@@ -10,8 +10,18 @@ import java.nio.charset.StandardCharsets
 
 val EmptyPage = MemoryRegion(0, 0, MemoryFlag.RW)
 
-class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }) {
+class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }): Iterable<MemoryRegion> {
     private var _execCache: IntArray? = null
+
+    override fun iterator(): Iterator<MemoryRegion> {
+        val list = ArrayList<MemoryRegion>()
+        for (region in _list.iterator()) {
+            if (region != EmptyPage)
+                list.add(region)
+        }
+
+        return list.iterator()
+    }
 
     fun fork(): Memory {
         return Memory(_list)
@@ -50,7 +60,7 @@ class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }) 
     }
 
     @Throws(InvalidMemoryException::class)
-    fun map(address: Int, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int)  = map(MemoryRegion(address, size, hook))
+    fun map(address: Int, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int) = map(MemoryRegion(address, size, hook))
 
     @Throws(InvalidMemoryException::class)
     fun map(address: Int, size: Int, flag: MemoryFlag) = map(MemoryRegion(address, size, flag))
