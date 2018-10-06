@@ -6,6 +6,7 @@ import kr.pe.ecmaxp.openpie.arch.state.VMState
 import kr.pe.ecmaxp.openpie.arch.types.Interrupt
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.Registers
+import kr.pe.ecmaxp.thumbsf.consts.I0
 import kr.pe.ecmaxp.thumbsf.consts.PC
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlSignal
@@ -31,7 +32,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
             map(EXTERNAL_STACK.address, EXTERNAL_STACK.size, EXTERNAL_STACK.flag)
         }
 
-        cpu.regs[PC] = memory.readInt(FLASH.address.toInt() + 4)
+        cpu.regs[PC] = memory.readInt(FLASH.address + 4) and I0.inv()
     }
 
     fun close() {
