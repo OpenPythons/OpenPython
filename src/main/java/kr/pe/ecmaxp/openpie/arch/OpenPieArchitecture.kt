@@ -59,43 +59,45 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         vm = null
     }
 
-    override fun runSynchronized() {
-        lastSynchronizedResult = try {
-            vm!!.step(true)
+    val prev = DebugFirmwareGetLastModifiedTime()
+    private fun step(isSynchronized: Boolean): ExecutionResult {
+        val vm = this.vm ?: return ExecutionResult.Error("invalid machine")
+        if (vm.memorySize > totalMemory)
+            return ExecutionResult.Error("not enough memory")
+
+        val next = DebugFirmwareGetLastModifiedTime()
+        if (prev != next)
+            return ExecutionResult.Shutdown(true)
+
+        return try {
+            vm.step(isSynchronized)
+        } catch (e: InvalidMemoryException) {
+            ExecutionResult.Error("memory access violation: 0x${String.format("%08X", e.address)}")
         } catch (e: Exception) {
             e.printStackTrace()
             ExecutionResult.Error(e.toString())
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            throw e;
         }
-
     }
 
-    override fun runThreaded(isSynchronizedReturn: Boolean): ExecutionResult? {
-        try {
-            val prev = DebugFirmwareGetLastModifiedTime()
-            val result: ExecutionResult?
+    override fun runThreaded(isSynchronizedReturn: Boolean): ExecutionResult {
+        return if (!isSynchronizedReturn) {
+            step(false)
+        } else {
+            val result = lastSynchronizedResult ?: ExecutionResult.Error("invalid synchronized call")
+            lastSynchronizedResult = null
+            result
+        }
+    }
 
-            if (!isSynchronizedReturn) {
-                // calling
-                try {
-                    result = vm!!.step(false)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    return ExecutionResult.Error(e.toString())
-                }
-
-                val next = DebugFirmwareGetLastModifiedTime()
-                return if (prev != null && prev != next) ExecutionResult.Shutdown(true) else result
-            } else {
-                result = lastSynchronizedResult
-                lastSynchronizedResult = null
-                return result
-            }
+    override fun runSynchronized() {
+        lastSynchronizedResult = try {
+            step(true)
         } catch (e: Exception) {
-            e.printStackTrace();
-            return ExecutionResult.Error(e.toString())
-        } catch (e: Throwable) {
-            e.printStackTrace();
-            throw e;
+            e.printStackTrace()
+            ExecutionResult.Error(e.toString())
         }
     }
 
