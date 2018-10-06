@@ -6,6 +6,7 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
     val end: Int = begin + size
     internal val buffer: ByteArray = ByteArray(size)
     private var hook: MemoryHook? = null
+    val isHook = flag == MemoryFlag.HOOK
 
     constructor(begin: Int, size: Int, hook: MemoryHook) : this(begin, size, MemoryFlag.HOOK) {
         this.hook = hook
@@ -13,6 +14,10 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
 
     override fun toString(): String {
         return "MemoryRegion(begin=$begin, size=$size, flag=$flag)"
+    }
+
+    fun valid(address: Int, size: Int): Boolean {
+        return begin <= address && address + size <= end
     }
 
     @Throws(InvalidMemoryException::class)
@@ -56,20 +61,15 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
 
     @Throws(InvalidMemoryException::class)
     fun readInt(address: Int): Int {
-        val size = 4
-
-        val rvalue = when (flag) {
-            MemoryFlag.HOOK -> {
-                hook(address, size)
-            }
-            else -> {
-                var pos = loadKey(address)
-                val buf = buffer
-                (buf[pos++].toInt() and 0xFF) or
-                        (buf[pos++].toInt() and 0xFF shl 8) or
-                        (buf[pos++].toInt() and 0xFF shl 16) or
-                        (buf[pos].toInt() and 0xFF shl 24)
-            }
+        val rvalue = if (isHook) {
+            hook(address, 4)
+        } else {
+            var pos = loadKey(address)
+            val buf = buffer
+            (buf[pos++].toInt() and 0xFF) or
+                    (buf[pos++].toInt() and 0xFF shl 8) or
+                    (buf[pos++].toInt() and 0xFF shl 16) or
+                    (buf[pos].toInt() and 0xFF shl 24)
         }
 
         return rvalue
@@ -77,18 +77,13 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
 
     @Throws(InvalidMemoryException::class)
     fun readShort(address: Int): Short {
-        val size = 2
-
-        val rvalue = when (flag) {
-            MemoryFlag.HOOK -> {
-                hook(address, size).toShort()
-            }
-            else -> {
-                var pos = loadKey(address)
-                val buf = buffer
-                ((buf[pos++].toInt() and 0xFF) or
-                        (buf[pos].toInt() shl 8)).toShort()
-            }
+        val rvalue = if (isHook) {
+            hook(address, 2).toShort()
+        } else {
+            var pos = loadKey(address)
+            val buf = buffer
+            ((buf[pos++].toInt() and 0xFF) or
+                    (buf[pos].toInt() shl 8)).toShort()
         }
 
         return rvalue
@@ -96,17 +91,12 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
 
     @Throws(InvalidMemoryException::class)
     fun readByte(address: Int): Byte {
-        val size = 1
-
-        val rvalue = when (flag) {
-            MemoryFlag.HOOK -> {
-                hook(address, size).toByte()
-            }
-            else -> {
-                val pos = loadKey(address)
-                val buf = buffer
-                buf[pos]
-            }
+        val rvalue = if (isHook) {
+            hook(address, 1).toByte()
+        } else {
+            val pos = loadKey(address)
+            val buf = buffer
+            buf[pos]
         }
 
         return rvalue
@@ -114,55 +104,40 @@ class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
 
     @Throws(InvalidMemoryException::class)
     fun writeInt(address: Int, value: Int) {
-        val size = 4
-
-        when (flag) {
-            MemoryFlag.HOOK -> {
-                hook(address, size, value)
-            }
-            else -> {
-                var pos = loadKey(address)
-                val buf = buffer
-                buf[pos++] = value.toByte()
-                buf[pos++] = (value shr 8).toByte()
-                buf[pos++] = (value shr 16).toByte()
-                buf[pos] = (value shr 24).toByte()
-            }
+        if (isHook) {
+            hook(address, 4, value)
+        } else {
+            var pos = loadKey(address)
+            val buf = buffer
+            buf[pos++] = value.toByte()
+            buf[pos++] = (value shr 8).toByte()
+            buf[pos++] = (value shr 16).toByte()
+            buf[pos] = (value shr 24).toByte()
         }
     }
 
     @Throws(InvalidMemoryException::class)
     fun writeShort(address: Int, shortValue: Short) {
-        val size = 2
-
-        when (flag) {
-            MemoryFlag.HOOK -> {
-                val value = shortValue.toInt() and 0xFFFF
-                hook(address, size, value)
-            }
-            else -> {
-                var pos = loadKey(address)
-                val buf = buffer
-                buf[pos++] = shortValue.toByte()
-                buf[pos] = (shortValue.toInt() shr 8).toByte()
-            }
+        if (isHook) {
+            val value = shortValue.toInt() and 0xFFFF
+            hook(address, 2, value)
+        } else {
+            var pos = loadKey(address)
+            val buf = buffer
+            buf[pos++] = shortValue.toByte()
+            buf[pos] = (shortValue.toInt() shr 8).toByte()
         }
     }
 
     @Throws(InvalidMemoryException::class)
     fun writeByte(address: Int, byteValue: Byte) {
-        val size = 1
-
-        when (flag) {
-            MemoryFlag.HOOK -> {
-                val value = byteValue.toInt() and 0xFF
-                hook(address, size, value)
-            }
-            else -> {
-                val pos = loadKey(address)
-                val buf = buffer
-                buf[pos] = byteValue
-            }
+        if (isHook) {
+            val value = byteValue.toInt() and 0xFF
+            hook(address, 1, value)
+        } else {
+            val pos = loadKey(address)
+            val buf = buffer
+            buf[pos] = byteValue
         }
     }
 }
