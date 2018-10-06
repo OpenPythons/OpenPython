@@ -8,10 +8,14 @@ import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NBTTagList
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.attribute.FileTime
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 @Suppress("unused")
 @Architecture.Name("micropython (OpenPie)")
@@ -119,12 +123,59 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         println(toString() + ": onConnect()")
     }
 
-    override fun load(nbtTagCompound: NBTTagCompound) {
-        // System.out.println(toString() + ": loadNBT()");
+    override fun load(rootTag: NBTTagCompound) {
+        if (!machine.isRunning) return
+
+        val vm = this.vm!!
+        val cpu = vm.cpu
+
+        val memoryTag = rootTag.getTagList("memory", 10)
+        for (regionBaseTag in memoryTag) {
+            val regionTag = regionBaseTag as NBTTagCompound
+            val address = regionTag.getLong("address").toInt()
+            // val size = regionTag.getInteger("size") // TODO: load memory size please
+            val isHook = regionTag.getBoolean("isHook")
+            // val flag = regionTag.getInteger("size")
+
+            if (!isHook) {
+                val compressed = regionTag.getByteArray("buffer")
+                val content = GZIPInputStream(compressed.inputStream()).use { it.readBytes() }
+                cpu.memory.writeBuffer(address, content)
+            } else {
+                // TODO: ?
+            }
+        }
+
+        cpu.regs.store(rootTag.getIntArray("regs"))
     }
 
-    override fun save(nbtTagCompound: NBTTagCompound) {
-        // System.out.println(toString() + ": saveNBT()");
+    override fun save(rootTag: NBTTagCompound) {
+        val vm = this.vm!!
+        val cpu = vm.cpu
+
+        val memoryTag = NBTTagList()
+        for (region in cpu.memory.fork()) {
+            val regionTag = NBTTagCompound()
+            regionTag.setLong("address", Integer.toUnsignedLong(region.begin))
+            regionTag.setInteger("size", region.size)
+            regionTag.setBoolean("isHook", region.isHook)
+            regionTag.setInteger("flag", region.flag.ordinal)
+
+            if (!region.isHook) {
+                val content = region.buffer
+                val stream = ByteArrayOutputStream()
+                GZIPOutputStream(stream).use { it.write(content) }
+                val compressed = stream.toByteArray()
+                regionTag.setByteArray("buffer", compressed)
+            }
+
+            memoryTag.appendTag(regionTag)
+        }
+
+        // TODO: store firmware (and protocol) version
+        // TODO: store VMState (file mapping, input/output buffer and signals)
+        rootTag.setTag("memory", memoryTag)
+        rootTag.setIntArray("regs", cpu.regs.load())
     }
 
     override fun toString(): String {
