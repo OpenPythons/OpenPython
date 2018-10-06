@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger
 object OpenPie {
     const val MODID = "openpie"
     const val NAME = "OpenPie"
-    const val VERSION = "0.8"
+    const val VERSION = "0.9"
     private var logger: Logger? = null
     val creativeTab = RinrcCreativeTab();
 
