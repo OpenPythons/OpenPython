@@ -61,13 +61,13 @@ fun insn(op: Int): Pair<Int, Int> {
     return Pair(op, 0)
 }
 
-fun show(code: Int, imm32: Int, executedCount: Int = -1) {
+fun show(code: Int, imm32: Int) {
     val op = code and 0xFF
     val Rd = code shr 8 and 0b1111
     val Rs = code shr 12 and 0b1111
     val Rn = code shr 16 and 0b1111
     val imm16 = code shr 16
-    println("${executedCount}    ${op2str(op)}  Rd=$Rd  Rs=$Rs  Rn=$Rn  imm16=$imm16  imm32=$imm32")
+    println("${op2str(op)}\tRd=$Rd\tRs=$Rs\tRn=$Rn\timm16=$imm16\timm32=$imm32")
 }
 
 fun decode(memory: Memory, pc: Int): Pair<Int, Int> {
