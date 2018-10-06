@@ -197,9 +197,9 @@ class Memory(private val _list: ArrayList<MemoryRegion> = ArrayList()) {
                 try {
                     result = decode(this, addr)
                 } catch (e: UnknownInstructionException) {
-                    result = insni(ERROR, buffer[addr - region.begin])
+                    result = insnx(ERROR, this.fetchCode(addr))
                 } catch (e: UnsupportedInstructionException) {
-                    result = insni(ERROR, buffer[addr - region.begin])
+                    result = insnx(ERROR, this.fetchCode(addr))
                 }
 
                 val (code, imm32) = result
