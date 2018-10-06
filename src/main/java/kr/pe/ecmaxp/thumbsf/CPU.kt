@@ -59,6 +59,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         continue@loop
                     }
                     NOP -> {
+                        pc += 2
                     }
                     ERROR -> throw UnknownInstructionException()
 
