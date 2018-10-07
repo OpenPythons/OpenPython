@@ -118,7 +118,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
             throw ControlPauseSignal(ExecutionResult.SynchronizedCall())
 
         val command = intr.r0
-        if (command == 1) {
+        if (command == SYS_VFS_OPEN) {
             val address = cpu.memory.readString(intr.r1, 64)
             val path = cpu.memory.readString(intr.r2, 256)
             val mode = cpu.memory.readString(intr.r3, 16)
@@ -146,15 +146,12 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
             val fh = state.fdMap.getOrDefault(fd, null) ?: return MP_EBADF
 
             when (command) {
-                2 // VFS_VALID
-                -> {
+                SYS_VFS_VALID -> {
                     val ret = call(fh.call("seek", fh.pos))
                     return if (ret.error == null) MP_OK else MP_EIO
                 }
-                3 // VFS_REPR
-                -> return MP_EPERM
-                4 // VFS_CLOSE
-                -> {
+                SYS_VFS_REPR -> return MP_EPERM
+                SYS_VFS_CLOSE -> {
                     val ret = call(fh.call("close"))
                     if (ret.error != null) {
                         ret.error.printStackTrace()
@@ -164,8 +161,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
                         return MP_OK
                     }
                 }
-                5 // VFS_READ
-                -> {
+                SYS_VFS_READ -> {
                     val ret = call(fh.call("read", intr.r2))
                     val buf: ByteArray
                     when {
@@ -194,8 +190,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
                         else -> return MP_EPERM
                     }
                 }
-                6 // VFS_WRITE
-                -> {
+                SYS_VFS_WRITE -> {
                     val buf = cpu.memory.readBuffer(intr.r2, intr.r3)
                     val ret = call(fh.call("write", *arrayOf(buf)))
                     if (ret.error != null) {
@@ -223,8 +218,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
                         return MP_EPERM
                     }
                 }
-                7 // VFS_SEEK
-                -> {
+                SYS_VFS_SEEK -> {
                     val offset = intr.r2
                     val whence = intr.r3
                     val offsetPtr = intr.r4
@@ -264,8 +258,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
                         return MP_EPERM
                     }
                 }
-                8 // VFS_FLUSH
-                -> return 0 // always flushed?
+                SYS_VFS_FLUSH -> return 0 // always flushed?
                 else -> return MP_EPERM
             }
         }
