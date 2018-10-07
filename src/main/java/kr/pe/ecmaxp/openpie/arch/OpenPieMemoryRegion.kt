@@ -1,7 +1,8 @@
 package kr.pe.ecmaxp.openpie.arch
 
 import kr.pe.ecmaxp.thumbsf.MemoryFlag
-import kr.pe.ecmaxp.thumbsf.MemoryFlag.*
+import kr.pe.ecmaxp.thumbsf.MemoryFlag.RW
+import kr.pe.ecmaxp.thumbsf.MemoryFlag.RX
 
 const val KB = 1024
 

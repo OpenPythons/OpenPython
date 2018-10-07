@@ -1,15 +1,13 @@
 package kr.pe.ecmaxp.openpie.arch
 
 import kr.pe.ecmaxp.openpie.arch.OpenPieMemoryRegion.*
-import kr.pe.ecmaxp.openpie.arch.consts.*
 import kr.pe.ecmaxp.openpie.arch.state.VMState
 import kr.pe.ecmaxp.openpie.arch.types.Interrupt
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.Registers
 import kr.pe.ecmaxp.thumbsf.consts.I0
 import kr.pe.ecmaxp.thumbsf.consts.PC
-import kr.pe.ecmaxp.thumbsf.exc.*
-import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
+import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import kr.pe.ecmaxp.thumbsf.signal.ControlSignal
 import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
