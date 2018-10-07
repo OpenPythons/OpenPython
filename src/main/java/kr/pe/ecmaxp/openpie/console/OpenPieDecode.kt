@@ -1,7 +1,7 @@
 package kr.pe.ecmaxp.openpie.console
 
+import kr.pe.ecmaxp.openpie.arch.Firmware
 import kr.pe.ecmaxp.openpie.arch.OpenPieMemoryRegion
-import kr.pe.ecmaxp.openpie.arch.loadFirmware
 import kr.pe.ecmaxp.thumbsf.Memory
 import kr.pe.ecmaxp.thumbsf.consts.op2str
 
@@ -9,7 +9,7 @@ object OpenPieDecode {
     @JvmStatic
     fun main(args: Array<String>) {
         val memory = Memory();
-        val firmware = loadFirmware();
+        val firmware = Firmware().loadFirmware();
         memory.flash(OpenPieMemoryRegion.FLASH.address, 256 * 1024, firmware);
         val (cache, base) = memory.loadExecCache(OpenPieMemoryRegion.FLASH.address);
         for (i in 0 until firmware.size step 2) {

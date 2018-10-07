@@ -1,6 +1,7 @@
 package kr.pe.ecmaxp.openpie.arch
 
 import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
+import kr.pe.ecmaxp.openpie.OpenPieFilePaths
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.item.Memory
 import li.cil.oc.api.machine.Architecture
@@ -50,7 +51,9 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         close()
 
         try {
-            vm = OpenPieVirtualMachine(machine, totalMemory)
+            val firmware = Firmware() // TODO: Firmware mapping
+            // TODO: load/store support for firmware (init later?)
+            vm = OpenPieVirtualMachine(machine, totalMemory, firmware)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -106,7 +109,7 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
     }
 
     private fun DebugFirmwareGetLastModifiedTime(): FileTime? {
-        val file = File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\openpie\\oprom\\build\\firmware.bin")
+        val file = File(OpenPieFilePaths.FirmwareFile)
         try {
             return Files.getLastModifiedTime(file.toPath())
         } catch (ignored: IOException) {

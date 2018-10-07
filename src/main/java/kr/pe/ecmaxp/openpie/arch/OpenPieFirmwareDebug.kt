@@ -1,86 +1,76 @@
 package kr.pe.ecmaxp.openpie.arch
 
-import com.mojang.realmsclient.util.Pair
 import kr.pe.ecmaxp.openpie.OpenPieFilePaths
 import kr.pe.ecmaxp.thumbsf.CPU
-import kr.pe.ecmaxp.thumbsf.consts.LR
-import kr.pe.ecmaxp.thumbsf.consts.PC
 import java.io.File
 import java.nio.file.Files
 import java.util.*
 
-fun loadFirmware(): ByteArray {
-    val file = File(OpenPieFilePaths.FirmwareFile)
-    return Files.readAllBytes(file.toPath())
-}
+class Target(val address: Int, val size: Int, val type: String, val name: String)
 
-fun loadMapping(): List<Pair<Long, String>> {
-    val file = File(OpenPieFilePaths.MapFile)
-    val lines = Files.readAllLines(file.toPath())
-    val result = ArrayList<Pair<Long, String>>()
+class Firmware(val version: String = "debug") {
+    fun loadFirmware(): ByteArray {
+        val file = File(OpenPieFilePaths.FirmwareFile)
+        return Files.readAllBytes(file.toPath())
+    }
 
-    var last_name: String? = null
-    for (line in lines) {
-        val tokens = line.trim { it <= ' ' }.split("\\s+".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
-        var last_pair: Pair<Long, String>?
-        if (tokens.size >= 1) {
-            if (tokens[0].startsWith(".text")) {
-                last_name = tokens[0]
-            } else if (tokens[0].startsWith("0x")) {
-                val addr = java.lang.Long.parseLong(tokens[0].substring(2), 16)
-                if (tokens.size == 2) {
-                    last_pair = Pair.of(addr, tokens[1])
-                    result.add(last_pair)
-                } else if (last_name != null) {
-                    last_pair = Pair.of(addr, last_name)
-                    result.add(last_pair)
-                }
-            } else {
-                last_name = null
+    fun loadMapping(): List<Target> {
+        val file = File(OpenPieFilePaths.MapFile)
+        val lines = Files.readAllLines(file.toPath())
+        val result = ArrayList<Target>()
+
+        fun parseHex(s: String ): Int {
+            if (!s.startsWith("0x"))
+                throw Exception("Invalid Map File (0x)")
+
+            return s.substring(2).toInt(16)
+        }
+
+        for (line in lines) {
+            if (line.isEmpty())
+                continue;
+
+            val tokens = line.split('\t')
+            if (tokens.size != 4)
+                throw Exception("Invalid Map File")
+
+            val address = parseHex(tokens[0])
+            val size = parseHex(tokens[1])
+            val type = tokens[2]
+            val name = tokens[3]
+            val target = Target(address, size, type, name)
+            result.add(target)
+        }
+
+        return result
+    }
+
+
+    fun findTarget(address: Int): Target? {
+        val mapping = loadMapping()
+        var selected: Target? = null
+        for (target in mapping) {
+            if (target.address <= address && address < target.address + target.size) {
+                selected = target
             }
         }
+
+        return selected
     }
 
-    return result
-}
-
-fun printLastTracebackCPU(cpu: CPU) {
-    val pc = Integer.toUnsignedLong(cpu.regs.get(PC))
-    val mapping = loadMapping()
-    var selected: Pair<Long, String>? = null
-    var found = false
-    for (pair in mapping) {
-        val addr = pair.first()
-        if (addr > pc) {
-            found = true
-            break
+    fun printLastTracebackCPU(cpu: CPU) {
+        var selected = findTarget(cpu.regs.pc)
+        if (selected != null) {
+            println("last pc function :${selected.name} (+${cpu.regs.pc - selected.address})")
+        } else {
+            println("last pc function : (null)")
         }
 
-        selected = pair
-    }
-
-    if (found && selected != null) {
-        println("last function :" + selected.second() + " (+" + java.lang.Long.toString(pc - selected.first()) + ")")
-    } else {
-        println("last function : (null)")
-    }
-
-    val lr = Integer.toUnsignedLong(cpu.regs.get(LR))
-    selected = null
-    found = false
-    for (pair in mapping) {
-        val addr = pair.first()
-        if (addr > lr) {
-            found = true
-            break
+        selected = findTarget(cpu.regs.lr)
+        if (selected != null) {
+            println("last lr function :${selected.name} (+${cpu.regs.lr - selected.address})")
+        } else {
+            println("last lr function : (null)")
         }
-
-        selected = pair
-    }
-
-    if (found && selected != null) {
-        println("last function :" + selected.second() + " (+" + java.lang.Long.toString(lr - selected.first()) + ")")
-    } else {
-        println("last function : (null)")
     }
 }

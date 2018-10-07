@@ -14,7 +14,7 @@ import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
 
 
-class OpenPieVirtualMachine internal constructor(private val machine: Machine, val memorySize: Int, val firmware: ByteArray = loadFirmware()) {
+class OpenPieVirtualMachine internal constructor(private val machine: Machine, val memorySize: Int, var firmware: Firmware) {
     val cpu: CPU = CPU()
     var state: VMState = VMState()
     var interruptHandler: OpenPieInterruptHandler = OpenPieInterruptHandler(cpu, machine, state)
@@ -107,7 +107,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
 
             throw Exception(controlSignal)
         } catch (e: Exception) {
-            printLastTracebackCPU(cpu)
+            firmware.printLastTracebackCPU(cpu)
             throw e
         }
 
