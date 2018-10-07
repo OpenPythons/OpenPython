@@ -8,6 +8,7 @@ import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.Registers
 import kr.pe.ecmaxp.thumbsf.consts.I0
 import kr.pe.ecmaxp.thumbsf.consts.PC
+import kr.pe.ecmaxp.thumbsf.exc.*
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlSignal
 import li.cil.oc.api.machine.ExecutionResult
@@ -21,11 +22,11 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
 
     init {
         val memory = cpu.memory.apply {
-            flash(FLASH.address, FLASH.size, firmware)
+            flash(FLASH.address, FLASH.size, firmware.loadFirmware())
             map(SRAM.address, SRAM.size, SRAM.flag)
             map(PERIPHERAL.address, PERIPHERAL.size) { addr: Long, is_read: Boolean, size: Int, value: Int
                 ->
-                PeripheralHook(addr, is_read, size, value)
+                peripheralHook(addr, is_read, size, value)
             }
             map(RAM.address, memorySize, RAM.flag)
             map(SYSCALL.address, SYSCALL.size, SYSCALL.flag)
@@ -39,7 +40,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
         // TODO: free memory
     }
 
-    private fun PeripheralHook(addr: Long, is_read: Boolean, size: Int, value: Int): Int {
+    private fun peripheralHook(addr: Long, is_read: Boolean, size: Int, value: Int): Int {
         if (is_read) {
             return when (addr.toInt()) {
                 OP_IO_RXR -> {
@@ -80,41 +81,37 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
         }
     }
 
-    internal fun step(isSynchronized: Boolean): ExecutionResult {
-        try {
-            if (!isSynchronized) {
+    fun step(synchronized: Boolean): ExecutionResult {
+        return try {
+            if (!synchronized) {
                 // async
-                cpu.run(100000000) {
-                    val intr = Interrupt(cpu, it)
-
-                    try {
-                        interruptHandler(intr)
-                    } catch (controlSignal: ControlSignal) {
-                        state.lastInterrupt = intr
-                        throw controlSignal
-                    }
+                cpu.run(10000000) {
+                    val interrupt = Interrupt(cpu, it)
+                    interruptHandler(interrupt, synchronized)
                 }
             } else {
                 // sync
-                val intr = state.lastInterrupt ?: return ExecutionResult.Sleep(0)
-                state.lastInterrupt = null
-                interruptHandler(intr)
+                cpu.run(1) {
+                    val interrupt = Interrupt(cpu, it)
+                    interruptHandler(interrupt, synchronized)
+                }
             }
-        } catch (controlSignal: ControlSignal) {
-            val value = controlSignal.value
-            if (value is ExecutionResult)
-                return value
 
-            throw Exception(controlSignal)
-        } catch (e: Exception) {
+            ExecutionResult.Sleep(0)
+        } catch (controlSignal: ControlSignal) {
+            if (controlSignal.value !is ExecutionResult)
+                throw controlSignal
+
+            controlSignal.value
+        } catch (e: InvalidMemoryException) {
+            ExecutionResult.Error("memory access violation:\n0x${String.format("%08X", e.address)}")
+        } catch (e: Throwable) {
             firmware.printLastTracebackCPU(cpu)
             throw e
         }
-
-        return ExecutionResult.Sleep(0)
     }
 
-    internal fun onSignal() {
+    fun onSignal() {
         if (state.redirectKeyEvent) {
             val signal = machine.popSignal()
             when (signal.name()) {
@@ -138,7 +135,7 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
         try {
             caller.run(Int.MAX_VALUE) {
                 val intr = Interrupt(caller, it)
-                interruptHandler(intr)
+                interruptHandler(intr, true)
             }
         } catch (controlSignal: ControlSignal) {
             if (controlSignal.value is SystemControlReturn)

@@ -1,6 +1,5 @@
 package kr.pe.ecmaxp.openpie.arch
 
-import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import kr.pe.ecmaxp.openpie.OpenPieFilePaths
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.item.Memory
@@ -18,11 +17,11 @@ import java.nio.file.attribute.FileTime
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
+
 @Suppress("unused")
 @Architecture.Name("micropython (OpenPie)")
 class OpenPieArchitecture(private val machine: Machine) : Architecture {
     private var initialized: Boolean = false
-
     private var totalMemory = 0
     private var vmMemory = 0
     private var vm: OpenPieVirtualMachine? = null
@@ -37,15 +36,13 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         for (stack in iterable) {
             val driver = Driver.driverFor(stack)
             if (driver is Memory) {
-                totalRam += driver.amount(stack) * 1024
+                totalRam += driver.amount(stack) * KB
             }
         }
 
         totalMemory = totalRam.toInt()
         return (vm?.memorySize ?: 0) <= totalRam
     }
-
-    // TODO: report exception handler?
 
     override fun initialize(): Boolean {
         close()
@@ -78,34 +75,29 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
 
         return try {
             vm.step(isSynchronized)
-        } catch (e: InvalidMemoryException) {
-            ExecutionResult.Error("memory access violation: 0x${String.format("%08X", e.address)}")
         } catch (e: Exception) {
             e.printStackTrace()
-            ExecutionResult.Error(e.toString())
-        } catch (e: Throwable) {
+            ExecutionResult.Error("kernel panic:\n${e}")
+        } catch (e: Error) {
             e.printStackTrace()
-            throw e;
+            ExecutionResult.Error("kernel panic:\n${e}")
+        } catch (e: Throwable) {
+            throw e
         }
     }
 
-    override fun runThreaded(isSynchronizedReturn: Boolean): ExecutionResult {
-        return if (!isSynchronizedReturn) {
+    override fun runThreaded(synchronizedReturn: Boolean): ExecutionResult {
+        return if (!synchronizedReturn) {
             step(false)
         } else {
-            val result = lastSynchronizedResult ?: ExecutionResult.Error("invalid synchronized call")
+            val result = lastSynchronizedResult!!
             lastSynchronizedResult = null
             result
         }
     }
 
     override fun runSynchronized() {
-        lastSynchronizedResult = try {
-            step(true)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            ExecutionResult.Error(e.toString())
-        }
+        lastSynchronizedResult = step(true)
     }
 
     private fun DebugFirmwareGetLastModifiedTime(): FileTime? {
@@ -118,13 +110,9 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         return null
     }
 
-    override fun onSignal() {
-        vm!!.onSignal()
-    }
+    override fun onSignal() = vm!!.onSignal()
 
-    override fun onConnect() {
-        println(toString() + ": onConnect()")
-    }
+    override fun onConnect() {}
 
     override fun load(rootTag: NBTTagCompound) {
         if (!machine.isRunning) return

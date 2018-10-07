@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets
 
 val EmptyPage = MemoryRegion(0, 0, MemoryFlag.RW)
 
-class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }): Iterable<MemoryRegion> {
+class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }) : Iterable<MemoryRegion> {
     private var _execCache: IntArray? = null
 
     override fun iterator(): Iterator<MemoryRegion> {

@@ -10,6 +10,7 @@ import kr.pe.ecmaxp.openpie.arch.types.Interrupt
 import kr.pe.ecmaxp.openpie.arch.types.Result
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
+import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.LimitReachedException
@@ -22,45 +23,52 @@ import java.nio.charset.StandardCharsets
 object SystemControlReturn
 
 class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMState) {
-    private fun handleSystemControl(intr: Interrupt): Int {
+    private fun handleSystemControl(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         when (intr.r0) {
             SYS_CONTROL_SHUTDOWN -> throw ControlStopSignal(ExecutionResult.Shutdown(false))
             SYS_CONTROL_REBOOT -> throw ControlStopSignal(ExecutionResult.Shutdown(true))
             SYS_CONTROL_CRASH -> {
                 val str = cpu.memory.readString(intr.r1, 256)
-                Crash(str)
+                throw ControlStopSignal(ExecutionResult.Error(str))
             }
             SYS_CONTROL_RETURN -> throw ControlStopSignal(SystemControlReturn)
         }
 
-        Crash("Unknown Interrupt")
-        throw UnexceptedLogicError()
+        throw ControlStopSignal(ExecutionResult.Error("Unknown Interrupt"))
     }
 
-    private fun Crash(message: String) {
-        machine.crash(message)
-        throw ControlStopSignal(ExecutionResult.Error(message))
-    }
-
-    private fun handleSystemInvoke(intr: Interrupt): Int {
+    private fun handleSystemInvoke(intr: Interrupt, synchronized: Boolean): Int {
         // intr.r0 => unused
         val obj = intr.loadObject(cpu)
         val call = Call.fromArray(obj as Array<*>)
-        val ret = when (call) {
-            null -> Result(null, Exception("Invaild call"))
-            else -> {
-                val ret = invoke(call)
-                if (ret.error != null)
-                    ret.error.printStackTrace()
+                ?: return responseInvoke(Exception("Invaild call"))
 
-                ret
+        if (!synchronized) {
+            val node = machine.node().network().node(call.component) as? Component
+                    ?: return responseInvoke(Exception("Invalid Component"))
+
+            val callback = node.annotation(call.function)
+                    ?: return responseInvoke(Exception("Invalid Function"))
+
+            if (!callback.direct) {
+                // TODO: automatic detect sync call?
+                throw ControlPauseSignal(ExecutionResult.SynchronizedCall())
             }
         }
 
-        return response(arrayOf<Any?>(ret.args, ret.error))
+        val ret = call(call)
+        return if (ret.error == null) {
+            responseInvoke(ret.args)
+        } else {
+            ret.error.printStackTrace()
+            responseInvoke(ret.error)
+        }
     }
 
-    private fun handleSystemRequest(intr: Interrupt): Int {
+    private fun responseInvoke(error: Throwable?): Int = response(arrayOf<Any?>(null, error))
+    private fun responseInvoke(args: Any?): Int = response(arrayOf(args, null))
+
+    private fun handleSystemRequest(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         when (intr.r0) {
             0 -> {
                 val signal: Signal? = if (!state.signals.isEmpty())
@@ -105,14 +113,17 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
         }
     }
 
-    private fun handleSystemVirtualFileSystem(intr: Interrupt): Int {
+    private fun handleSystemVirtualFileSystem(intr: Interrupt, synchronized: Boolean): Int {
+        if (!synchronized)
+            throw ControlPauseSignal(ExecutionResult.SynchronizedCall())
+
         val command = intr.r0
         if (command == 1) {
             val address = cpu.memory.readString(intr.r1, 64)
             val path = cpu.memory.readString(intr.r2, 256)
             val mode = cpu.memory.readString(intr.r3, 16)
 
-            val ret = invoke(Call(address, "open", path, mode))
+            val ret = call(Call(address, "open", path, mode))
             when {
                 ret.error is FileNotFoundException -> return MP_ENOENT
                 ret.args != null -> {
@@ -137,14 +148,14 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
             when (command) {
                 2 // VFS_VALID
                 -> {
-                    val ret = invoke(fh.call("seek", fh.pos))
+                    val ret = call(fh.call("seek", fh.pos))
                     return if (ret.error == null) MP_OK else MP_EIO
                 }
                 3 // VFS_REPR
                 -> return MP_EPERM
                 4 // VFS_CLOSE
                 -> {
-                    val ret = invoke(fh.call("close"))
+                    val ret = call(fh.call("close"))
                     if (ret.error != null) {
                         ret.error.printStackTrace()
                         return 1
@@ -155,7 +166,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
                 }
                 5 // VFS_READ
                 -> {
-                    val ret = invoke(fh.call("read", intr.r2))
+                    val ret = call(fh.call("read", intr.r2))
                     val buf: ByteArray
                     when {
                         ret.error != null -> {
@@ -186,7 +197,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
                 6 // VFS_WRITE
                 -> {
                     val buf = cpu.memory.readBuffer(intr.r2, intr.r3)
-                    val ret = invoke(fh.call("write", *arrayOf(buf)))
+                    val ret = call(fh.call("write", *arrayOf(buf)))
                     if (ret.error != null) {
                         ret.error.printStackTrace()
                         return 1
@@ -234,7 +245,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
                         return MP_EPERM
                     }
 
-                    val ret = invoke(fh.call("seek", whenceStr, offset))
+                    val ret = call(fh.call("seek", whenceStr, offset))
                     if (ret.error != null) {
                         ret.error.printStackTrace()
                         return 1
@@ -261,7 +272,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
     }
 
 
-    private fun handleSystemDebug(intr: Interrupt): Int {
+    private fun handleSystemDebug(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         val buf = cpu.memory.readBuffer(intr.r0, intr.r1)
         val str = String(buf, StandardCharsets.UTF_8)
 
@@ -269,7 +280,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
         return 0
     }
 
-    private fun handleSystemLegacy(intr: Interrupt): Int {
+    private fun handleSystemLegacy(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         when (intr.r0) {
             0 -> {
                 val buf = state.outputBuffer.toString().toByteArray(StandardCharsets.UTF_8)
@@ -282,23 +293,23 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
 
     inner class UnknownInterrupt : Exception()
 
-    operator fun invoke(intr: Interrupt) {
+    operator fun invoke(intr: Interrupt, synchronized: Boolean) {
         try {
             val code: Int = when (intr.imm) {
-                SYS_CONTROL -> handleSystemControl(intr)
-                SYS_INVOKE -> handleSystemInvoke(intr)
-                SYS_REQUEST -> handleSystemRequest(intr)
-                SYS_VFS -> handleSystemVirtualFileSystem(intr)
-                SYS_DEBUG -> handleSystemDebug(intr)
-                SYS_LEGACY -> handleSystemLegacy(intr)
+                SYS_CONTROL -> handleSystemControl(intr, synchronized)
+                SYS_INVOKE -> handleSystemInvoke(intr, synchronized)
+                SYS_REQUEST -> handleSystemRequest(intr, synchronized)
+                SYS_VFS -> handleSystemVirtualFileSystem(intr, synchronized)
+                SYS_DEBUG -> handleSystemDebug(intr, synchronized)
+                SYS_LEGACY -> handleSystemLegacy(intr, synchronized)
                 else -> throw UnknownInterrupt()
             }
 
             cpu.regs[0] = code
         } catch (e: UnknownInterrupt) {
-            Crash("Unknown interrupt number")
+            throw ControlStopSignal(ExecutionResult.Error("Unknown Interrupt"))
         } catch (e: LimitReachedException) {
-            throw ControlStopSignal(ExecutionResult.SynchronizedCall())
+            throw ControlPauseSignal(ExecutionResult.SynchronizedCall())
         }
     }
 
@@ -318,5 +329,5 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
         return bufAddress
     }
 
-    private fun invoke(call: Call): Result = call.invoke(machine)
+    private fun call(call: Call): Result = call.invoke(machine)
 }
