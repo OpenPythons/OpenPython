@@ -18,7 +18,7 @@ import li.cil.oc.api.machine.Machine
 class OpenPieVirtualMachine internal constructor(private val machine: Machine, val memorySize: Int, var firmware: Firmware) {
     val cpu: CPU = CPU()
     var state: VMState = VMState()
-    var interruptHandler: OpenPieInterruptHandler = OpenPieInterruptHandler(cpu, machine, state)
+    var interruptHandler: OpenPieInterruptHandler = OpenPieInterruptHandler(this, cpu, machine, state)
 
     init {
         val memory = cpu.memory.apply {

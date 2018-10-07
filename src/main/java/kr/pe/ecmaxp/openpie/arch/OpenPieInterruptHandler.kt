@@ -9,7 +9,7 @@ import kr.pe.ecmaxp.openpie.arch.types.Call
 import kr.pe.ecmaxp.openpie.arch.types.Interrupt
 import kr.pe.ecmaxp.openpie.arch.types.Result
 import kr.pe.ecmaxp.thumbsf.CPU
-import kr.pe.ecmaxp.thumbsf.exc.UnexceptedLogicError
+import kr.pe.ecmaxp.thumbsf.consts.R0
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 import li.cil.oc.api.machine.ExecutionResult
@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets
 
 object SystemControlReturn
 
-class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMState) {
+class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine, val cpu: CPU, val machine: Machine, val state: VMState) {
     private fun handleSystemControl(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         when (intr.r0) {
             SYS_CONTROL_SHUTDOWN -> throw ControlStopSignal(ExecutionResult.Shutdown(false))
@@ -34,7 +34,35 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
             SYS_CONTROL_RETURN -> throw ControlStopSignal(SystemControlReturn)
         }
 
-        throw ControlStopSignal(ExecutionResult.Error("Unknown Interrupt"))
+        throw UnknownInterrupt()
+    }
+
+    private fun handleSystemDebug(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+        val buf = cpu.memory.readBuffer(intr.r0, intr.r1)
+        val str = String(buf, StandardCharsets.UTF_8)
+
+        print(str)
+        return 0
+    }
+
+    private fun handleSystemSignal(intr: Interrupt, synchronized: Boolean): Int {
+        when (intr.r0) {
+            SYS_SIGNAL_REQUEST -> {
+                val signal: Signal? = machine.popSignal()
+                if (signal == null) {
+                    cpu.regs[R0] = SYS_SIGNAL_PENDING
+                    throw ControlPauseSignal(ExecutionResult.Sleep(intr.r1))
+                }
+
+                return response(signal)
+            }
+            SYS_SIGNAL_PENDING -> {
+                val signal: Signal = machine.popSignal() ?: return 0
+                return response(signal)
+            }
+        }
+
+        throw UnknownInterrupt()
     }
 
     private fun handleSystemInvoke(intr: Interrupt, synchronized: Boolean): Int {
@@ -70,17 +98,6 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
 
     private fun handleSystemRequest(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         when (intr.r0) {
-            0 -> {
-                val signal: Signal? = if (!state.signals.isEmpty())
-                    state.signals.pop()
-                else
-                    machine.popSignal()
-
-                if (signal != null)
-                    return response(signal)
-
-                return 0
-            }
             SYS_REQUEST_COMPONENTS -> return response(machine.components())
             SYS_REQUEST_METHODS -> {
                 val req = intr.loadObject(cpu) as Array<*>
@@ -100,6 +117,8 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
                         try {
                             val callback = node.annotation(req[1] as String)
                             return response(callback.doc)
+                        } catch (e: NoSuchMethodError) {
+                            return 0
                         } catch (exc: Exception) {
                             // how to handle?
                             exc.printStackTrace()
@@ -109,6 +128,22 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
 
                 return 0
             }
+            else -> throw UnknownInterrupt()
+        }
+    }
+
+    private fun handleSystemInfo(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+        return when (intr.r0) {
+            SYS_INFO_VERSION -> 0x0000
+            SYS_INFO_RAM_SIZE -> vm.memorySize
+            else -> throw UnknownInterrupt()
+        }
+    }
+
+    private fun handleSystemTimer(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+        return when (intr.r0) {
+            SYS_TIMER_TICKS_MS -> System.currentTimeMillis().toInt()
+            SYS_TIMER_TICKS_US -> System.nanoTime().toInt()
             else -> throw UnknownInterrupt()
         }
     }
@@ -264,37 +299,19 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
         }
     }
 
-
-    private fun handleSystemDebug(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
-        val buf = cpu.memory.readBuffer(intr.r0, intr.r1)
-        val str = String(buf, StandardCharsets.UTF_8)
-
-        print(str)
-        return 0
-    }
-
-    private fun handleSystemLegacy(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
-        when (intr.r0) {
-            0 -> {
-                val buf = state.outputBuffer.toString().toByteArray(StandardCharsets.UTF_8)
-                state.outputBuffer = StringBuilder()
-                return responseBuffer(buf)
-            }
-            else -> throw UnknownInterrupt()
-        }
-    }
-
     inner class UnknownInterrupt : Exception()
 
     operator fun invoke(intr: Interrupt, synchronized: Boolean) {
         try {
             val code: Int = when (intr.imm) {
                 SYS_CONTROL -> handleSystemControl(intr, synchronized)
+                SYS_DEBUG -> handleSystemDebug(intr, synchronized)
+                SYS_SIGNAL -> handleSystemSignal(intr, synchronized)
                 SYS_INVOKE -> handleSystemInvoke(intr, synchronized)
                 SYS_REQUEST -> handleSystemRequest(intr, synchronized)
+                SYS_INFO -> handleSystemInfo(intr, synchronized)
+                SYS_TIMER -> handleSystemTimer(intr, synchronized)
                 SYS_VFS -> handleSystemVirtualFileSystem(intr, synchronized)
-                SYS_DEBUG -> handleSystemDebug(intr, synchronized)
-                SYS_LEGACY -> handleSystemLegacy(intr, synchronized)
                 else -> throw UnknownInterrupt()
             }
 
@@ -312,7 +329,7 @@ class OpenPieInterruptHandler(val cpu: CPU, val machine: Machine, val state: VMS
     }
 
     private fun responseBuffer(buffer: ByteArray, isCString: Boolean = true): Int {
-        val bufAddress = OpenPieMemoryRegion.SYSCALL.address.toInt()
+        val bufAddress = OpenPieMemoryRegion.SYSCALL.address
         cpu.memory.writeInt(bufAddress, bufAddress + 8) // + 0
         cpu.memory.writeInt(bufAddress + 4, buffer.size) // + 4
         cpu.memory.writeBuffer(bufAddress + 8, buffer) // + 8
