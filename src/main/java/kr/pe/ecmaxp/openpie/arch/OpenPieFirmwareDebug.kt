@@ -19,7 +19,7 @@ class Firmware(val version: String = "debug") {
         val lines = Files.readAllLines(file.toPath())
         val result = ArrayList<Target>()
 
-        fun parseHex(s: String ): Int {
+        fun parseHex(s: String): Int {
             if (!s.startsWith("0x"))
                 throw Exception("Invalid Map File (0x)")
 
