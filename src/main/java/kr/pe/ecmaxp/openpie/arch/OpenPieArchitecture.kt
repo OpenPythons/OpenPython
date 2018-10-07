@@ -63,15 +63,17 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         vm = null
     }
 
-    val prev = DebugFirmwareGetLastModifiedTime()
+    var prev = DebugFirmwareGetLastModifiedTime()
     private fun step(isSynchronized: Boolean): ExecutionResult {
         val vm = this.vm ?: return ExecutionResult.Error("invalid machine")
         if (vm.memorySize > totalMemory)
             return ExecutionResult.Error("not enough memory")
 
         val next = DebugFirmwareGetLastModifiedTime()
-        if (prev != next)
+        if (prev != next) {
+            prev = next;
             return ExecutionResult.Shutdown(true)
+        }
 
         return try {
             vm.step(isSynchronized)
