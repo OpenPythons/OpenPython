@@ -33,15 +33,11 @@ class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }) 
             if (region == EmptyPage)
                 continue;
 
-            if (region.flag == MemoryFlag.HOOK) {
-                memory.map(region)
-            } else {
-                val newRegion = MemoryRegion(region.begin, region.size, region.flag)
-                val size = region.buffer.size
-                System.arraycopy(region.buffer, 0, newRegion.buffer, 0, size)
+            val newRegion = MemoryRegion(region.begin, region.size, region.flag)
+            val size = region.buffer.size
+            System.arraycopy(region.buffer, 0, newRegion.buffer, 0, size)
 
-                memory.map(newRegion)
-            }
+            memory.map(newRegion)
         }
 
         return memory;
@@ -58,9 +54,6 @@ class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }) 
 
         _list[key] = region
     }
-
-    @Throws(InvalidMemoryException::class)
-    fun map(address: Int, size: Int, hook: (address: Long, read: Boolean, size: Int, value: Int) -> Int) = map(MemoryRegion(address, size, hook))
 
     @Throws(InvalidMemoryException::class)
     fun map(address: Int, size: Int, flag: MemoryFlag) = map(MemoryRegion(address, size, flag))
@@ -83,9 +76,6 @@ class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }) 
     @Throws(InvalidMemoryException::class)
     fun readString(address: Int, maxSize: Int): String {
         val region = findRegion(address)
-        if (region.flag == MemoryFlag.HOOK)
-            throw InvalidMemoryException(address)
-
         var size = Math.min(region.end - address, maxSize)
         val buffer = ByteArray(size)
 
