@@ -67,24 +67,10 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
     }
 
     fun onSignal() {
-        if (state.redirectKeyEvent) {
-            val signal = machine.popSignal()
-            when (signal.name()) {
-                "key_down" -> {
-                    val args = signal.args()
-                    if (args.size >= 4) {
-                        state.inputBuffer.add((args[1] as Double).toInt().toChar())
-                        return
-                    }
-                }
-                "key_up" -> return
-                else -> state.signals.add(signal)
-            }
-        }
-
+        /*
         val caller = cpu.fork(Registers(
-                sp = (EXTERNAL_STACK.address + (EXTERNAL_STACK.size - 4)).toInt(),
-                pc = cpu.memory.readInt(FLASH.address.toInt() + 8)
+                sp = (EXTERNAL_STACK.address + (EXTERNAL_STACK.size - 4)),
+                pc = cpu.memory.readInt(FLASH.address + 8)
         ))
 
         try {
@@ -98,10 +84,10 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
 
             controlSignal.printStackTrace()
             machine.crash(controlSignal.toString())
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             e.printStackTrace()
             machine.crash(e.toString())
         }
+        */
     }
 }
-
