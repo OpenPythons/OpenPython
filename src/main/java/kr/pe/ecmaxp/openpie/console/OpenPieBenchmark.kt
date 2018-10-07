@@ -43,11 +43,6 @@ object OpenPieBenchmark {
             return 0;
         }
 
-        memory.map(0x40000000, 4 * KB) { addr: Long, is_read: Boolean, size: Int, value: Int
-            ->
-            handle(addr, is_read, size, value)
-        }
-
         memory.map(0x60000000, 192 * KB, MemoryFlag.RW) // ram
         memory.map(-0x20000000, 16 * KB, MemoryFlag.RW) // syscall
 
