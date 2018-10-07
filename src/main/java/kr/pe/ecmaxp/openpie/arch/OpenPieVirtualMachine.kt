@@ -24,10 +24,6 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
         val memory = cpu.memory.apply {
             flash(FLASH.address, FLASH.size, firmware.loadFirmware())
             map(SRAM.address, SRAM.size, SRAM.flag)
-            map(PERIPHERAL.address, PERIPHERAL.size) { addr: Long, is_read: Boolean, size: Int, value: Int
-                ->
-                peripheralHook(addr, is_read, size, value)
-            }
             map(RAM.address, memorySize, RAM.flag)
             map(SYSCALL.address, SYSCALL.size, SYSCALL.flag)
             map(EXTERNAL_STACK.address, EXTERNAL_STACK.size, EXTERNAL_STACK.flag)
@@ -38,47 +34,6 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
 
     fun close() {
         // TODO: free memory
-    }
-
-    private fun peripheralHook(addr: Long, is_read: Boolean, size: Int, value: Int): Int {
-        if (is_read) {
-            return when (addr.toInt()) {
-                OP_IO_RXR -> {
-                    if (!state.inputBuffer.isEmpty())
-                        return state.inputBuffer.pop().toInt()
-                    else
-                        throw ControlPauseSignal(ExecutionResult.Sleep(0))
-                }
-                OP_IO_TXR -> 0
-                OP_CON_RAM_SIZE -> memorySize
-                OP_CON_PENDING, OP_CON_EXCEPTION, OP_CON_INTR_CHAR -> 0 // TODO
-                OP_CON_IDLE, OP_CON_INSNS -> 0 // TODO
-                OP_RTC_TICKS_MS -> System.currentTimeMillis().toInt()
-                else -> {
-                    println("failure: addr=${addr}, size=$size")
-                    0
-                }
-            }
-        } else {
-            when (addr.toInt()) {
-                OP_IO_RXR -> state.inputBuffer.add(value.toChar())
-                OP_IO_TXR -> {
-                    if (value == 0) {
-                        val length = state.outputBuffer.length
-                        if (length > 0)
-                            machine.signal("print")
-                    } else {
-                        state.outputBuffer.append(value.toChar())
-                    }
-                }
-                OP_CON_PENDING, OP_CON_EXCEPTION, OP_CON_INTR_CHAR, OP_CON_RAM_SIZE, OP_CON_IDLE, OP_CON_INSNS, OP_RTC_TICKS_MS -> {
-                }
-                OP_IO_RXR + 1 -> state.redirectKeyEvent = value != 0
-                else -> println("failure: addr=${addr}, size=$size, value=$value")
-            }
-
-            return 0
-        }
     }
 
     fun step(synchronized: Boolean): ExecutionResult {

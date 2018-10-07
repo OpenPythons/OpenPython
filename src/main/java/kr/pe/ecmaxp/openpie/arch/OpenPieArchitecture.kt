@@ -125,16 +125,11 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
             val regionTag = regionBaseTag as NBTTagCompound
             val address = regionTag.getLong("address").toInt()
             // val size = regionTag.getInteger("size") // TODO: load memory size please
-            val isHook = regionTag.getBoolean("isHook")
             // val flag = regionTag.getInteger("size")
 
-            if (!isHook) {
-                val compressed = regionTag.getByteArray("buffer")
-                val content = GZIPInputStream(compressed.inputStream()).use { it.readBytes() }
-                cpu.memory.writeBuffer(address, content)
-            } else {
-                // TODO: ?
-            }
+            val compressed = regionTag.getByteArray("buffer")
+            val content = GZIPInputStream(compressed.inputStream()).use { it.readBytes() }
+            cpu.memory.writeBuffer(address, content)
         }
 
         cpu.regs.store(rootTag.getIntArray("regs"))
@@ -149,16 +144,13 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
             val regionTag = NBTTagCompound()
             regionTag.setLong("address", Integer.toUnsignedLong(region.begin))
             regionTag.setInteger("size", region.size)
-            regionTag.setBoolean("isHook", region.isHook)
             regionTag.setInteger("flag", region.flag.ordinal)
 
-            if (!region.isHook) {
-                val content = region.buffer
-                val stream = ByteArrayOutputStream()
-                GZIPOutputStream(stream).use { it.write(content) }
-                val compressed = stream.toByteArray()
-                regionTag.setByteArray("buffer", compressed)
-            }
+            val content = region.buffer
+            val stream = ByteArrayOutputStream()
+            GZIPOutputStream(stream).use { it.write(content) }
+            val compressed = stream.toByteArray()
+            regionTag.setByteArray("buffer", compressed)
 
             memoryTag.appendTag(regionTag)
         }
