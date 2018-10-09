@@ -24,7 +24,6 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
             map(SRAM.address, SRAM.size, SRAM.flag)
             map(RAM.address, memorySize, RAM.flag)
             map(SYSCALL.address, SYSCALL.size, SYSCALL.flag)
-            map(EXTERNAL_STACK.address, EXTERNAL_STACK.size, EXTERNAL_STACK.flag)
         }
 
         cpu.regs[PC] = memory.readInt(FLASH.address + 4) and I0.inv()
