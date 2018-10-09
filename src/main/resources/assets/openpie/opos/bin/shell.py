@@ -47,6 +47,12 @@ def reboot(state):
     return 0
 
 
+@command
+def python(state):
+    main()
+    return
+
+
 def main():
     # noinspection PyUnresolvedReferences
     state = State()
