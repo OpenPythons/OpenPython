@@ -63,29 +63,4 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
             throw e
         }
     }
-
-    fun onSignal() {
-        /*
-        val caller = cpu.fork(Registers(
-                sp = (EXTERNAL_STACK.address + (EXTERNAL_STACK.size - 4)),
-                pc = cpu.memory.readInt(FLASH.address + 8)
-        ))
-
-        try {
-            caller.run(Int.MAX_VALUE) {
-                val intr = Interrupt(caller, it)
-                interruptHandler(intr, true)
-            }
-        } catch (controlSignal: ControlSignal) {
-            if (controlSignal.value is SystemControlReturn)
-                return
-
-            controlSignal.printStackTrace()
-            machine.crash(controlSignal.toString())
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            machine.crash(e.toString())
-        }
-        */
-    }
 }

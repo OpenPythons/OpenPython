@@ -1,6 +1,6 @@
 package kr.pe.ecmaxp.openpie.arch
 
-import kr.pe.ecmaxp.openpie.OpenPieFilePaths
+import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.item.Memory
 import li.cil.oc.api.machine.Architecture
@@ -10,10 +10,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.attribute.FileTime
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -48,8 +45,8 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         close()
 
         try {
-            val firmware = Firmware() // TODO: Firmware mapping
-            // TODO: load/store support for firmware (init later?)
+            val firmware = Firmware("debug") // TODO: Firmware mapping
+            recomputeMemory(machine.host().internalComponents())
             vm = OpenPieVirtualMachine(machine, totalMemory, firmware)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -63,13 +60,13 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         vm = null
     }
 
-    var prev = DebugFirmwareGetLastModifiedTime()
+    var prev = Firmware.DEBUG.getDebugLastModifiedTime()
     private fun step(isSynchronized: Boolean): ExecutionResult {
         val vm = this.vm ?: return ExecutionResult.Error("invalid machine")
         if (vm.memorySize > totalMemory)
             return ExecutionResult.Error("not enough memory")
 
-        val next = DebugFirmwareGetLastModifiedTime()
+        val next = Firmware.DEBUG.getDebugLastModifiedTime()
         if (prev != next) {
             prev = next;
             return ExecutionResult.Shutdown(true)
@@ -102,17 +99,7 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         lastSynchronizedResult = step(true)
     }
 
-    private fun DebugFirmwareGetLastModifiedTime(): FileTime? {
-        val file = File(OpenPieFilePaths.FirmwareFile)
-        try {
-            return Files.getLastModifiedTime(file.toPath())
-        } catch (ignored: IOException) {
-        }
-
-        return null
-    }
-
-    override fun onSignal() = vm!!.onSignal()
+    override fun onSignal() {}
 
     override fun onConnect() {}
 
@@ -122,19 +109,25 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         val vm = this.vm!!
         val cpu = vm.cpu
 
+        cpu.regs.store(rootTag.getIntArray("regs"))
+        vm.firmware = Firmware(rootTag.getString("firmware"))
+
         val memoryTag = rootTag.getTagList("memory", 10)
         for (regionBaseTag in memoryTag) {
             val regionTag = regionBaseTag as NBTTagCompound
             val address = regionTag.getLong("address").toInt()
-            // val size = regionTag.getInteger("size") // TODO: load memory size please
+            // val size = regionTag.getInteger("size")
             // val flag = regionTag.getInteger("size")
 
             val compressed = regionTag.getByteArray("buffer")
             val content = GZIPInputStream(compressed.inputStream()).use { it.readBytes() }
-            cpu.memory.writeBuffer(address, content)
+            try {
+                cpu.memory.writeBuffer(address, content)
+            } catch (e: InvalidMemoryException) {
+                machine.crash("InvalidMemoryException while load() from world")
+                return
+            }
         }
-
-        cpu.regs.store(rootTag.getIntArray("regs"))
     }
 
     override fun save(rootTag: NBTTagCompound) {
@@ -157,10 +150,11 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
             memoryTag.appendTag(regionTag)
         }
 
-        // TODO: store firmware (and protocol) version
-        // TODO: store VMState (file mapping, input/output buffer and signals)
-        rootTag.setTag("memory", memoryTag)
+        // TODO: store VMState (file mapping)
+        rootTag.setString("firmware", vm.firmware.name)
+        rootTag.setInteger("protocol", vm.firmware.protocol)
         rootTag.setIntArray("regs", cpu.regs.load())
+        rootTag.setTag("memory", memoryTag)
     }
 
     override fun toString(): String {

@@ -12,10 +12,7 @@ import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.consts.R0
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
-import li.cil.oc.api.machine.ExecutionResult
-import li.cil.oc.api.machine.LimitReachedException
-import li.cil.oc.api.machine.Machine
-import li.cil.oc.api.machine.Signal
+import li.cil.oc.api.machine.*
 import li.cil.oc.api.network.Component
 import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
@@ -28,7 +25,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine, val cpu: CPU, val m
             SYS_CONTROL_SHUTDOWN -> throw ControlStopSignal(ExecutionResult.Shutdown(false))
             SYS_CONTROL_REBOOT -> throw ControlStopSignal(ExecutionResult.Shutdown(true))
             SYS_CONTROL_CRASH -> {
-                val str = cpu.memory.readString(intr.r1, 256)
+                val str = cpu.memory.readString(intr.r1, intr.r2)
                 throw ControlStopSignal(ExecutionResult.Error(str))
             }
             SYS_CONTROL_RETURN -> throw ControlStopSignal(SystemControlReturn)
@@ -45,7 +42,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine, val cpu: CPU, val m
         return 0
     }
 
-    private fun handleSystemSignal(intr: Interrupt, synchronized: Boolean): Int {
+    private fun handleSystemSignal(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         when (intr.r0) {
             SYS_SIGNAL_REQUEST -> {
                 val signal: Signal? = machine.popSignal()
@@ -75,8 +72,15 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine, val cpu: CPU, val m
             val node = machine.node().network().node(call.component) as? Component
                     ?: return responseInvoke(Exception("Invalid Component"))
 
-            val callback = node.annotation(call.function)
-                    ?: return responseInvoke(Exception("Invalid Function"))
+            var callback: Callback? = null
+
+            try {
+                callback = node.annotation(call.function)
+                        ?: return responseInvoke(Exception("Invalid Function"))
+            } catch (e: NoSuchMethodException) {
+                e.printStackTrace()
+                return responseInvoke(e)
+            }
 
             if (!callback.direct) {
                 // TODO: automatic detect sync call?
@@ -98,7 +102,21 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine, val cpu: CPU, val m
 
     private fun handleSystemRequest(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         when (intr.r0) {
-            SYS_REQUEST_COMPONENTS -> return response(machine.components())
+            SYS_REQUEST_COMPONENTS -> {
+                return when (intr.r1) {
+                    0 -> response(machine.components())
+                    else -> {
+                        val target = cpu.memory.readString(intr.r1, intr.r2)
+                        val components = ArrayList<String>()
+                        for ((address, type) in machine.components()) {
+                            if (type == target)
+                                components.add(address)
+                        }
+
+                        response(components)
+                    }
+                }
+            }
             SYS_REQUEST_METHODS -> {
                 val req = intr.loadObject(cpu) as Array<*>
                 val node = machine.node().network().node(req[0] as String)

@@ -1,22 +1,60 @@
 package kr.pe.ecmaxp.openpie.arch
 
-import kr.pe.ecmaxp.openpie.OpenPieFilePaths
+import kr.pe.ecmaxp.openpie.OpenPie
 import kr.pe.ecmaxp.thumbsf.CPU
 import java.io.File
-import java.nio.file.Files
+import java.io.IOException
+import java.net.URL
 import java.util.*
 
 class Target(val address: Int, val size: Int, val type: String, val name: String)
 
-class Firmware(val version: String = "debug") {
+val FirmwareFolder = URL("file:///C:/Users/EcmaXp/Dropbox/Projects/OpenPie/opmod/src/main/resources/assets/openpie/firmwares/debug")
+
+class Firmware(val name: String = "debug") {
+    val protocol = 1
+    private val path: String = "/assets/${OpenPie.MODID}/firmwares/$name"
+
+    companion object {
+        val DEBUG = Firmware()
+    }
+
+    init {
+        if (name.indexOf('/') >= 0)
+            throw Exception("Invalid Filename")
+
+        getResource("firmware.bin")
+    }
+
+    private fun getDebugResource(filename: String): URL {
+        return URL("${FirmwareFolder.toExternalForm()}/$filename")
+    }
+
+    internal fun getDebugLastModifiedTime(): Long? {
+        val url = getDebugResource("firmware.bin")
+        try {
+            val file = File(url.file)
+            return file.lastModified()
+        } catch (ignored: IOException) {
+            return null
+        }
+    }
+
+    private fun getResource(filename: String): URL {
+        if (true)
+            return getDebugResource(filename)
+
+        return Firmware::class.java.getResource("$path/$filename")!!
+    }
+
     fun loadFirmware(): ByteArray {
-        val file = File(OpenPieFilePaths.FirmwareFile)
-        return Files.readAllBytes(file.toPath())
+        val firmware = getResource("firmware.bin")
+        return firmware.readBytes()
     }
 
     fun loadMapping(): List<Target> {
-        val file = File(OpenPieFilePaths.MapFile)
-        val lines = Files.readAllLines(file.toPath())
+        val file = getResource("firmware.map")
+        val lines = file.readText().lines()
         val result = ArrayList<Target>()
 
         fun parseHex(s: String): Int {

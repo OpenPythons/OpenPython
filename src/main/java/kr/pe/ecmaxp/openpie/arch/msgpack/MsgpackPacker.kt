@@ -52,7 +52,11 @@ class MsgpackPacker {
                 packString(o.javaClass.canonicalName)
                 packString(o.toString())
             } else {
-                throw Exception("mismatch type ${o.javaClass} => $o")
+                val num = o.toString().toIntOrNull()
+                if (num != null)
+                    packInt(num) // li.cil.oc.server.component.HandleValue
+                else
+                    throw Exception("mismatch type ${o.javaClass} => $o")
             }
         }
 
