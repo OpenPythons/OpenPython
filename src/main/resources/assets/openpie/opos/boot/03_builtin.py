@@ -21,8 +21,9 @@ def input(prompt=None):
             write(ch)
             break
         elif ch == '\b':
-            buf.pop()
-            write(ch + "---")
+            if buf:
+                buf.pop()
+                write(ch + "---")
             continue
         else:
             write(ch)

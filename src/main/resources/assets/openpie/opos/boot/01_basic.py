@@ -18,5 +18,4 @@ def handle_key_down(_1, char, *_):
     buf.append(char)
 
 
-
 event.setup()

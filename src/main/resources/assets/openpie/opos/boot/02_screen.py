@@ -1,5 +1,5 @@
 from component import get_component, find_components
-from monitor import Monitor
+from monitor import Monitor, _set_monitor
 import machine
 
 gpu = get_component("gpu")
@@ -26,3 +26,6 @@ if gpu and screen:
                 monitor.put(char)
         except BaseException as e:
             machine.debug("print_handler exc =? %s: %s" % (type(e).__name__, e))
+
+
+    _set_monitor(monitor)

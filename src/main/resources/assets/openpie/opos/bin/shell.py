@@ -2,6 +2,8 @@ import machine
 
 import uos
 
+from shell import spawn
+
 commands = {}
 
 
@@ -49,7 +51,7 @@ def reboot(state):
 
 @command
 def python(state):
-    main()
+    spawn("/bin/python.py")
     return
 
 

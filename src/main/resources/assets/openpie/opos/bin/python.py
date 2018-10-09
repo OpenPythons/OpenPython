@@ -25,9 +25,10 @@ def _listdir(path="/"):
 
 
 def _cls():
-    monitor.widthPos = 1
-    monitor.heightPos = 1
-    gpu.fill(1, 1, monitor.widthSize, monitor.heightSize, " ")
+    pass
+    # monitor.widthPos = 1
+    # monitor.heightPos = 1
+    # gpu.fill(1, 1, monitor.widthSize, monitor.heightSize, " ")
 
 
 def mem_info():
@@ -45,7 +46,7 @@ def _show(name=None):
     help(module)
 
 
-context = dict(
+commands = dict(
     listdir=Command(_listdir),
     cls=Command(_cls),
     mem=Command(mem_info),
@@ -56,8 +57,9 @@ context = dict(
 
 
 def main():
-    # noinspection PyUnresolvedReferences
     context = {"__name__": "<shell>"}
+    context.update(commands)
+
     while True:
         try:
             code = repl_input()
@@ -70,6 +72,8 @@ def main():
 
         try:
             func = repl_compile(code, context)
+        except SystemExit as e:
+            return e.args[0] if e.args else 0
         except Exception as e:
             print(type(e).__name__, e)
             continue

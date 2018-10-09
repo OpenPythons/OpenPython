@@ -1,5 +1,5 @@
 def spawn(path):
-    context = {'__name__': '__main__'}
+    context = {'__name__': '__main__', '__path__': path}
 
     try:
         # noinspection PyUnresolvedReferences

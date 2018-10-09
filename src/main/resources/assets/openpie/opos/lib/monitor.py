@@ -1,5 +1,7 @@
 from component import Component
 
+__all__ = ["Monitor", "monitor", "_set_monitor"]
+
 
 class Monitor(Component):
     def __init__(self, address, type):
@@ -40,3 +42,11 @@ class Monitor(Component):
         else:
             self.set(self.x, self.y, char)
             self.x += 1
+
+
+monitor = None
+
+
+def _set_monitor(obj):
+    global monitor
+    monitor = obj
