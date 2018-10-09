@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package kr.pe.ecmaxp.optvm
 
 class ECPU {
