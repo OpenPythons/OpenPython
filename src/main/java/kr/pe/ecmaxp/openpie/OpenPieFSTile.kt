@@ -15,7 +15,11 @@ class OpenPieFSTile : TileEntityEnvironment() {
     init {
         node = Network.newNode(this, Visibility.Network).create()
         fileSystem = FileSystem.asManagedEnvironment(
-                FileSystem.fromClass(this.javaClass, OpenPie.MODID, "opos")
+                FileSystem.fromClass(this.javaClass, OpenPie.MODID, "opos"),
+                "OpenPie Debug FileSystem",
+                null,
+                null,
+                5
         )
     }
 

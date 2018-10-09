@@ -24,24 +24,6 @@ object OpenPieBenchmark {
         memory.map(0x20000000, 64 * KB, MemoryFlag.RW) // sram
 
         val mem = HashMap<Long, Int>()
-        fun handle(addr: Long, is_read: Boolean, size: Int, value: Int): Int {
-            if (!is_read) {
-                print("${addr} ${size} ${value}\n")
-                mem[addr] = value
-            } else {
-                return when (addr) {
-                    0x40000200L -> { // mp_hal_ticks_ms
-                        0
-                    }
-                    else -> {
-                        mem[addr]!!
-                        // TODO("missing")
-                    }
-                }
-            }
-
-            return 0;
-        }
 
         memory.map(0x60000000, 192 * KB, MemoryFlag.RW) // ram
         memory.map(-0x20000000, 16 * KB, MemoryFlag.RW) // syscall

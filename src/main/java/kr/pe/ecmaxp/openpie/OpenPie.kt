@@ -59,12 +59,7 @@ object OpenPie {
 
     @EventHandler
     fun init(event: FMLInitializationEvent) {
-        // some example code
-        logger!!.info("DIRT BLOCK >> {}", Blocks.DIRT.registryName)
-
         Machine.add(OpenPieArchitecture::class.java)
-
-
     }
 }
 
