@@ -10,7 +10,6 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -38,8 +37,8 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         }
 
         totalMemory = totalRam.toInt()
-        return (vm?.memorySize ?: 0) <= totalRam
-    }
+        return (vm?.memorySize ?: 1) <= totalRam
+    }a
 
     override fun initialize(): Boolean {
         close()
@@ -117,7 +116,7 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
             val regionTag = regionBaseTag as NBTTagCompound
             val address = regionTag.getLong("address").toInt()
             // val size = regionTag.getInteger("size")
-            // val flag = regionTag.getInteger("size")
+            // val flag = regionTag.getInteger("flag")
 
             val compressed = regionTag.getByteArray("buffer")
             val content = GZIPInputStream(compressed.inputStream()).use { it.readBytes() }

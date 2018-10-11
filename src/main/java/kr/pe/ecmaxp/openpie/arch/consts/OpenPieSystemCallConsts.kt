@@ -1,38 +1,53 @@
 package kr.pe.ecmaxp.openpie.arch.consts
 
-const val SYS_DEBUG = 1
+const val SYS_DEBUG = 0x010000
 
-const val SYS_CONTROL = 2
-const val SYS_CONTROL_SHUTDOWN = 1
-const val SYS_CONTROL_REBOOT = 2
-const val SYS_CONTROL_CRASH = 3
-const val SYS_CONTROL_RETURN = 4
+const val SYS_CONTROL = 0x020000
+const val SYS_CONTROL_SHUTDOWN = SYS_CONTROL or 1
+const val SYS_CONTROL_REBOOT = SYS_CONTROL or 2
+const val SYS_CONTROL_CRASH = SYS_CONTROL or 3
+const val SYS_CONTROL_RETURN = SYS_CONTROL or 4
 
-const val SYS_SIGNAL = 3
-const val SYS_SIGNAL_REQUEST = 1
-const val SYS_SIGNAL_PENDING = 2
+const val SYS_SIGNAL = 0x030000
+const val SYS_SIGNAL_REQUEST = SYS_SIGNAL or 1
+const val SYS_SIGNAL_PENDING = SYS_SIGNAL or 2
+const val SYS_SIGNAL_PUSH = SYS_SIGNAL or 3
 
-const val SYS_INVOKE = 4
+const val SYS_INVOKE = 0x040000
 
-const val SYS_REQUEST = 5
-const val SYS_REQUEST_COMPONENTS = 1
-const val SYS_REQUEST_METHODS = 2
-const val SYS_REQUEST_ANNOTATIONS = 3
+const val SYS_COMPUTER = 0x050000
+const val SYS_COMPUTER_COMPONENTS = SYS_COMPUTER or 1
+const val SYS_COMPUTER_COMPONENT_COUNT = SYS_COMPUTER or 2
+const val SYS_COMPUTER_MAX_COMPONENT = SYS_COMPUTER or 3
+const val SYS_COMPUTER_METHODS = SYS_COMPUTER or 4
+const val SYS_COMPUTER_ANNOTATIONS = SYS_COMPUTER or 5
+const val SYS_COMPUTER_GET_COST_PER_TICK = SYS_COMPUTER or 16
+const val SYS_COMPUTER_LAST_ERROR = SYS_COMPUTER or 17
+const val SYS_COMPUTER_BEEP_1 = SYS_COMPUTER or 32
+const val SYS_COMPUTER_BEEP_2 = SYS_COMPUTER or 33
+const val SYS_COMPUTER_USERS = SYS_COMPUTER or 48
+const val SYS_COMPUTER_ADD_USER = SYS_COMPUTER or 49
+const val SYS_COMPUTER_REMOVE_USER = SYS_COMPUTER or 50
+const val SYS_COMPUTER_COMPUTER_ADDRESS = SYS_COMPUTER or 64
+const val SYS_COMPUTER_TMP_ADDRESS = SYS_COMPUTER or 65
 
-const val SYS_INFO = 6
-const val SYS_INFO_VERSION = 1
-const val SYS_INFO_RAM_SIZE = 2
+const val SYS_INFO = 0x060000
+const val SYS_INFO_VERSION = SYS_INFO or 1
+const val SYS_INFO_RAM_SIZE = SYS_INFO or 2
 
-const val SYS_TIMER = 7
-const val SYS_TIMER_TICKS_MS = 1
-const val SYS_TIMER_TICKS_US = 2
+const val SYS_TIMER = 0x070000
+const val SYS_TIMER_TICKS_MS = SYS_TIMER or 1
+const val SYS_TIMER_TICKS_US = SYS_TIMER or 2
+const val SYS_TIMER_WORLD_TIME = SYS_TIMER or 16
+const val SYS_TIMER_UP_TIME = SYS_TIMER or 17
+const val SYS_TIMER_CPU_TIME = SYS_TIMER or 18
 
-const val SYS_VFS = 8
-const val SYS_VFS_OPEN = 1
-const val SYS_VFS_VALID = 2
-const val SYS_VFS_REPR = 3
-const val SYS_VFS_CLOSE = 4
-const val SYS_VFS_READ = 5
-const val SYS_VFS_WRITE = 6
-const val SYS_VFS_SEEK = 7
-const val SYS_VFS_FLUSH = 8
+const val SYS_VFS = 0x080000
+const val SYS_VFS_OPEN = SYS_VFS or 1
+const val SYS_VFS_VALID = SYS_VFS or 2
+const val SYS_VFS_REPR = SYS_VFS or 3
+const val SYS_VFS_CLOSE = SYS_VFS or 4
+const val SYS_VFS_READ = SYS_VFS or 5
+const val SYS_VFS_WRITE = SYS_VFS or 6
+const val SYS_VFS_SEEK = SYS_VFS or 7
+const val SYS_VFS_FLUSH = SYS_VFS or 8

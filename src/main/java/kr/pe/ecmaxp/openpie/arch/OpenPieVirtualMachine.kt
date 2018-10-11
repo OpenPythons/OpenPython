@@ -56,6 +56,8 @@ class OpenPieVirtualMachine internal constructor(private val machine: Machine, v
 
             controlSignal.value
         } catch (e: InvalidMemoryException) {
+            // cpu.regs[PC]= 0x08009405;
+            // ExecutionResult.Sleep(0);
             ExecutionResult.Error("memory access violation:\n0x${String.format("%08X", e.address)}")
         } catch (e: Throwable) {
             firmware.printLastTracebackCPU(cpu)

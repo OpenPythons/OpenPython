@@ -24,7 +24,7 @@ class Interrupt(cpu: CPU, imm: Int) {
     }
 
     fun loadBuffer(cpu: CPU): ByteArray {
-        return cpu.memory.readBuffer(r1, r2)
+        return cpu.memory.readBuffer(r0, r1)
     }
 
     fun loadObject(cpu: CPU): Any? {
