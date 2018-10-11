@@ -38,7 +38,7 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
 
         totalMemory = totalRam.toInt()
         return (vm?.memorySize ?: 1) <= totalRam
-    }a
+    }
 
     override fun initialize(): Boolean {
         close()
