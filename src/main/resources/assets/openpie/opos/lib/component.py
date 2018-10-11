@@ -1,4 +1,4 @@
-from machine import invoke, methods, annotations, components as _components
+from computer import invoke, methods, annotations, components as _components
 
 __all__ = ['Component', 'get_component', 'find_components']
 

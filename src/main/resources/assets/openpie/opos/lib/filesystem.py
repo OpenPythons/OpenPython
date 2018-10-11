@@ -1,4 +1,4 @@
-from machine import components
+from computer import components
 from uio import FileIO
 
 from component import Component

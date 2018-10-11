@@ -1,5 +1,6 @@
 import sys
 
+import ucomputer
 import machine
 import uos
 from uio import FileIO
@@ -19,17 +20,17 @@ class FileSystem:
         return '/'
 
     def ilistdir(self, dir):
-        for name in machine.invoke(self.address, 'list', dir):
-            if machine.invoke(self.address, 'isDirectory', dir + "/" + name):
+        for name in ucomputer.invoke(self.address, 'list', dir):
+            if ucomputer.invoke(self.address, 'isDirectory', dir + "/" + name):
                 yield (name, 0x4000, 0, -1)
             else:
                 yield (name, 0x8000, 0, 0)
 
     def stat(self, path):
-        if not machine.invoke(self.address, 'exists', path):
+        if not ucomputer.invoke(self.address, 'exists', path):
             raise OSError(1)
 
-        return 0x4000 if machine.invoke(self.address, 'isDirectory', path) else 0x8000, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        return 0x4000 if ucomputer.invoke(self.address, 'isDirectory', path) else 0x8000, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
     def open(self, file, mode):
         return FileIO(self.address, file, mode)
@@ -49,9 +50,10 @@ def init():
     uos.mount(FileSystem(__path__), '/')
     sys.path.append('/lib')
 
+    contexts = []  # prevent from gc
     for filename in sorted(uos.listdir("/boot")):
         context = {'__name__': '__main__', '__path__': __path__}
-        # noinspection PyUnresolvedReferences
+        contexts.append(context)
         execfile("/boot/" + filename, context)
 
     from shell import spawn

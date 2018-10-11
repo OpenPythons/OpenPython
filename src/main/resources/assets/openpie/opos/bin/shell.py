@@ -1,4 +1,4 @@
-import machine
+import computer
 
 import uos
 
@@ -45,7 +45,7 @@ def cwd(state):
 
 @command
 def reboot(state):
-    machine.reboot()
+    computer.reboot()
     return 0
 
 

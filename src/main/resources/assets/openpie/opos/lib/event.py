@@ -1,3 +1,4 @@
+from computer import pop_signal
 import machine
 
 __all__ = ["register", "unregister", "setup"]
@@ -6,7 +7,7 @@ registered = {}
 
 
 def signal_handler(ticks):
-    signal = machine.signal(ticks)
+    signal = pop_signal(ticks)
     if not signal:
         return
 

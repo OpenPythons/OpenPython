@@ -1,7 +1,7 @@
-import machine
+import computer
 import micropython
 import uos
-from machine import repl_input, repl_compile, repl_call
+from ucode import repl_input, repl_compile, repl_call
 
 
 class Command:
@@ -52,7 +52,7 @@ commands = dict(
     mem=Command(mem_info),
     help=Command(help),
     show=Command(_show),
-    reboot=Command(machine.reboot),
+    reboot=Command(computer.reboot),
 )
 
 
