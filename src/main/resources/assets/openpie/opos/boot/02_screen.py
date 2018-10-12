@@ -13,6 +13,7 @@ if gpu and screen:
     monitor = Monitor(gpu.address, gpu.type)
     monitor.bind(screen.address)
     w, h = monitor.maxResolution()
+    monitor.w, monitor.h = w, h
     monitor.setResolution(w, h)
     monitor.setBackground(0x000000)
     monitor.setForeground(0xFFFFFF)
