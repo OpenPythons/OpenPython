@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 object OpenPie {
     const val MODID = "openpie"
     const val NAME = "OpenPie"
-    const val VERSION = "0.9"
+    const val VERSION = "0.9.9"
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
@@ -32,7 +32,7 @@ object OpenPie {
             FileSystem.fromClass(this.javaClass, OpenPie.MODID, "opos")
         }, true) // .setStackDisplayName("OpenPie (Operating System)")
 
-        Items.registerEEPROM("EEPROM (OpenPie)", """
+        Items.registerEEPROM("EEPROM (OpenPie)", """#!micropython
 from ucomputer import invoke, components, crash, get_computer_address
 from uio import FileIO
 

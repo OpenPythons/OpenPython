@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'kotlin'
 
-version = "0.9"
+version = "0.9.9"
 group = "kr.pe.ecmaxp.openpie"
 archivesBaseName = "OpenPie"
 
