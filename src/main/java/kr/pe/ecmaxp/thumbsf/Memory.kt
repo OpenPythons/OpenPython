@@ -1,5 +1,6 @@
 package kr.pe.ecmaxp.thumbsf
 
+import kr.pe.ecmaxp.thumbsf.MemoryRegion.Companion.EmptyPage
 import kr.pe.ecmaxp.thumbsf.consts.ERROR
 import kr.pe.ecmaxp.thumbsf.consts.NULL
 import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
@@ -8,7 +9,6 @@ import kr.pe.ecmaxp.thumbsf.exc.UnknownInstructionException
 import kr.pe.ecmaxp.thumbsf.exc.UnsupportedInstructionException
 import java.nio.charset.StandardCharsets
 
-val EmptyPage = MemoryRegion(0, 0, MemoryFlag.RW)
 
 class Memory(private val _list: Array<MemoryRegion> = Array(256) { EmptyPage }) : Iterable<MemoryRegion> {
     private var _execCache: IntArray? = null

@@ -3,6 +3,10 @@ package kr.pe.ecmaxp.thumbsf
 import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 
 class MemoryRegion(val begin: Int, val size: Int, val flag: MemoryFlag) {
+    companion object {
+        val EmptyPage = MemoryRegion(0, 0, MemoryFlag.RW)
+    }
+
     val end: Int = begin + size
     internal val buffer: ByteArray = ByteArray(size)
 

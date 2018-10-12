@@ -50,17 +50,7 @@ fun insn(op: Int, Rd: Int, Rs: Int): Pair<Int, Int> {
     return Pair(op or (Rd shl 8) or (Rs shl 12), 0)
 }
 
-fun insn(op: Int, Rd: Int): Pair<Int, Int> {
-    assert(op in 0..0xFF)
-    assert(Rd in 0..PC)
-    return Pair(op or (Rd shl 8), 0)
-}
-
-fun insn(op: Int): Pair<Int, Int> {
-    assert(op in 0..0xFF)
-    return Pair(op, 0)
-}
-
+@Suppress("unused")
 fun show(code: Int, imm32: Int) {
     val op = code and 0xFF
     val Rd = code shr 8 and 0b1111
