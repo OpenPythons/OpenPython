@@ -17,9 +17,9 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'kotlin'
 
-version = "0.7"
+version = "0.9"
 group = "kr.pe.ecmaxp.openpie"
-archivesBaseName = "openpie"
+archivesBaseName = "OpenPie"
 
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava {
@@ -49,24 +49,17 @@ repositories {
 shadowJar {
     exclude 'dummyThing'
 
-    dependencies {
-        //noinspection GroovyAssignabilityCheck
-        exclude(dependency("li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"))
-        //noinspection GroovyAssignabilityCheck
-        exclude(dependency("net.shadowfacts:Forgelin:1.7.3"))
-    }
-
-    relocate 'org.msgpack', 'kr.pe.ecmaxp.relocated.org.msgpack'
+    relocate "org.msgpack", "kr.pe.ecmaxp.repack.org.msgpack"
 }
 
 dependencies {
-    compile "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
-    compile 'org.msgpack:msgpack-core:0.8.16'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "net.shadowfacts:Forgelin:LATEST_VERSION"
+    api "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
 
-    compile group: "net.shadowfacts", name: "Forgelin", version: "1.7.3"
-    compile group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: kotlin_version
+    api "net.shadowfacts:Forgelin:1.7.3"
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    compile "org.msgpack:msgpack-core:0.8.16"
 }
 
 processResources {
@@ -74,19 +67,21 @@ processResources {
     inputs.property "mcversion", project.minecraft.version
 
     from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        include "mcmod.info"
+        expand "version":project.version, "mcversion":project.minecraft.version
     }
         
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+        exclude "mcmod.info"
     }
 }
+
 compileKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
 }
+
 compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
