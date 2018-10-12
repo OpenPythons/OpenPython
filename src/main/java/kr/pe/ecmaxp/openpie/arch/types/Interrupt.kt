@@ -1,11 +1,12 @@
 package kr.pe.ecmaxp.openpie.arch.types
 
-import kr.pe.ecmaxp.openpie.arch.msgpack.Msgpack
+import kr.pe.ecmaxp.openpie.arch.OpenPieMemoryRegion
+import kr.pe.ecmaxp.openpie.arch.utils.msgpack.Msgpack
 import kr.pe.ecmaxp.thumbsf.CPU
+import kr.pe.ecmaxp.thumbsf.Memory
 import kr.pe.ecmaxp.thumbsf.consts.*
 
-class Interrupt(cpu: CPU, imm: Int) {
-
+class Interrupt(val cpu: CPU, imm: Int) {
     val imm: Int
     val r0: Int
     val r1: Int
@@ -23,12 +24,48 @@ class Interrupt(cpu: CPU, imm: Int) {
         this.r4 = cpu.regs[R4]
     }
 
-    fun loadBuffer(cpu: CPU): ByteArray {
-        return cpu.memory.readBuffer(r0, r1)
+    val memory: Memory get() = cpu.memory
+
+    fun readBuffer(address: Int, size: Int): ByteArray = memory.readBuffer(address, size)
+    fun readBuffer(): ByteArray = readBuffer(r0, r1)
+
+    fun readString(address: Int, maxSize: Int): String = memory.readString(address, maxSize)
+    fun readString(): String? = readString(r0, r1)
+
+    fun readObject(): Any? = Msgpack.loads(readBuffer())
+
+
+    fun responseNone(): Int = 0
+
+    fun responseError(value: Throwable): Int {
+        val bufAddress = OpenPieMemoryRegion.SYSCALL.address
+        val buffer = Msgpack.dumps(value)
+        memory.writeInt(bufAddress, 0) // + 0 | 1 = OK (msgpack)
+        memory.writeInt(bufAddress + 4, bufAddress + 12) // + 4
+        memory.writeInt(bufAddress + 8, buffer.size) // + 8
+        memory.writeBuffer(bufAddress + 12, buffer) // + 12
+        return bufAddress
     }
 
-    fun loadObject(cpu: CPU): Any? {
-        val buf = loadBuffer(cpu)
-        return Msgpack.loads(buf)
+    fun responseValue(value: Any?): Int {
+        if (value == null)
+            return responseNone()
+
+        val bufAddress = OpenPieMemoryRegion.SYSCALL.address
+        val buffer = Msgpack.dumps(value)
+        memory.writeInt(bufAddress, 1) // + 0 = OK (msgpack)
+        memory.writeInt(bufAddress + 4, bufAddress + 12) // + 4
+        memory.writeInt(bufAddress + 8, buffer.size) // + 8
+        memory.writeBuffer(bufAddress + 12, buffer) // + 12
+        return bufAddress
+    }
+
+    fun responseBuffer(buffer: ByteArray): Int {
+        val bufAddress = OpenPieMemoryRegion.SYSCALL.address
+        memory.writeInt(bufAddress, bufAddress + 8) // + 0 | 0 = ERROR
+        memory.writeInt(bufAddress + 4, buffer.size) // + 4
+        memory.writeBuffer(bufAddress + 8, buffer) // + 8
+        memory.writeByte(bufAddress + 8 + buffer.size, 0.toByte()) // + 8 + n
+        return bufAddress
     }
 }

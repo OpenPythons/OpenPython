@@ -1,10 +1,9 @@
 package kr.pe.ecmaxp.openpie.arch
 
+import kr.pe.ecmaxp.openpie.arch.consts.KB
 import kr.pe.ecmaxp.thumbsf.MemoryFlag
 import kr.pe.ecmaxp.thumbsf.MemoryFlag.RW
 import kr.pe.ecmaxp.thumbsf.MemoryFlag.RX
-
-const val KB = 1024
 
 enum class OpenPieMemoryRegion(val address: Int, val size: Int, val flag: MemoryFlag) {
     FLASH(0x08000000, 256 * KB, RX),

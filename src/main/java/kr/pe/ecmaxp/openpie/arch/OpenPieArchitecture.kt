@@ -1,5 +1,6 @@
 package kr.pe.ecmaxp.openpie.arch
 
+import kr.pe.ecmaxp.openpie.arch.consts.KB
 import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.item.Memory
@@ -14,17 +15,33 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
 
-@Suppress("unused")
 @Architecture.Name("micropython (OpenPie)")
-class OpenPieArchitecture(private val machine: Machine) : Architecture {
-    private var initialized: Boolean = false
-    private var totalMemory = 0
-    private var vmMemory = 0
-    private var vm: OpenPieVirtualMachine? = null
-    private var lastSynchronizedResult: ExecutionResult? = null
+class OpenPieArchitecture(val machine: Machine) : Architecture {
+    var totalMemory = 0
+    var vm: OpenPieVirtualMachine? = null
+    var lastSynchronizedResult: ExecutionResult? = null
 
     override fun isInitialized(): Boolean {
         return vm != null
+    }
+
+    override fun initialize(): Boolean {
+        close()
+
+        try {
+            val firmware = OpenPieFirmware("debug") // TODO: OpenPieFirmware mapping
+            recomputeMemory(machine.host().internalComponents())
+            vm = OpenPieVirtualMachine(machine, totalMemory, firmware)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return isInitialized
+    }
+
+    override fun close() {
+        vm?.close()
+        vm = null
     }
 
     override fun recomputeMemory(iterable: Iterable<ItemStack>): Boolean {
@@ -40,36 +57,10 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         return (vm?.memorySize ?: 1) <= totalRam
     }
 
-    override fun initialize(): Boolean {
-        close()
-
-        try {
-            val firmware = Firmware("debug") // TODO: Firmware mapping
-            recomputeMemory(machine.host().internalComponents())
-            vm = OpenPieVirtualMachine(machine, totalMemory, firmware)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return isInitialized
-    }
-
-    override fun close() {
-        vm?.close()
-        vm = null
-    }
-
-    var prev = Firmware.DEBUG.getDebugLastModifiedTime()
     private fun step(isSynchronized: Boolean): ExecutionResult {
         val vm = this.vm ?: return ExecutionResult.Error("invalid machine")
         if (vm.memorySize > totalMemory)
             return ExecutionResult.Error("not enough memory")
-
-        val next = Firmware.DEBUG.getDebugLastModifiedTime()
-        if (prev != next) {
-            prev = next;
-            return ExecutionResult.Shutdown(true)
-        }
 
         return try {
             vm.step(isSynchronized)
@@ -109,7 +100,7 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         val cpu = vm.cpu
 
         cpu.regs.store(rootTag.getIntArray("regs"))
-        vm.firmware = Firmware(rootTag.getString("firmware"))
+        vm.firmware = OpenPieFirmware(rootTag.getString("firmware"))
 
         val memoryTag = rootTag.getTagList("memory", 10)
         for (regionBaseTag in memoryTag) {
@@ -154,9 +145,5 @@ class OpenPieArchitecture(private val machine: Machine) : Architecture {
         rootTag.setInteger("protocol", vm.firmware.protocol)
         rootTag.setIntArray("regs", cpu.regs.load())
         rootTag.setTag("memory", memoryTag)
-    }
-
-    override fun toString(): String {
-        return "OpenPieArchitecture(machine=$machine, initialized=$initialized, vm=$vm, lastSynchronizedResult=$lastSynchronizedResult)"
     }
 }

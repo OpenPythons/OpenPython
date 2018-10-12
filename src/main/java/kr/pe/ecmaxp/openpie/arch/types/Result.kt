@@ -1,19 +1,9 @@
 package kr.pe.ecmaxp.openpie.arch.types
 
-class Result {
-    val call: Call?
-    val args: Array<Any?>?
-    val error: Throwable?
+import java.util.*
 
-    constructor(call: Call?, args: Array<Any?>?) {
-        this.call = call
-        this.args = args
-        this.error = null
-    }
-
-    constructor(call: Call?, throwable: Throwable) {
-        this.call = call
-        this.args = null
-        this.error = throwable
+class Result(val invoke: Invoke, val args: Array<Any?>? = null, val error: Throwable? = null) {
+    override fun toString(): String {
+        return "Result(invoke=$invoke, args=${Arrays.toString(args)}, error=$error)"
     }
 }

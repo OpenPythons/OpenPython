@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpie.arch.msgpack
+package kr.pe.ecmaxp.openpie.arch.utils.msgpack
 
 object Msgpack {
     fun loads(buffer: ByteArray): Any? {

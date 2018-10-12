@@ -4,7 +4,6 @@ import kr.pe.ecmaxp.openpie.arch.OpenPieMemoryRegion.*
 import kr.pe.ecmaxp.openpie.arch.state.VMState
 import kr.pe.ecmaxp.openpie.arch.types.Interrupt
 import kr.pe.ecmaxp.thumbsf.CPU
-import kr.pe.ecmaxp.thumbsf.Registers
 import kr.pe.ecmaxp.thumbsf.consts.I0
 import kr.pe.ecmaxp.thumbsf.consts.PC
 import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
@@ -13,10 +12,10 @@ import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
 
 
-class OpenPieVirtualMachine internal constructor(private val machine: Machine, val memorySize: Int, var firmware: Firmware) {
+class OpenPieVirtualMachine internal constructor(val machine: Machine, val memorySize: Int, var firmware: OpenPieFirmware) {
     val cpu: CPU = CPU()
     var state: VMState = VMState()
-    var interruptHandler: OpenPieInterruptHandler = OpenPieInterruptHandler(this, cpu, machine, state)
+    var interruptHandler: OpenPieInterruptHandler = OpenPieInterruptHandler(this)
 
     init {
         val memory = cpu.memory.apply {

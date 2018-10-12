@@ -1,4 +1,6 @@
-package kr.pe.ecmaxp.openpie.arch.micropython
+@file:Suppress("unused")
+
+package kr.pe.ecmaxp.openpie.arch.consts
 
 /*
  * This file is part of the MicroPython project, http://micropython.org/

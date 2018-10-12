@@ -1,22 +1,17 @@
 package kr.pe.ecmaxp.openpie.arch
 
 import kr.pe.ecmaxp.openpie.OpenPie
+import kr.pe.ecmaxp.openpie.arch.types.Entry
 import kr.pe.ecmaxp.thumbsf.CPU
-import java.io.File
-import java.io.IOException
 import java.net.URL
 import java.util.*
 
-class Target(val address: Int, val size: Int, val type: String, val name: String)
-
-val FirmwareFolder = URL("file:///C:/Users/EcmaXp/Dropbox/Projects/OpenPie/opmod/src/main/resources/assets/openpie/firmwares/debug")
-
-class Firmware(val name: String = "debug") {
+class OpenPieFirmware(val name: String = "debug") {
     val protocol = 1
     private val path: String = "/assets/${OpenPie.MODID}/firmwares/$name"
 
     companion object {
-        val DEBUG = Firmware()
+        val DEBUG = OpenPieFirmware()
     }
 
     init {
@@ -26,25 +21,8 @@ class Firmware(val name: String = "debug") {
         getResource("firmware.bin")
     }
 
-    private fun getDebugResource(filename: String): URL {
-        return URL("${FirmwareFolder.toExternalForm()}/$filename")
-    }
-
-    internal fun getDebugLastModifiedTime(): Long? {
-        val url = getDebugResource("firmware.bin")
-        try {
-            val file = File(url.file)
-            return file.lastModified()
-        } catch (ignored: IOException) {
-            return null
-        }
-    }
-
     private fun getResource(filename: String): URL {
-        if (true)
-            return getDebugResource(filename)
-
-        return Firmware::class.java.getResource("$path/$filename")!!
+        return OpenPieFirmware::class.java.getResource("$path/$filename")!!
     }
 
     fun loadFirmware(): ByteArray {
@@ -52,10 +30,10 @@ class Firmware(val name: String = "debug") {
         return firmware.readBytes()
     }
 
-    fun loadMapping(): List<Target> {
+    fun loadMapping(): List<Entry> {
         val file = getResource("firmware.map")
         val lines = file.readText().lines()
-        val result = ArrayList<Target>()
+        val result = ArrayList<Entry>()
 
         fun parseHex(s: String): Int {
             if (!s.startsWith("0x"))
@@ -76,17 +54,16 @@ class Firmware(val name: String = "debug") {
             val size = parseHex(tokens[1])
             val type = tokens[2]
             val name = tokens[3]
-            val target = Target(address, size, type, name)
+            val target = Entry(address, size, type, name)
             result.add(target)
         }
 
         return result
     }
 
-
-    fun findTarget(address: Int): Target? {
+    fun findTarget(address: Int): Entry? {
         val mapping = loadMapping()
-        var selected: Target? = null
+        var selected: Entry? = null
         for (target in mapping) {
             if (target.address <= address && address < target.address + target.size) {
                 selected = target

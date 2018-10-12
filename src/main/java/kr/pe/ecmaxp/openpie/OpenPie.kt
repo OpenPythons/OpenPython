@@ -1,105 +1,96 @@
 package kr.pe.ecmaxp.openpie
 
 import kr.pe.ecmaxp.openpie.arch.OpenPieArchitecture
+import li.cil.oc.api.FileSystem
+import li.cil.oc.api.Items
 import li.cil.oc.api.Machine
-import net.minecraft.block.Block
-import net.minecraft.block.material.Material
-import net.minecraft.block.state.IBlockState
-import net.minecraft.creativetab.CreativeTabs
-import net.minecraft.init.Blocks
-import net.minecraft.init.Items
-import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.ResourceLocation
-import net.minecraft.world.World
+import net.minecraft.item.EnumDyeColor
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.Mod.EventHandler
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import net.minecraftforge.fml.common.registry.GameRegistry
-import org.apache.logging.log4j.Logger
 
 
 @Suppress("UNUSED_PARAMETER", "unused")
 @Mod(modid = OpenPie.MODID,
         name = OpenPie.NAME,
         version = OpenPie.VERSION,
-        dependencies = "required-after:forgelin;",
+        dependencies = "required-after:forgelin;required-after:opencomputers;",
         modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter")
 object OpenPie {
     const val MODID = "openpie"
     const val NAME = "OpenPie"
     const val VERSION = "0.9"
-    private var logger: Logger? = null
-    val creativeTab = RinrcCreativeTab();
 
-    @EventHandler
+    @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        logger = event.modLog
-        // MinecraftForge.EVENT_BUS.register(RegisterHandler)
-
-        val registry1 = GameRegistry.findRegistry(Block::class.java)
-        val location = ResourceLocation(OpenPie.MODID, "hello")
-        FSBlock.registryName = location
-        FSBlock.unlocalizedName = location.toString()
-        FSBlock.setCreativeTab(OpenPie.creativeTab)
-        registry1.register(FSBlock)
-
-        val registry2 = GameRegistry.findRegistry(Item::class.java)
-        val blockitem = FSBlock.getItemBlock()
-        blockitem.registryName = location
-        blockitem.unlocalizedName = location.toString()
-        blockitem.setCreativeTab(OpenPie.creativeTab)
-        registry2.register(blockitem)
-
-        GameRegistry.registerTileEntity(OpenPieFSTile::class.java, ResourceLocation(OpenPie.MODID, "hello"))
-    }
-
-    @EventHandler
-    fun init(event: FMLInitializationEvent) {
         Machine.add(OpenPieArchitecture::class.java)
     }
-}
 
-/*
-@Suppress("unused")
-@Mod.EventBusSubscriber(modid = OpenPie.NAME)
-object RegisterHandler {
+    @Mod.EventHandler
+    fun init(event: FMLInitializationEvent) {
+        Items.registerFloppy("openpie", EnumDyeColor.BLUE, {
+            FileSystem.fromClass(this.javaClass, OpenPie.MODID, "opos")
+        }, true) // .setStackDisplayName("OpenPie (Operating System)")
 
-    @JvmStatic
-    @SubscribeEvent
-    fun registerBlocks(event: RegistryEvent.Register<Block>) {
+        Items.registerEEPROM("EEPROM (OpenPie)", """
+from ucomputer import invoke, components, crash, get_computer_address
+from uio import FileIO
 
+
+init = '/init.py'
+
+
+def get_component(t):
+    seq = components(t)
+    return seq[0] if seq else None
+
+
+filesystems = components("filesystem")
+def check_bootable(address):
+    return address and address in filesystems and invoke(address, 'exists', init)
+
+
+def load(address):
+    file = invoke(address, 'open', init, 'r')
+
+    try:
+        buffer = []
+        while True:
+            buf = invoke(address, 'read', file, 4096)
+            if not buf: break
+            buffer.append(buf)
+    finally:
+        invoke(address, 'close', file)
+
+    content = b"".join(buffer)
+    return content.decode()
+
+def main():
+    address = invoke(__path__, 'getData').decode()
+    if not check_bootable(address):
+        invoke(__path__, 'setData', b'')
+        for address in filesystems:
+            if check_bootable(address):
+                break
+        else:
+            crash("no bootable medium found")
+
+    computer = get_computer_address()
+    invoke(computer, 'beep', 1000, 0.2)
+
+    gpu = get_component("gpu")
+    monitor = get_component("monitor")
+    if gpu and monitor:
+        invoke(gpu, "bind", monitor)
+
+    content = load(address)
+    context = {'__name__': '__main__', '__path__': address}
+    func = compile(content, init, "exec")
+    exec(func, context)
+
+
+if __name__ == '__main__':
+    main()
+        """.trim().toByteArray(), byteArrayOf(), false)
     }
-
-    @JvmStatic
-    @SubscribeEvent
-    fun registerItems(event: RegistryEvent.Register<Item>) {
-        val registry = event.registry
-        val location = ResourceLocation(OpenPie.MODID, "hello")
-        val blockitem = FSBlock.getItemBlock()
-        blockitem.registryName = location
-        blockitem.unlocalizedName = location.toString()
-        blockitem.setCreativeTab(OpenPie.creativeTab)
-        registry.register(blockitem)
-    }
-}
- */
-
-object FSBlock : Block(Material.IRON) {
-    override fun hasTileEntity(state: IBlockState): Boolean = true
-    override fun createTileEntity(world: World, state: IBlockState): TileEntity? {
-        return OpenPieFSTile()
-    }
-
-    fun getItemBlock(): ItemBlock {
-        return ItemBlock(this)
-    }
-}
-
-class RinrcCreativeTab internal constructor() : CreativeTabs(OpenPie.MODID) {
-    private val ICON = ItemStack(Items.GOLDEN_HELMET)
-    override fun getTabIconItem(): ItemStack = ICON
 }

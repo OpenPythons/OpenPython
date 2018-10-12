@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpie.arch.msgpack
+package kr.pe.ecmaxp.openpie.arch.utils.msgpack
 
 import org.msgpack.core.MessagePack
 import org.msgpack.value.ValueType
