@@ -101,14 +101,14 @@ class Firmware(val name: String = "debug") {
         if (selected != null) {
             println("last pc function :${selected.name} (+${cpu.regs.pc - selected.address})")
         } else {
-            println("last pc function : (null)")
+            println("last pc function : (null) (${cpu.regs.pc})")
         }
 
         selected = findTarget(cpu.regs.lr)
         if (selected != null) {
             println("last lr function :${selected.name} (+${cpu.regs.lr - selected.address})")
         } else {
-            println("last lr function : (null)")
+            println("last lr function : (null) (${cpu.regs.lr})")
         }
     }
 }

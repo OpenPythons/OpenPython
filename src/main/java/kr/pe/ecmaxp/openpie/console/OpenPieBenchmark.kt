@@ -1,47 +1,51 @@
 package kr.pe.ecmaxp.openpie.console
 
+import kr.pe.ecmaxp.openpie.arch.Firmware
+import kr.pe.ecmaxp.openpie.arch.KB
+import kr.pe.ecmaxp.openpie.arch.OpenPieMemoryRegion.*
+import kr.pe.ecmaxp.openpie.arch.consts.SYS_DEBUG
+import kr.pe.ecmaxp.openpie.arch.consts.SYS_INFO_RAM_SIZE
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.MemoryFlag
 import kr.pe.ecmaxp.thumbsf.consts.PC
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 import java.io.File
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.time.Instant
 import java.util.*
 
 
 object OpenPieBenchmark {
-    internal var pos = 0
-
     @JvmStatic
     fun main(args: Array<String>) {
         val cpu = CPU()
-        val file = File("C:\\Users\\EcmaXp\\Dropbox\\Projects\\openpie\\oprom\\build\\firmware.bin")
-        val firmware = Files.readAllBytes(file.toPath())
-        val KB = 1024
-        val memory = cpu.memory
-        memory.flash(0x08000000, 256 * KB, firmware) // flash
-        memory.map(0x20000000, 64 * KB, MemoryFlag.RW) // sram
+        val firmware = Firmware.DEBUG
+        cpu.memory.apply {
+            flash(FLASH.address, FLASH.size, firmware.loadFirmware())
+            map(SRAM.address, SRAM.size, MemoryFlag.RW) // ram
+            map(RAM.address, 256 * KB, MemoryFlag.RW) // ram
+            map(SYSCALL.address, SYSCALL.size, MemoryFlag.RW) // syscall
+        }
 
-        val mem = HashMap<Long, Int>()
+        for (i in 1..10) {
+            val start = Instant.now()
+            cpu.regs[PC] = cpu.memory.readInt(0x08000000 + 4)
 
-        memory.map(0x60000000, 192 * KB, MemoryFlag.RW) // ram
-        memory.map(-0x20000000, 16 * KB, MemoryFlag.RW) // syscall
-
-        cpu.regs[PC] = memory.readInt(0x08000000 + 4)
-
-        val start = Instant.now()
-
-        try {
-            while (true)
-                cpu.run(10000000) {
-                    if (cpu.regs[7] == 10 && cpu.regs[0] == 11) {
-                        throw ControlStopSignal()
+            try {
+                while (true)
+                    cpu.run(1000000) {
+                        when (cpu.regs[7]) {
+                            SYS_INFO_RAM_SIZE -> cpu.regs[0] = 64 * KB
+                            0xDEADBEEFL.toInt() -> throw ControlStopSignal()
+                            SYS_DEBUG -> print(String(cpu.memory.readBuffer(cpu.regs[0], cpu.regs[1]), Charset.defaultCharset()))
+                            else -> cpu.regs[0] = 0;
+                        }
                     }
-                }
-        } catch (e: ControlStopSignal) {
-            val end = Instant.now()
-            println(end.toEpochMilli() - start.toEpochMilli())
+            } catch (e: ControlStopSignal) {
+                val end = Instant.now()
+                println(end.toEpochMilli() - start.toEpochMilli())
+            }
         }
     }
 }

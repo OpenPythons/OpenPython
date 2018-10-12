@@ -29,6 +29,22 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine, val cpu: CPU, val m
                 throw ControlStopSignal(ExecutionResult.Error(str))
             }
             SYS_CONTROL_RETURN -> throw ControlStopSignal(SystemControlReturn)
+            SYS_CONTROL_INIT_COPY -> {
+                val src = intr.r0
+                val dest = intr.r1
+                val dest_finish = intr.r2
+                val size = dest_finish - dest
+                val buffer = cpu.memory.readBuffer(src, size)
+                cpu.memory.writeBuffer(dest, buffer)
+                return 1
+            }
+            SYS_CONTROL_INIT_ZERO -> {
+                val start = intr.r0
+                val end = intr.r1
+                val size = end - start
+                cpu.memory.writeBuffer(start, ByteArray(size) { i -> 0 })
+                return 1
+            }
         }
 
         throw UnknownInterrupt()
