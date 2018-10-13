@@ -1,4 +1,4 @@
-from ucomponents import invoke, methods, annotations, components as _components
+from ucomponents import invoke, methods, doc, components as _components
 
 __all__ = ['Component', 'get_component', 'find_components', 'components']
 
@@ -15,7 +15,7 @@ class ComponentMethod:
 
     @property
     def __doc__(self):
-        return annotations(self.component.address, self.name)
+        return doc(self.component.address, self.name)
 
     def __repr__(self):
         doc = self.__doc__
