@@ -1,10 +1,12 @@
-package kr.pe.ecmaxp.openpie.arch.utils.msgpack
+package kr.pe.ecmaxp.openpie.arch.msgpack
 
+import kr.pe.ecmaxp.openpie.arch.OpenPieVirtualMachine
 import li.cil.oc.api.machine.Signal
+import li.cil.oc.api.machine.Value
 import org.msgpack.core.MessagePack
 
 
-class MsgpackPacker {
+class MsgpackPacker(val vm: OpenPieVirtualMachine? = null) {
     val packer = MessagePack.newDefaultBufferPacker()!!
 
     fun toByteArray(): ByteArray = packer.toByteArray()
@@ -53,12 +55,20 @@ class MsgpackPacker {
                     packString(o.javaClass.canonicalName)
                     packString(o.toString())
                 }
-                else -> {
+                is Value -> {
                     val num = o.toString().toIntOrNull()
-                    if (num != null)
+                    if (num != null) {
                         packInt(num) // li.cil.oc.server.component.HandleValue
-                    else
-                        throw Exception("mismatch type ${o.javaClass} => $o")
+                    } else {
+                        val packer2 = MsgpackPacker(vm)
+                        packer2.pack(vm!!.state.valueMap.register(o).id)
+                        val buffer = packer2.toByteArray()
+                        packExtensionTypeHeader(1, buffer.size)
+                        writePayload(buffer)
+                    }
+                }
+                else -> {
+                    throw Exception("mismatch type ${o.javaClass} => $o")
                 }
             }
         }

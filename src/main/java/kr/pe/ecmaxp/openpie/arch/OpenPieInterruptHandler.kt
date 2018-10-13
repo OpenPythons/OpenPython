@@ -2,10 +2,11 @@ package kr.pe.ecmaxp.openpie.arch
 
 import kr.pe.ecmaxp.openpie.arch.consts.*
 import kr.pe.ecmaxp.openpie.arch.state.FileHandle
-import kr.pe.ecmaxp.openpie.arch.state.VMState
-import kr.pe.ecmaxp.openpie.arch.types.Invoke
+import kr.pe.ecmaxp.openpie.arch.types.components.ComponentInvoke
 import kr.pe.ecmaxp.openpie.arch.types.Interrupt
-import kr.pe.ecmaxp.openpie.arch.types.Result
+import kr.pe.ecmaxp.openpie.arch.types.value.ValueApply
+import kr.pe.ecmaxp.openpie.arch.types.value.ValueCall
+import kr.pe.ecmaxp.openpie.arch.types.value.ValueUnapply
 import kr.pe.ecmaxp.thumbsf.consts.R0
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
@@ -21,7 +22,8 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                 SYS_CONTROL -> handleControl(intr, synchronized)
                 SYS_DEBUG -> handleDebug(intr, synchronized)
                 SYS_SIGNAL -> handleSignal(intr, synchronized)
-                SYS_INVOKE -> handleInvoke(intr, synchronized)
+                SYS_COMPONENTS -> handleComponents(intr, synchronized)
+                SYS_VALUE -> handleValue(intr, synchronized)
                 SYS_COMPUTER -> handleComputer(intr, synchronized)
                 SYS_INFO -> handleInfo(intr, synchronized)
                 SYS_TIMER -> handleTimer(intr, synchronized)
@@ -45,12 +47,10 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
     inner class UnknownInterrupt : Exception()
 
     val machine: Machine get() = vm.machine
-    val state: VMState get() = vm.state
-    
-    private fun call(invoke: Invoke): Result = invoke(machine)
+    val state: OpenPieVirtualMachineState get() = vm.state
 
     private fun handleControl(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
-        when (intr.imm) {
+        return when (intr.imm) {
             SYS_CONTROL_SHUTDOWN -> throw ControlStopSignal(ExecutionResult.Shutdown(false))
             SYS_CONTROL_REBOOT -> throw ControlStopSignal(ExecutionResult.Shutdown(true))
             SYS_CONTROL_CRASH -> {
@@ -65,18 +65,17 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                 val size = dest_finish - dest
                 val buffer = intr.readBuffer(src, size)
                 intr.memory.writeBuffer(dest, buffer)
-                return 1
+                1
             }
             SYS_CONTROL_INIT_ZERO -> {
                 val start = intr.r0
                 val end = intr.r1
                 val size = end - start
                 intr.memory.writeBuffer(start, ByteArray(size) { _ -> 0 })
-                return 1
+                1
             }
+            else -> throw UnknownInterrupt()
         }
-
-        throw UnknownInterrupt()
     }
 
     private fun handleDebug(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
@@ -88,7 +87,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
     }
 
     private fun handleSignal(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
-        when (intr.imm) {
+        return when (intr.imm) {
             SYS_SIGNAL_REQUEST -> {
                 val signal: Signal? = machine.popSignal()
                 if (signal == null) {
@@ -96,61 +95,52 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                     throw ControlPauseSignal(ExecutionResult.Sleep(intr.r0))
                 }
 
-                return intr.responseValue(signal)
+                intr.responseValue(signal)
             }
             SYS_SIGNAL_PENDING -> {
                 val signal: Signal = machine.popSignal() ?: return 0
-                return intr.responseValue(signal)
+                intr.responseValue(signal)
             }
             SYS_SIGNAL_PUSH -> {
                 TODO()
             }
-        }
-
-        throw UnknownInterrupt()
-    }
-
-    private fun handleInvoke(intr: Interrupt, synchronized: Boolean): Int {
-        // intr.r0 => unused
-        val obj = intr.readObject()
-        val call = Invoke.fromArray(obj as Array<*>)
-                ?: return intr.responseError(Exception("Invaild invoke"))
-
-        if (!synchronized) {
-            val node = machine.node().network().node(call.component) as? Component
-                    ?: return intr.responseError(Exception("Invalid Component"))
-
-            val callback: Callback?
-
-            try {
-                callback = node.annotation(call.function)
-                        ?: return intr.responseError(Exception("Invalid Function"))
-            } catch (e: NoSuchMethodException) {
-                e.printStackTrace()
-                return intr.responseError(e)
-            }
-
-            if (!callback.direct) {
-                // TODO: automatic detect sync invoke?
-                throw ControlPauseSignal(ExecutionResult.SynchronizedCall())
-            }
-        }
-
-        val ret = call(call)
-        return if (ret.error == null) {
-            intr.responseValue(ret.args)
-        } else {
-            ret.error.printStackTrace()
-            intr.responseError(ret.error)
+            else -> throw UnknownInterrupt()
         }
     }
 
-    // SYS_INFO_COMPUTER_ADDRESS -> intr.responseValue(machine.node().address())
+    private fun handleComponents(intr: Interrupt, synchronized: Boolean): Int {
+        return when (intr.imm) {
+            SYS_COMPONENTS_INVOKE -> {
+                val obj = intr.readObject()
+                val call = ComponentInvoke.fromArray(obj as Array<*>)
+                        ?: return intr.responseError(Exception("Invaild invoke"))
 
-    private fun handleComputer(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
-        when (intr.imm) {
-            SYS_COMPUTER_COMPONENTS -> {
-                return when (intr.r0) {
+                if (!synchronized) {
+                    val node = machine.node().network().node(call.component) as? Component
+                            ?: return intr.responseError(Exception("Invalid Component"))
+
+                    val callback: Callback?
+
+                    try {
+                        callback = node.annotation(call.function)
+                                ?: return intr.responseError(Exception("Invalid Function"))
+                    } catch (e: NoSuchMethodException) {
+                        e.printStackTrace()
+                        return intr.responseError(e)
+                    }
+
+                    if (!callback.direct) {
+                        // TODO: automatic detect sync invoke?
+                        throw ControlPauseSignal(ExecutionResult.SynchronizedCall())
+                    }
+                }
+
+                val ret = call(machine)
+                ret.error?.printStackTrace()
+                intr.responseResult(ret)
+            }
+            SYS_COMPONENTS_LIST -> {
+                when (intr.r0) {
                     0 -> intr.responseValue(machine.components())
                     else -> {
                         val target = intr.readString()
@@ -164,9 +154,9 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                     }
                 }
             }
-            SYS_COMPUTER_COMPONENT_COUNT -> return intr.responseValue(machine.componentCount())
-            SYS_COMPUTER_MAX_COMPONENT -> return intr.responseValue(machine.maxComponents())
-            SYS_COMPUTER_METHODS -> {
+            SYS_COMPONENTS_COUNT -> intr.responseValue(machine.componentCount())
+            SYS_COMPONENTS_MAX -> intr.responseValue(machine.maxComponents())
+            SYS_COMPONENTS_METHODS -> {
                 val req = intr.readObject() as Array<*>
                 val node = machine.node().network().node(req[0] as String)
 
@@ -174,9 +164,9 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                     return intr.responseValue(node.methods())
                 }
 
-                return 0
+                0
             }
-            SYS_COMPUTER_ANNOTATIONS -> {
+            SYS_COMPONENTS_ANNOTATIONS -> {
                 val req = intr.readObject() as Array<*>
                 if (req.size == 2) {
                     val node = machine.node().network().node(req[0] as String)
@@ -193,8 +183,52 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                     }
                 }
 
-                return 0
+                0
             }
+            else -> throw UnknownInterrupt()
+        }
+    }
+
+    private fun handleValue(intr: Interrupt, synchronized: Boolean): Int {
+        return when (intr.imm) {
+            SYS_VALUE_CALL -> {
+                val obj = intr.readObject()
+                val call = ValueCall.fromArray(obj as Array<*>)
+                        ?: return intr.responseError(Exception("Invaild call"))
+
+                val ret = call(machine)
+                ret.error?.printStackTrace()
+                intr.responseResult(ret)
+            }
+            SYS_VALUE_APPLY -> {
+                val obj = intr.readObject()
+                val call = ValueApply.fromArray(obj as Array<*>)
+                        ?: return intr.responseError(Exception("Invaild apply"))
+
+                val ret = call(machine)
+                ret.error?.printStackTrace()
+                intr.responseResult(ret)
+            }
+            SYS_VALUE_UNAPPLY -> {
+                val obj = intr.readObject()
+                val call = ValueUnapply.fromArray(obj as Array<*>)
+                        ?: return intr.responseError(Exception("Invaild unapply"))
+
+                val ret = call(machine)
+                ret.error?.printStackTrace()
+                intr.responseResult(ret)
+            }
+            SYS_VALUE_DISPOSE -> {
+                val value = intr.readObject() as Value
+                state.valueMap.unregister(value)
+                intr.responseNone()
+            }
+            else -> throw UnknownInterrupt()
+        }
+    }
+
+    private fun handleComputer(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+        when (intr.imm) {
             SYS_COMPUTER_GET_COST_PER_TICK -> return intr.responseValue(machine.costPerTick)
             SYS_COMPUTER_LAST_ERROR -> return intr.responseValue(machine.lastError())
             SYS_COMPUTER_BEEP_1 -> {
@@ -229,7 +263,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
 
     private fun handleInfo(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         return when (intr.imm) {
-            SYS_INFO_VERSION -> 0x0000
+            SYS_INFO_VERSION -> 0x01000000 // 1.0.0.0
             SYS_INFO_RAM_SIZE -> vm.memorySize
             else -> throw UnknownInterrupt()
         }
@@ -256,7 +290,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
             val path = intr.readString(intr.r1, 256)
             val mode = intr.readString(intr.r2, 16)
 
-            val ret = call(Invoke(address, "open", path, mode))
+            val ret = ComponentInvoke(address, "open", path, mode)(machine)
             when {
                 ret.error is FileNotFoundException -> return MP_ENOENT
                 ret.args != null -> {
@@ -280,12 +314,12 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
 
             when (command) {
                 SYS_VFS_VALID -> {
-                    val ret = call(fh.call("seek", fh.pos))
+                    val ret = fh("seek", fh.pos)(machine)
                     return if (ret.error == null) MP_OK else MP_EIO
                 }
                 SYS_VFS_REPR -> return MP_EPERM
                 SYS_VFS_CLOSE -> {
-                    val ret = call(fh.call("close"))
+                    val ret = fh("close")(machine)
                     return if (ret.error != null) {
                         ret.error.printStackTrace()
                         1
@@ -295,7 +329,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                     }
                 }
                 SYS_VFS_READ -> {
-                    val ret = call(fh.call("read", intr.r1))
+                    val ret = fh("read", intr.r1)(machine)
                     when {
                         ret.error != null -> {
                             ret.error.printStackTrace()
@@ -323,7 +357,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                 }
                 SYS_VFS_WRITE -> {
                     val buf = intr.readBuffer(intr.r1, intr.r2)
-                    val ret = call(fh.call("write", buf))
+                    val ret = fh("write", buf)(machine)
                     return when {
                         ret.error != null -> {
                             ret.error.printStackTrace()
@@ -371,7 +405,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                         return MP_EPERM
                     }
 
-                    val ret = call(fh.call("seek", whenceStr, offset))
+                    val ret = fh("seek", whenceStr, offset)(machine)
                     return when {
                         ret.error != null -> {
                             ret.error.printStackTrace()

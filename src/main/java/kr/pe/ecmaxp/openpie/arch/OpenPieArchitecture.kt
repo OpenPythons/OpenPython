@@ -140,7 +140,7 @@ class OpenPieArchitecture(val machine: Machine) : Architecture {
             memoryTag.appendTag(regionTag)
         }
 
-        // TODO: store VMState (file mapping)
+        // TODO: store OpenPieVirtualMachineState (file mapping)
         rootTag.setString("firmware", vm.firmware.name)
         rootTag.setInteger("protocol", vm.firmware.protocol)
         rootTag.setIntArray("regs", cpu.regs.load())

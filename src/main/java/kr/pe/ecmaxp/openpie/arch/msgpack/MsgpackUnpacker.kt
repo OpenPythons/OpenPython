@@ -1,10 +1,11 @@
-package kr.pe.ecmaxp.openpie.arch.utils.msgpack
+package kr.pe.ecmaxp.openpie.arch.msgpack
 
+import kr.pe.ecmaxp.openpie.arch.OpenPieVirtualMachine
 import org.msgpack.core.MessagePack
 import org.msgpack.value.ValueType
 
 
-class MsgpackUnpacker(buffer: ByteArray) {
+class MsgpackUnpacker(buffer: ByteArray, val vm: OpenPieVirtualMachine? = null) {
     val unpacker = MessagePack.newDefaultUnpacker(buffer)
 
     fun unpack(): Any? {
@@ -39,7 +40,18 @@ class MsgpackUnpacker(buffer: ByteArray) {
 
                     map
                 }
-                ValueType.EXTENSION -> TODO()
+                ValueType.EXTENSION -> {
+                    val ext = unpackExtensionTypeHeader()
+                    val payload = readPayload(ext.length)
+                    when (ext.type.toInt() and 0xFF) {
+                        1 -> {
+                            val unpacker = MsgpackUnpacker(payload, vm)
+                            val pointer = unpacker.unpack() as Int
+                            vm!!.state.valueMap[pointer]
+                        }
+                        else -> TODO()
+                    }
+                }
                 else -> throw Exception()
             }
         }
@@ -47,13 +59,13 @@ class MsgpackUnpacker(buffer: ByteArray) {
         throw Exception()
     }
 
-    fun unpack_obj(): Any? {
+    fun unpackObj(): Any? {
         val value = unpack()
         finish()
         return value
     }
 
-    fun finish() {
+    private fun finish() {
         if (unpacker.hasNext())
             throw Exception("too many argument")
     }

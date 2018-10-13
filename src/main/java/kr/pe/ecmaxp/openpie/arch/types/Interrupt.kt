@@ -1,12 +1,15 @@
 package kr.pe.ecmaxp.openpie.arch.types
 
 import kr.pe.ecmaxp.openpie.arch.OpenPieMemoryRegion
-import kr.pe.ecmaxp.openpie.arch.utils.msgpack.Msgpack
+import kr.pe.ecmaxp.openpie.arch.OpenPieVirtualMachine
+import kr.pe.ecmaxp.openpie.arch.msgpack.Msgpack
+import kr.pe.ecmaxp.openpie.arch.types.components.ComponentResult
+import kr.pe.ecmaxp.openpie.arch.types.value.ValueResult
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.Memory
 import kr.pe.ecmaxp.thumbsf.consts.*
 
-class Interrupt(val cpu: CPU, imm: Int) {
+class Interrupt(val cpu: CPU, imm: Int, val vm: OpenPieVirtualMachine? = null) {
     val imm: Int
     val r0: Int
     val r1: Int
@@ -32,14 +35,14 @@ class Interrupt(val cpu: CPU, imm: Int) {
     fun readString(address: Int, maxSize: Int): String = memory.readString(address, maxSize)
     fun readString(): String? = readString(r0, r1)
 
-    fun readObject(): Any? = Msgpack.loads(readBuffer())
+    fun readObject(): Any? = Msgpack(vm).loads(readBuffer())
 
 
     fun responseNone(): Int = 0
 
     fun responseError(value: Throwable): Int {
         val bufAddress = OpenPieMemoryRegion.SYSCALL.address
-        val buffer = Msgpack.dumps(value)
+        val buffer = Msgpack(vm).dumps(value)
         memory.writeInt(bufAddress, 0) // + 0 | 1 = OK (msgpack)
         memory.writeInt(bufAddress + 4, bufAddress + 12) // + 4
         memory.writeInt(bufAddress + 8, buffer.size) // + 8
@@ -52,7 +55,7 @@ class Interrupt(val cpu: CPU, imm: Int) {
             return responseNone()
 
         val bufAddress = OpenPieMemoryRegion.SYSCALL.address
-        val buffer = Msgpack.dumps(value)
+        val buffer = Msgpack(vm).dumps(value)
         memory.writeInt(bufAddress, 1) // + 0 = OK (msgpack)
         memory.writeInt(bufAddress + 4, bufAddress + 12) // + 4
         memory.writeInt(bufAddress + 8, buffer.size) // + 8
@@ -67,5 +70,21 @@ class Interrupt(val cpu: CPU, imm: Int) {
         memory.writeBuffer(bufAddress + 8, buffer) // + 8
         memory.writeByte(bufAddress + 8 + buffer.size, 0.toByte()) // + 8 + n
         return bufAddress
+    }
+
+    fun responseResult(ret: ComponentResult): Int {
+        return if (ret.error == null) {
+            responseValue(ret.args)
+        } else {
+            responseError(ret.error)
+        }
+    }
+
+    fun responseResult(ret: ValueResult): Int {
+        return if (ret.error == null) {
+            responseValue(ret.result)
+        } else {
+            responseError(ret.error)
+        }
     }
 }
