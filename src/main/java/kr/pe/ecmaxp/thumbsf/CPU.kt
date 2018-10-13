@@ -12,11 +12,17 @@ import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
     fun copy(): CPU = CPU(memory.copy(), regs.copy())
 
-    @Suppress("MemberVisibilityCanBePrivate")
     fun fork(regs: Registers = Registers()): CPU = CPU(memory.fork(), regs)
 
-    fun call(sp: Int, pc: Int, addr: Int, a1: Int = 0, a2: Int = 0, a3: Int = 0): CPU {
-        return fork(Registers(r0 = addr, r1 = a1, r2 = a2, r3 = a3, sp = sp, pc = pc))
+    fun call(address: Int, r0: Int = 0, r1: Int = 0, r2: Int = 0, r3: Int = 0, lr: Int? = null) {
+        regs[PC] = address
+        regs[R0] = r0
+        regs[R1] = r1
+        regs[R2] = r2
+        regs[R3] = r3
+
+        if (lr != null)
+            regs[LR] = lr
     }
 
     @Throws(InvalidMemoryException::class, UnknownInstructionException::class, InvalidAddressArmException::class)
