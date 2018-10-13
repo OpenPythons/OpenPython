@@ -15,7 +15,7 @@ class MsgpackUnpacker(buffer: ByteArray, val vm: OpenPieVirtualMachine? = null) 
         unpacker.apply {
             return when (nextFormat.valueType) {
                 null -> throw Exception()
-                ValueType.NIL -> null
+                ValueType.NIL -> unpackNil()
                 ValueType.BOOLEAN -> unpackBoolean()
                 ValueType.INTEGER -> unpackInt()
                 ValueType.FLOAT -> unpackFloat()

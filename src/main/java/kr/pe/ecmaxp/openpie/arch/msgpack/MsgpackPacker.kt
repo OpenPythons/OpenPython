@@ -42,6 +42,20 @@ class MsgpackPacker(val vm: OpenPieVirtualMachine? = null) {
                         pack(pair.value)
                     }
                 }
+                is scala.collection.mutable.HashMap<*, *> -> {
+                    packMapHeader(o.size())
+                    for (pair in o) {
+                        pack(pair._1)
+                        pack(pair._2)
+                    }
+                }
+                is scala.collection.immutable.HashMap<*, *> -> {
+                    packMapHeader(o.size())
+                    for (pair in o) {
+                        pack(pair._1)
+                        pack(pair._2)
+                    }
+                }
                 is Signal -> {
                     packArrayHeader(2)
                     packString(o.name())
@@ -56,16 +70,11 @@ class MsgpackPacker(val vm: OpenPieVirtualMachine? = null) {
                     packString(o.toString())
                 }
                 is Value -> {
-                    val num = o.toString().toIntOrNull()
-                    if (num != null) {
-                        packInt(num) // li.cil.oc.server.component.HandleValue
-                    } else {
-                        val packer2 = MsgpackPacker(vm)
-                        packer2.pack(vm!!.state.valueMap.register(o).id)
-                        val buffer = packer2.toByteArray()
-                        packExtensionTypeHeader(1, buffer.size)
-                        writePayload(buffer)
-                    }
+                    val packer = MsgpackPacker(vm)
+                    packer.pack(vm!!.state.valueMap.register(o).id)
+                    val buffer = packer.toByteArray()
+                    packExtensionTypeHeader(1, buffer.size)
+                    writePayload(buffer)
                 }
                 else -> {
                     throw Exception("mismatch type ${o.javaClass} => $o")

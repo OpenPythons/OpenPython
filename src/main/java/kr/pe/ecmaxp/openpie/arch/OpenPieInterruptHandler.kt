@@ -2,11 +2,8 @@ package kr.pe.ecmaxp.openpie.arch
 
 import kr.pe.ecmaxp.openpie.arch.consts.*
 import kr.pe.ecmaxp.openpie.arch.state.FileHandle
-import kr.pe.ecmaxp.openpie.arch.types.components.ComponentInvoke
 import kr.pe.ecmaxp.openpie.arch.types.Interrupt
-import kr.pe.ecmaxp.openpie.arch.types.value.ValueApply
-import kr.pe.ecmaxp.openpie.arch.types.value.ValueCall
-import kr.pe.ecmaxp.openpie.arch.types.value.ValueUnapply
+import kr.pe.ecmaxp.openpie.arch.types.call.*
 import kr.pe.ecmaxp.thumbsf.consts.R0
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
@@ -113,7 +110,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
             SYS_COMPONENTS_INVOKE -> {
                 val obj = intr.readObject()
                 val call = ComponentInvoke.fromArray(obj as Array<*>)
-                        ?: return intr.responseError(Exception("Invaild invoke"))
+                        ?: return intr.responseError(Exception("Invalid invoke"))
 
                 if (!synchronized) {
                     val node = machine.node().network().node(call.component) as? Component
@@ -164,26 +161,27 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                     return intr.responseValue(node.methods())
                 }
 
-                0
+                intr.responseNone()
             }
-            SYS_COMPONENTS_ANNOTATIONS -> {
+            SYS_COMPONENTS_DOC -> {
                 val req = intr.readObject() as Array<*>
                 if (req.size == 2) {
                     val node = machine.node().network().node(req[0] as String)
                     if (node is Component) {
                         try {
                             val callback = node.annotation(req[1] as String)
-                            return intr.responseValue(callback.doc)
+                            intr.responseValue(callback.doc)
                         } catch (e: NoSuchMethodError) {
-                            return 0
-                        } catch (exc: Exception) {
-                            // how to handle?
-                            exc.printStackTrace()
+                            intr.responseError(e)
+                        } catch (e: Exception) {
+                            intr.responseError(e)
                         }
+                    } else {
+                        intr.responseNone()
                     }
+                } else {
+                    intr.responseNone()
                 }
-
-                0
             }
             else -> throw UnknownInterrupt()
         }
@@ -191,10 +189,28 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
 
     private fun handleValue(intr: Interrupt, synchronized: Boolean): Int {
         return when (intr.imm) {
+            SYS_VALUE_INVOKE -> {
+                val obj = intr.readObject()
+                val call = ValueInvoke.fromArray(obj as Array<*>)
+                        ?: return intr.responseError(Exception("Invalid invoke"))
+
+                if (!synchronized) {
+                    val value = call.value
+                    val methods = machine.methods(value)
+                    val callback = methods[call.function]
+                    if (callback?.direct != true) {
+                        throw ControlPauseSignal(ExecutionResult.SynchronizedCall())
+                    }
+                }
+
+                val ret = call(machine)
+                ret.error?.printStackTrace()
+                intr.responseResult(ret)
+            }
             SYS_VALUE_CALL -> {
                 val obj = intr.readObject()
                 val call = ValueCall.fromArray(obj as Array<*>)
-                        ?: return intr.responseError(Exception("Invaild call"))
+                        ?: return intr.responseError(Exception("Invalid call"))
 
                 val ret = call(machine)
                 ret.error?.printStackTrace()
@@ -203,7 +219,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
             SYS_VALUE_APPLY -> {
                 val obj = intr.readObject()
                 val call = ValueApply.fromArray(obj as Array<*>)
-                        ?: return intr.responseError(Exception("Invaild apply"))
+                        ?: return intr.responseError(Exception("Invalid apply"))
 
                 val ret = call(machine)
                 ret.error?.printStackTrace()
@@ -212,7 +228,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
             SYS_VALUE_UNAPPLY -> {
                 val obj = intr.readObject()
                 val call = ValueUnapply.fromArray(obj as Array<*>)
-                        ?: return intr.responseError(Exception("Invaild unapply"))
+                        ?: return intr.responseError(Exception("Invalid unapply"))
 
                 val ret = call(machine)
                 ret.error?.printStackTrace()
@@ -222,6 +238,32 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                 val value = intr.readObject() as Value
                 state.valueMap.unregister(value)
                 intr.responseNone()
+            }
+            SYS_VALUE_METHODS -> {
+                val req = intr.readObject() as Array<*>
+                if (req.size == 1) {
+                    val value= req[0] as? Value ?: return intr.responseNone()
+                    intr.responseValue(machine.methods(value).keys.toList())
+                } else {
+                    intr.responseNone()
+                }
+            }
+            SYS_VALUE_DOC -> {
+                val req = intr.readObject() as Array<*>
+                when (req.size) {
+                    1 ->  {
+                        val value = req[0] as? Value ?: return intr.responseNone()
+                        intr.responseValue(value.toString())
+                    }
+                    2 -> {
+                        val value = req[0] as? Value ?: return intr.responseNone()
+                        val method = req[1] as? String ?: return intr.responseNone()
+                        val methods = machine.methods(value)
+                        val callback = methods[method] ?: return intr.responseNone()
+                        intr.responseValue(callback.doc)
+                    }
+                    else -> intr.responseNone()
+                }
             }
             else -> throw UnknownInterrupt()
         }
@@ -301,7 +343,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                     val fd = state.fdCount++
                     val handle = Integer.parseInt(ret.args[0].toString()) // handle
 
-                    state.fdMap[fd] = FileHandle(address, handle)
+                    state.fdMap[fd] = FileHandle(fd, address, handle)
 
                     intr.memory.writeInt(fdPtr, fd)
                     return MP_OK

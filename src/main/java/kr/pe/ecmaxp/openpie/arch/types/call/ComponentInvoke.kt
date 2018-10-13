@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpie.arch.types.components
+package kr.pe.ecmaxp.openpie.arch.types.call
 
 import li.cil.oc.api.machine.LimitReachedException
 import li.cil.oc.api.machine.Machine
@@ -12,15 +12,15 @@ class ComponentInvoke(val component: String, val function: String, vararg args: 
     }
 
     @Throws(LimitReachedException::class)
-    operator fun invoke(machine: Machine): ComponentResult {
+    operator fun invoke(machine: Machine): InvokeResult {
         return try {
-            ComponentResult(machine.invoke(component, function, args))
+            InvokeResult(machine.invoke(component, function, args))
         } catch (e: LimitReachedException) {
             throw e
         } catch (e: Error) {
-            ComponentResult(error = e)
+            InvokeResult(error = e)
         } catch (e: Exception) {
-            ComponentResult(error = e)
+            InvokeResult(error = e)
         }
     }
 
@@ -30,7 +30,7 @@ class ComponentInvoke(val component: String, val function: String, vararg args: 
                 return null
 
             val args = arrayOfNulls<Any?>(array.size - 2)
-            System.arraycopy(array, 2, args, 0, args.size - 2)
+            System.arraycopy(array, 2, args, 0, args.size)
 
             return ComponentInvoke(array[0] as String, array[1] as String, *args)
         }

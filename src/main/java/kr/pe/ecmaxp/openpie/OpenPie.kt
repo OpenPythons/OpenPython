@@ -32,8 +32,10 @@ object OpenPie {
             FileSystem.fromClass(this.javaClass, OpenPie.MODID, "opos")
         }, true) // .setStackDisplayName("OpenPie (Operating System)")
 
-        Items.registerEEPROM("EEPROM (OpenPie)", """#!micropython
-from ucomputer import invoke, components, crash, get_computer_address
+        Items.registerEEPROM("EEPROM (OpenPie)", """
+#!micropython
+from ucomputer import crash, get_computer_address
+from ucomponents import invoke, components
 from uio import FileIO
 
 
@@ -51,16 +53,17 @@ def check_bootable(address):
 
 
 def load(address):
-    file = invoke(address, 'open', init, 'r')
+    handle = invoke(address, 'open', init, 'r')
 
     try:
         buffer = []
         while True:
-            buf = invoke(address, 'read', file, 4096)
+            buf = invoke(address, 'read', handle, 4096)
             if not buf: break
             buffer.append(buf)
     finally:
-        invoke(address, 'close', file)
+        invoke(address, 'close', handle)
+        handle.dispose()
 
     content = b"".join(buffer)
     return content.decode()

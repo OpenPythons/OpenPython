@@ -59,7 +59,10 @@ class OpenPieVirtualMachine internal constructor(val machine: Machine, val memor
 
     fun load(rootTag: NBTTagCompound) {
         cpu.regs.store(rootTag.getIntArray("regs"))
-        firmware = OpenPieFirmware(rootTag.getString("firmware"))
+
+        val firmwareName = rootTag.getString("firmware")
+        if (firmware.name != firmwareName)
+            firmware = OpenPieFirmware(firmwareName)
 
         val memoryTag = rootTag.getTagList("memory", 10)
         for (regionBaseTag in memoryTag) {

@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpie.arch.types.value
+package kr.pe.ecmaxp.openpie.arch.types.call
 
 import kr.pe.ecmaxp.openpie.arch.state.ArgumentsImpl
 import li.cil.oc.api.machine.LimitReachedException
@@ -13,5 +13,5 @@ abstract class ValueInvokeable(val value: Value, vararg args: Any?) {
     }
 
     @Throws(LimitReachedException::class)
-    abstract operator fun invoke(machine: Machine): ValueResult
+    abstract operator fun invoke(machine: Machine): InvokeResult
 }

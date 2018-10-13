@@ -3,8 +3,7 @@ package kr.pe.ecmaxp.openpie.arch.types
 import kr.pe.ecmaxp.openpie.arch.OpenPieMemoryRegion
 import kr.pe.ecmaxp.openpie.arch.OpenPieVirtualMachine
 import kr.pe.ecmaxp.openpie.arch.msgpack.Msgpack
-import kr.pe.ecmaxp.openpie.arch.types.components.ComponentResult
-import kr.pe.ecmaxp.openpie.arch.types.value.ValueResult
+import kr.pe.ecmaxp.openpie.arch.types.call.InvokeResult
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.Memory
 import kr.pe.ecmaxp.thumbsf.consts.*
@@ -72,19 +71,7 @@ class Interrupt(val cpu: CPU, imm: Int, val vm: OpenPieVirtualMachine? = null) {
         return bufAddress
     }
 
-    fun responseResult(ret: ComponentResult): Int {
-        return if (ret.error == null) {
-            responseValue(ret.args)
-        } else {
-            responseError(ret.error)
-        }
-    }
-
-    fun responseResult(ret: ValueResult): Int {
-        return if (ret.error == null) {
-            responseValue(ret.result)
-        } else {
-            responseError(ret.error)
-        }
+    fun responseResult(ret: InvokeResult): Int {
+        return if (ret.error == null) responseValue(ret.args) else responseError(ret.error)
     }
 }
