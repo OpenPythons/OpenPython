@@ -49,6 +49,7 @@ def print_handler(string):
 def init():
     uos.mount(FileSystem(__path__), '/')
     sys.path.append('/lib')
+    sys.path.append('/lib/micropython')
 
     contexts = []  # prevent from gc
     for filename in sorted(uos.listdir("/boot")):
