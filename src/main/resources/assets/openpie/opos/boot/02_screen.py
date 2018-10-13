@@ -1,4 +1,4 @@
-from component import get_component, find_components
+from components import get_component, find_components
 from monitor import Monitor, _set_monitor
 import machine
 
@@ -20,7 +20,7 @@ if gpu and screen:
     monitor.fill(1, 1, w, h, " ")
 
 
-    @machine.hook_print
+    @machine.hook_stdout
     def print_handler(string):
         try:
             for char in string:

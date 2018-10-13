@@ -1,6 +1,6 @@
-from computer import invoke, methods, annotations, components as _components
+from ucomponents import invoke, methods, annotations, components as _components
 
-__all__ = ['Component', 'get_component', 'find_components']
+__all__ = ['Component', 'get_component', 'find_components', 'components']
 
 PRIMARY_COMPONENTS = {}
 
@@ -14,11 +14,11 @@ class ComponentMethod:
         return invoke(self.component.address, self.name, *args)
 
     @property
-    def doc(self):
+    def __doc__(self):
         return annotations(self.component.address, self.name)
 
     def __repr__(self):
-        doc = self.doc
+        doc = self.__doc__
         if doc:
             doc = "\n" + doc.replace(" -- ", "\n")
         else:
@@ -36,14 +36,17 @@ class Component:
         return ComponentMethod(self, name)
 
     def __dir__(self):
-        return dir(object()) + ["address", "type"] + methods(self.address)
+        return dir(object()) + ["address", "type"] + list(methods(self.address))
 
     def __repr__(self):
         return "Component<{0}:{1}>".format(self.type, self.address)
 
 
+components = _components  # TODO: ?
+
+
 def set_primary(compoent):
-    PRIMARY_COMPONENTS[compoent.address] = compoent
+    PRIMARY_COMPONENTS[compoent.type] = compoent
 
 
 def get_component(component_type):
@@ -59,5 +62,13 @@ def get_component(component_type):
     return None
 
 
+# alias
+get = get_component
+
+
 def find_components(component_type):
     return [Component(address, component_type) for address in _components(component_type)]
+
+
+# alias
+find = find_components

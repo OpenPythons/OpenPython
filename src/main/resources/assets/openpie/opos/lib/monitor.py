@@ -1,4 +1,4 @@
-from component import Component
+from components import Component
 
 __all__ = ["Monitor", "monitor", "_set_monitor"]
 

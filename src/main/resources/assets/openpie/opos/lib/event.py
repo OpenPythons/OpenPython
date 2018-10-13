@@ -3,6 +3,10 @@ import machine
 
 __all__ = ["register", "unregister", "setup"]
 
+event = {}
+handlers = {}
+lastInterrupt = None
+
 registered = {}
 
 
@@ -23,11 +27,38 @@ def signal_handler(ticks):
             machine.debug("signal_handler exc => %s: %s" % (type(e).__name__, e))
 
 
+def listen(name, callback):
+    handlers = registered.setdefault(name, [])
+    if callback in handlers:
+        return False
+
+    handlers.append(callback)
+    return True
+
+
+def ignore(name, callback):
+    handlers = registered.get(name)  # type: list
+    if not handlers:
+        return False
+
+    if callback not in handlers:
+        return False
+
+    handlers.remove(callback)
+    return True
+
+
+def timer(interval, callback, times):
+    # event.register(false, callback, interval, times)
+    handler = {
+        "key": key,
+    }
+
+
 def register(name):
-    def wrapper(func):
-        handlers = registered.setdefault(name, [])
-        handlers.append(func)
-        return func
+    def wrapper(callback):
+        listen(name, callback)
+        return callback
 
     return wrapper
 

@@ -1,7 +1,6 @@
-from computer import components
 from uio import FileIO
 
-from component import Component
+from components import Component, components
 
 
 class FileSystem:

@@ -1,11 +1,12 @@
 import machine
 
 import event
+import value
 
 buf = []
 
 
-@machine.hook_input
+@machine.hook_stdin
 def input_handler():
     while not buf:
         event.wait(10)
@@ -19,3 +20,4 @@ def handle_key_down(_1, char, *_):
 
 
 event.setup()
+value.setup()

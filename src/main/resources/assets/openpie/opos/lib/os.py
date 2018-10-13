@@ -1,5 +1,20 @@
 from uos import *
 import ocpath as path
+from ocpath import curdir, pardir, sep, extsep, altsep, pathsep, linesep, defpath, devnull
+
+__all__ = [
+    # uos.*
+    "chdir", "getcwd", "ilistdir", "listdir", "mkdir", "remove", "rmdir", "rename", "stat", "statvfs", "sync",
+    "urandom", "dupterm", "mount", "umount",
+    # ocpath
+    "path",
+    # ocpath.*
+    "curdir", "pardir", "sep", "extsep", "altsep", "pathsep", "linesep", "defpath", "devnull",
+    # os
+    "name", "Environ", "environ", "getenv"
+]
+
+name = "oc"
 
 
 class Environ:
@@ -24,7 +39,7 @@ class Environ:
 
 environ = Environ({
     "TMPDIR": "/tmp",
-    "PATH": "/bin:/usr/bin",
+    "PATH": defpath,
     "PWD": "/",  # TODO: dynamic
     "HOME": "/home",
     "_": "<current program>"
