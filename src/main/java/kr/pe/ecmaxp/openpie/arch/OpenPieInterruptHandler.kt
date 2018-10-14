@@ -315,6 +315,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
         return when (intr.imm) {
             SYS_TIMER_TICKS_MS -> System.currentTimeMillis().toInt()
             SYS_TIMER_TICKS_US -> System.nanoTime().toInt()
+            SYS_TIMER_TICKS_CPU -> intr.cpu.totalInsnCount.toInt()
             SYS_TIMER_WORLD_TIME -> intr.responseValue(machine.worldTime())
             SYS_TIMER_UP_TIME -> intr.responseValue(machine.upTime())
             SYS_TIMER_CPU_TIME -> intr.responseValue(machine.cpuTime())

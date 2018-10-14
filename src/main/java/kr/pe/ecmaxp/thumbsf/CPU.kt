@@ -10,6 +10,8 @@ import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 
 
 class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
+    var totalInsnCount = 0L
+
     fun copy(): CPU = CPU(memory.copy(), regs.copy())
 
     fun fork(regs: Registers = Registers()): CPU = CPU(memory.fork(), regs)
@@ -920,6 +922,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                         // println("SVC $imm16:${REGS[7]} r0=${REGS[0]} r1=${REGS[1]} r2=${REGS[2]} r3=${REGS[3]}")
                         regs.setCPSR(v, c, z, n)
                         regs.fastStore(REGS, sp, lr, pc)
+                        totalInsnCount += insnCount - count
 
                         try {
                             handler(imm16)
@@ -929,6 +932,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
                             regs[PC] += 2
                             throw e
                         } finally {
+                            totalInsnCount -= insnCount - count // restore counter for assign later
                             sp = regs.sp
                             lr = regs.lr
                             pc = regs.pc
@@ -997,6 +1001,7 @@ class CPU(val memory: Memory = Memory(), val regs: Registers = Registers()) {
         } finally {
             regs.setCPSR(v, c, z, n)
             regs.fastStore(REGS, sp, lr, pc)
+            totalInsnCount += insnCount - count
         }
     }
 }
