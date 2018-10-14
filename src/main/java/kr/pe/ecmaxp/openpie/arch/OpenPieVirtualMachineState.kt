@@ -16,7 +16,7 @@ class OpenPieVirtualMachineState : Persistable {
 
     override fun load(tag: NBTTagCompound) {
         fdCount = tag.getInteger("fdCount")
-        for (fdBaseTag in tag.getTagList("fdMap", 0)) {
+        for (fdBaseTag in tag.getTagList("fdMap", NBTTagCompound().id.toInt())) {
             val fdTag = fdBaseTag as NBTTagCompound
             val handle = FileHandle.load(fdTag)
             fdMap[handle.fd] = handle

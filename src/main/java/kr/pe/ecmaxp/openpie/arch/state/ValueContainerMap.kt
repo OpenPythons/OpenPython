@@ -3,6 +3,7 @@ package kr.pe.ecmaxp.openpie.arch.state
 import li.cil.oc.api.Persistable
 import li.cil.oc.api.machine.Value
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NBTTagList
 import java.util.*
 
 class ValueContainerMap : Persistable {
@@ -45,11 +46,24 @@ class ValueContainerMap : Persistable {
         return 0
     }
 
-    override fun save(nbt: NBTTagCompound) {
-        TODO("not implemented")
+    override fun load(nbt: NBTTagCompound) {
+        val tagList = nbt.getTagList("list", NBTTagCompound().id.toInt())
+        for (containerBaseTag in tagList) {
+            val containerTag = containerBaseTag as NBTTagCompound
+            val container = ValueContainer()
+            container.load(containerTag)
+            register(container.id, container.value!!)
+        }
     }
 
-    override fun load(nbt: NBTTagCompound) {
-        TODO("not implemented")
+    override fun save(nbt: NBTTagCompound) {
+        val tagList = NBTTagList()
+        for (container in containerSet) {
+            val containerTag = NBTTagCompound()
+            container.save(containerTag)
+            tagList.appendTag(containerTag)
+        }
+
+        nbt.setTag("list", tagList)
     }
 }

@@ -242,7 +242,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
             SYS_VALUE_METHODS -> {
                 val req = intr.readObject() as Array<*>
                 if (req.size == 1) {
-                    val value= req[0] as? Value ?: return intr.responseNone()
+                    val value = req[0] as? Value ?: return intr.responseNone()
                     intr.responseValue(machine.methods(value).keys.toList())
                 } else {
                     intr.responseNone()
@@ -251,7 +251,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
             SYS_VALUE_DOC -> {
                 val req = intr.readObject() as Array<*>
                 when (req.size) {
-                    1 ->  {
+                    1 -> {
                         val value = req[0] as? Value ?: return intr.responseNone()
                         intr.responseValue(value.toString())
                     }

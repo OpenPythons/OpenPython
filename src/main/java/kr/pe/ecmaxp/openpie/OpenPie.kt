@@ -1,10 +1,12 @@
 package kr.pe.ecmaxp.openpie
 
 import kr.pe.ecmaxp.openpie.arch.OpenPieArchitecture
+import kr.pe.ecmaxp.openpie.arch.OpenComputersLikeSaveHandler
 import li.cil.oc.api.FileSystem
 import li.cil.oc.api.Items
 import li.cil.oc.api.Machine
 import net.minecraft.item.EnumDyeColor
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
@@ -23,6 +25,7 @@ object OpenPie {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
+        MinecraftForge.EVENT_BUS.register(OpenComputersLikeSaveHandler)
         Machine.add(OpenPieArchitecture::class.java)
     }
 

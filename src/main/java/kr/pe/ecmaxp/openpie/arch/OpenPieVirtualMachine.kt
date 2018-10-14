@@ -11,7 +11,7 @@ import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
-import java.io.ByteArrayOutputStream
+import java.io.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -57,14 +57,26 @@ class OpenPieVirtualMachine internal constructor(val machine: Machine, val memor
         }
     }
 
-    fun load(rootTag: NBTTagCompound) {
-        cpu.regs.store(rootTag.getIntArray("regs"))
+    fun load(tag: NBTTagCompound) {
+        val rootTag = OpenComputersLikeSaveHandler.loadNbt(machine.host(), tag, machine.node().address()) ?: run {
+            if (machine.isRunning) machine.crash("Missing data")
+            return
+        }
 
-        val firmwareName = rootTag.getString("firmware")
+
+        // firmware
+        val firmwareTag = rootTag.getCompoundTag("firmware")
+        val firmwareName = firmwareTag.getString("name")
         if (firmware.name != firmwareName)
             firmware = OpenPieFirmware(firmwareName)
 
-        val memoryTag = rootTag.getTagList("memory", 10)
+
+        // cpu
+        val cpuTag = rootTag.getCompoundTag("cpu")
+
+        cpu.regs.store(cpuTag.getIntArray("regs"))
+
+        val memoryTag = cpuTag.getTagList("memory", NBTTagCompound().id.toInt())
         for (regionBaseTag in memoryTag) {
             val regionTag = regionBaseTag as NBTTagCompound
             val address = regionTag.getLong("address").toInt()
@@ -80,9 +92,24 @@ class OpenPieVirtualMachine internal constructor(val machine: Machine, val memor
                 return
             }
         }
+
+
+        // state
+        val stateTag = rootTag.getCompoundTag("state")
+        state.load(stateTag)
     }
 
-    fun save(rootTag: NBTTagCompound) {
+    fun save(tag: NBTTagCompound) {
+
+        // firmware
+        val firmwareTag = NBTTagCompound()
+        firmwareTag.setString("name", firmware.name)
+        firmwareTag.setInteger("protocol", firmware.protocol)
+
+
+        // cpu
+        val cpuTag = NBTTagCompound()
+
         val memoryTag = NBTTagList()
         for (region in cpu.memory.fork()) {
             val regionTag = NBTTagCompound()
@@ -99,10 +126,21 @@ class OpenPieVirtualMachine internal constructor(val machine: Machine, val memor
             memoryTag.appendTag(regionTag)
         }
 
-        // TODO: store OpenPieVirtualMachineState (file mapping)
-        rootTag.setString("firmware", firmware.name)
-        rootTag.setInteger("protocol", firmware.protocol)
-        rootTag.setIntArray("regs", cpu.regs.load())
-        rootTag.setTag("memory", memoryTag)
+        cpuTag.setIntArray("regs", cpu.regs.load())
+        cpuTag.setTag("memory", memoryTag)
+
+
+        // state
+        val stateTag = NBTTagCompound()
+        state.save(stateTag)
+
+
+        val rootTag = NBTTagCompound()
+        // rootTag.setInteger("memorySize", memorySize) // TODO: no idea
+        rootTag.setTag("firmware", firmwareTag)
+        rootTag.setTag("cpu", cpuTag)
+        rootTag.setTag("state", stateTag)
+
+        OpenComputersLikeSaveHandler.scheduleSave(machine.host(), tag, machine.node().address(), rootTag)
     }
 }

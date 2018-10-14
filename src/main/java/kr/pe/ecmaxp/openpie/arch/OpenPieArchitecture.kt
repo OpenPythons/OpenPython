@@ -75,7 +75,7 @@ class OpenPieArchitecture(val machine: Machine) : Architecture {
         return if (!synchronizedReturn) {
             step(false)
         } else {
-            val result = lastSynchronizedResult!!
+            val result = lastSynchronizedResult ?: ExecutionResult.SynchronizedCall()
             lastSynchronizedResult = null
             result
         }

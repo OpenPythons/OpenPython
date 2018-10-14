@@ -16,7 +16,7 @@ class ValueApply(value: Value, vararg args: Any?) : ValueInvokeable(value, *args
 
     companion object {
         fun fromArray(array: Array<*>): ValueApply? {
-            if (array.size < 1)
+            if (array.isEmpty())
                 return null
 
             val args = arrayOfNulls<Any?>(array.size - 1)
