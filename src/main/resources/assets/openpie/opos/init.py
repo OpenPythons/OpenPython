@@ -1,8 +1,8 @@
 import sys
 
-from ucomponents import invoke
 import machine
 import uos
+from ucomponents import invoke
 from uio import FileIO
 
 

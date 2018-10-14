@@ -1,7 +1,6 @@
-import computer
-
 import uos
 
+import computer
 from shell import spawn
 
 commands = {}

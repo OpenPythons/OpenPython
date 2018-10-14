@@ -1,5 +1,6 @@
-from computer import pop_signal
 import machine
+
+from computer import pop_signal
 
 __all__ = ["register", "unregister", "setup"]
 

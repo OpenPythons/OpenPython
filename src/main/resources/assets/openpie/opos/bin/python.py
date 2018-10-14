@@ -1,7 +1,8 @@
-import computer
 import micropython
 import uos
 from ucode import repl_input, repl_compile, repl_call
+
+import computer
 
 
 class Command:
