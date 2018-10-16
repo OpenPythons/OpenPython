@@ -50,6 +50,7 @@ class OpenPieVirtualMachine internal constructor(val machine: Machine, val memor
             else
                 throw controlSignal
         } catch (e: InvalidMemoryException) {
+            firmware.printLastTracebackCPU(cpu)
             ExecutionResult.Error("memory access violation:\n0x${String.format("%08X", e.address)}")
         } catch (e: Throwable) {
             firmware.printLastTracebackCPU(cpu)
