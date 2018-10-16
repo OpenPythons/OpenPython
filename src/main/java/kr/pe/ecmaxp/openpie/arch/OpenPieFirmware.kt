@@ -31,6 +31,11 @@ class OpenPieFirmware(val name: String = "debug") {
         return firmware.readBytes()
     }
 
+    fun loadEEPROM(): ByteArray {
+        val eeprom = getResource("eeprom.py")
+        return eeprom.readBytes()
+    }
+
     fun loadMapping(): List<Entry> {
         val file = getResource("firmware.map")
         val lines = file.readText().lines()
