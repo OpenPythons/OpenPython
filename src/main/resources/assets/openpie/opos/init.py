@@ -51,10 +51,8 @@ def init():
     sys.path.append('/lib')
     sys.path.append('/lib/micropython')
 
-    contexts = []  # prevent from gc
     for filename in sorted(uos.listdir("/boot")):
         context = {'__name__': '__main__', '__path__': __path__}
-        contexts.append(context)
         # noinspection PyUnresolvedReferences
         execfile("/boot/" + filename, context)
 
