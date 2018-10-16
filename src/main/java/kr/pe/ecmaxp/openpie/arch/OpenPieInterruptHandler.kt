@@ -5,6 +5,7 @@ import kr.pe.ecmaxp.openpie.arch.state.FileHandle
 import kr.pe.ecmaxp.openpie.arch.types.Interrupt
 import kr.pe.ecmaxp.openpie.arch.types.call.*
 import kr.pe.ecmaxp.thumbsf.consts.R0
+import kr.pe.ecmaxp.thumbsf.consts.R7
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
 import li.cil.oc.api.machine.*
@@ -88,14 +89,14 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
             SYS_SIGNAL_REQUEST -> {
                 val signal: Signal? = machine.popSignal()
                 if (signal == null) {
-                    intr.cpu.regs[R0] = SYS_SIGNAL_PENDING
+                    intr.cpu.regs[R7] = SYS_SIGNAL_PENDING
                     throw ControlPauseSignal(ExecutionResult.Sleep(intr.r0))
                 }
 
                 intr.responseValue(signal)
             }
             SYS_SIGNAL_PENDING -> {
-                val signal: Signal = machine.popSignal() ?: return 0
+                val signal: Signal = machine.popSignal() ?: return intr.responseNone()
                 intr.responseValue(signal)
             }
             SYS_SIGNAL_PUSH -> {
