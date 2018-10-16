@@ -4,6 +4,7 @@ import kr.pe.ecmaxp.openpie.OpenPie
 import kr.pe.ecmaxp.openpie.arch.types.Entry
 import kr.pe.ecmaxp.thumbsf.CPU
 import java.net.URL
+import java.time.Instant
 import java.util.*
 
 class OpenPieFirmware(val name: String = "debug") {
@@ -64,9 +65,10 @@ class OpenPieFirmware(val name: String = "debug") {
     fun findTarget(address: Int): Entry? {
         val mapping = loadMapping()
         var selected: Entry? = null
-        for (target in mapping) {
-            if (target.address <= address && address < target.address + target.size) {
+        for (target in mapping.reversed()) {
+            if (target.address <= address) { //  && address < target.address + target.size
                 selected = target
+                break;
             }
         }
 
@@ -76,16 +78,18 @@ class OpenPieFirmware(val name: String = "debug") {
     fun printLastTracebackCPU(cpu: CPU) {
         var selected = findTarget(cpu.regs.pc)
         if (selected != null) {
-            println("last pc function :${selected.name} (+${cpu.regs.pc - selected.address})")
+            print("PC: ${selected.name} (+${cpu.regs.pc - selected.address})\t")
         } else {
-            println("last pc function : (null) (${cpu.regs.pc})")
+            print("PC: (null) (${cpu.regs.pc})\t")
         }
 
         selected = findTarget(cpu.regs.lr)
         if (selected != null) {
-            println("last lr function :${selected.name} (+${cpu.regs.lr - selected.address})")
+            print("LR:${selected.name} (+${cpu.regs.lr - selected.address})")
         } else {
-            println("last lr function : (null) (${cpu.regs.lr})")
+            print("LR: (null) (${cpu.regs.lr})")
         }
+
+        print('\n')
     }
 }
