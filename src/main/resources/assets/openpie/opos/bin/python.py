@@ -1,5 +1,8 @@
+import sys
+
 import micropython
 import uos
+from ucode import MICROPY_GIT_TAG, MICROPY_BUILD_DATE, MICROPY_HW_BOARD_NAME, MICROPY_HW_MCU_NAME
 from ucode import repl_input, repl_compile, repl_call
 
 import computer
@@ -61,6 +64,20 @@ def main():
     context = {"__name__": "<shell>"}
     context.update(commands)
 
+    print("MicroPython",
+          MICROPY_GIT_TAG,
+          "on", MICROPY_BUILD_DATE + ";",
+          MICROPY_HW_BOARD_NAME,
+          "with", MICROPY_HW_MCU_NAME)
+
+    try:
+        # noinspection PyStatementEffect
+        help
+    except NameError:
+        pass
+    else:
+        print("Type \"help()\" for more information.")
+
     while True:
         try:
             code = repl_input()
@@ -73,16 +90,16 @@ def main():
 
         try:
             func = repl_compile(code, context)
-        except SystemExit as e:
-            return e.args[0] if e.args else 0
-        except Exception as e:
-            print(type(e).__name__, e)
+        except BaseException as e:
+            sys.print_exception(e)
             continue
 
         try:
             repl_call(func, context)
+        except SystemExit as e:
+            return e.args[0] if e.args else 0
         except BaseException as e:
-            print(type(e).__name__, e)
+            sys.print_exception(e)
 
 
 if __name__ == '__main__':
