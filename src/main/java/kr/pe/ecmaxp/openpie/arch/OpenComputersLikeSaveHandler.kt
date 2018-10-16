@@ -3,7 +3,6 @@ package kr.pe.ecmaxp.openpie.arch
 import li.cil.oc.api.machine.MachineHost
 import net.minecraft.nbt.CompressedStreamTools
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.math.ChunkPos
 import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.event.world.ChunkDataEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -29,7 +28,7 @@ object OpenComputersLikeSaveHandler {
 
     val savePath get() = File(DimensionManager.getCurrentSaveRootDirectory(), savePathName)
     val statePath get() = File(savePath, "state")
-    val saveData = HashMap<Int, HashMap<ChunkPos, HashMap<String, ByteArray>>>()
+    val saveData = HashMap<Int, HashMap<Pair<Int, Int>, HashMap<String, ByteArray>>>()
 
     @Synchronized
     fun scheduleSave(host: MachineHost, nbt: NBTTagCompound, name: String, nbtData: NBTTagCompound) {
@@ -44,14 +43,14 @@ object OpenComputersLikeSaveHandler {
     fun scheduleSave(host: MachineHost, nbt: NBTTagCompound, name: String, data: ByteArray) {
         val world = host.world()!!
         val dimension = world.provider.dimension
-        val chunkPos = ChunkPos(
+        val chunkPos = Pair(
                 host.xPosition().toInt() shr 4,
                 host.zPosition().toInt() shr 4
         )
 
         nbt.setInteger("dimension", dimension)
-        nbt.setInteger("chunkX", chunkPos.x)
-        nbt.setInteger("chunkZ", chunkPos.z)
+        nbt.setInteger("chunkX", chunkPos.first)
+        nbt.setInteger("chunkZ", chunkPos.second)
         nbt.setInteger("compress", 0)
 
         synchronized(saveData) {
@@ -77,14 +76,14 @@ object OpenComputersLikeSaveHandler {
         val cx = nbt.getInteger("chunkX")
         val cz = nbt.getInteger("chunkZ")
         val compress = nbt.getInteger("compress")
-        val chunkPos = ChunkPos(cx, cz)
+        val chunkPos = Pair(cx, cz)
 
         val data = saveData[dimension]?.get(chunkPos)?.get(name)
         if (data != null) return data
 
         val path = statePath
         val dimPath = File(path, dimension.toString())
-        val chunkPath = File(dimPath, "${chunkPos.x}.${chunkPos.z}")
+        val chunkPath = File(dimPath, "${chunkPos.first}.${chunkPos.second}")
         val file = File(chunkPath, name)
         if (!file.exists())
             return ByteArray(0)
@@ -102,9 +101,10 @@ object OpenComputersLikeSaveHandler {
     fun onChunkSave(e: ChunkDataEvent.Save) {
         val path = statePath
         val dimension = e.world.provider.dimension
-        val chunkPos = e.chunk.pos
+        val chunkRawPos = e.chunk.pos
+        val chunkPos = Pair(chunkRawPos.x, chunkRawPos.z)
         val dimPath = File(path, dimension.toString())
-        val chunkPath = File(dimPath, "${chunkPos.x}.${chunkPos.z}")
+        val chunkPath = File(dimPath, "${chunkPos.first}.${chunkPos.second}")
 
         val chunks = saveData[dimension] ?: return
         val chunk = chunks[chunkPos] ?: return
