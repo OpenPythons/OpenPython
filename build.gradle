@@ -19,7 +19,7 @@ apply plugin: 'kotlin'
 
 version = "1.0.0"
 group = "kr.pe.ecmaxp.openpython"
-archivesBaseName = "OpenPie"
+archivesBaseName = "OpenPython"
 
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava {
