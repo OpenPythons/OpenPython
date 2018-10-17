@@ -1,4 +1,4 @@
-from ucomponents import invoke, methods, doc, components as _components
+from ucomponent import invoke, methods, doc, components as _components
 
 __all__ = ['Component', 'get_component', 'find_components', 'components']
 

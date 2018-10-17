@@ -2,7 +2,7 @@ import sys
 
 import machine
 import uos
-from ucomponents import invoke
+from ucomponent import invoke
 from uio import FileIO
 
 

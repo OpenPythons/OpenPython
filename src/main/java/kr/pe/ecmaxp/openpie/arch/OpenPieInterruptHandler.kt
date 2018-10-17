@@ -20,7 +20,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                 SYS_CONTROL -> handleControl(intr, synchronized)
                 SYS_DEBUG -> handleDebug(intr, synchronized)
                 SYS_SIGNAL -> handleSignal(intr, synchronized)
-                SYS_COMPONENTS -> handleComponents(intr, synchronized)
+                SYS_COMPONENT -> handleComponents(intr, synchronized)
                 SYS_VALUE -> handleValue(intr, synchronized)
                 SYS_COMPUTER -> handleComputer(intr, synchronized)
                 SYS_INFO -> handleInfo(intr, synchronized)
@@ -108,7 +108,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
 
     private fun handleComponents(intr: Interrupt, synchronized: Boolean): Int {
         return when (intr.imm) {
-            SYS_COMPONENTS_INVOKE -> {
+            SYS_COMPONENT_INVOKE -> {
                 val obj = intr.readObject()
                 val call = ComponentInvoke.fromArray(obj as Array<*>)
                         ?: return intr.responseError(Exception("Invalid invoke"))
@@ -137,7 +137,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                 ret.error?.printStackTrace()
                 intr.responseResult(ret)
             }
-            SYS_COMPONENTS_LIST -> {
+            SYS_COMPONENT_LIST -> {
                 when (intr.r0) {
                     0 -> intr.responseValue(machine.components())
                     else -> {
@@ -152,9 +152,9 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                     }
                 }
             }
-            SYS_COMPONENTS_COUNT -> intr.responseValue(machine.componentCount())
-            SYS_COMPONENTS_MAX -> intr.responseValue(machine.maxComponents())
-            SYS_COMPONENTS_METHODS -> {
+            SYS_COMPONENT_COUNT -> intr.responseValue(machine.componentCount())
+            SYS_COMPONENT_MAX -> intr.responseValue(machine.maxComponents())
+            SYS_COMPONENT_METHODS -> {
                 val req = intr.readObject() as Array<*>
                 val node = machine.node().network().node(req[0] as String)
 
@@ -164,7 +164,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
 
                 intr.responseNone()
             }
-            SYS_COMPONENTS_DOC -> {
+            SYS_COMPONENT_DOC -> {
                 val req = intr.readObject() as Array<*>
                 if (req.size == 2) {
                     val node = machine.node().network().node(req[0] as String)

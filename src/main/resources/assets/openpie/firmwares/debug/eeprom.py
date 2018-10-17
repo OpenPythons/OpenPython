@@ -3,7 +3,7 @@
 
 def main():
     globals().pop('main')
-    from ucomponents import invoke, components
+    from ucomponent import invoke, components
     from ucomputer import crash, get_computer_address
 
     def component(t):
