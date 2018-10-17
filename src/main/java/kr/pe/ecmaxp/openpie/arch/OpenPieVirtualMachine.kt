@@ -11,7 +11,7 @@ import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
-import java.io.*
+import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 

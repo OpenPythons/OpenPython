@@ -4,7 +4,6 @@ import kr.pe.ecmaxp.openpie.OpenPie
 import kr.pe.ecmaxp.openpie.arch.types.Entry
 import kr.pe.ecmaxp.thumbsf.CPU
 import java.net.URL
-import java.time.Instant
 import java.util.*
 
 class OpenPieFirmware(val name: String = "debug") {

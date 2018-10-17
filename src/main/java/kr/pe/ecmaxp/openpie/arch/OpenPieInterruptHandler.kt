@@ -4,14 +4,19 @@ import kr.pe.ecmaxp.openpie.arch.consts.*
 import kr.pe.ecmaxp.openpie.arch.state.FileHandle
 import kr.pe.ecmaxp.openpie.arch.types.Interrupt
 import kr.pe.ecmaxp.openpie.arch.types.call.*
-import kr.pe.ecmaxp.thumbsf.consts.R0
 import kr.pe.ecmaxp.thumbsf.consts.R7
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
 import kr.pe.ecmaxp.thumbsf.signal.ControlStopSignal
+import li.cil.oc.api.Driver
+import li.cil.oc.api.driver.item.MutableProcessor
+import li.cil.oc.api.driver.item.Processor
 import li.cil.oc.api.machine.*
 import li.cil.oc.api.network.Component
+import li.cil.oc.api.network.Connector
+import net.minecraft.item.ItemStack
 import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
+import li.cil.oc.api.Machine as MachineAPI
 
 class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
     operator fun invoke(intr: Interrupt, synchronized: Boolean) {
@@ -86,16 +91,16 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
 
     private fun handleSignal(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         return when (intr.imm) {
-            SYS_SIGNAL_REQUEST -> {
+            SYS_SIGNAL_POP -> {
                 val signal: Signal? = machine.popSignal()
                 if (signal == null) {
-                    intr.cpu.regs[R7] = SYS_SIGNAL_PENDING
+                    intr.cpu.regs[R7] = SYS_SIGNAL_POP_WAKEUP
                     throw ControlPauseSignal(ExecutionResult.Sleep(intr.r0))
                 }
 
                 intr.responseValue(signal)
             }
-            SYS_SIGNAL_PENDING -> {
+            SYS_SIGNAL_POP_WAKEUP -> {
                 val signal: Signal = machine.popSignal() ?: return intr.responseNone()
                 intr.responseValue(signal)
             }
@@ -151,6 +156,26 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                         intr.responseValue(components)
                     }
                 }
+            }
+            SYS_COMPONENT_TYPE -> {
+                val req = intr.readObject() as Array<*>
+                val address = req[0] as String
+                val components = machine.components()
+
+                return if (components.containsKey(address))
+                    intr.responseValue(components[address])
+                else
+                    intr.responseNone()
+            }
+            SYS_COMPONENT_SLOT -> {
+                val req = intr.readObject() as Array<*>
+                val address = req[0] as String
+                val components = machine.components()
+
+                return if (components.containsKey(address))
+                    intr.responseValue(machine.host().componentSlot(address))
+                else
+                    intr.responseNone()
             }
             SYS_COMPONENT_METHODS -> {
                 val req = intr.readObject() as Array<*>
@@ -270,7 +295,6 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
 
     private fun handleComputer(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         when (intr.imm) {
-            SYS_COMPUTER_GET_COST_PER_TICK -> return intr.responseValue(machine.costPerTick)
             SYS_COMPUTER_LAST_ERROR -> return intr.responseValue(machine.lastError())
             SYS_COMPUTER_BEEP_1 -> {
                 val pattern = intr.readString()
@@ -298,6 +322,73 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
             }
             SYS_COMPUTER_COMPUTER_ADDRESS -> return intr.responseValue(machine.node().address())
             SYS_COMPUTER_TMP_ADDRESS -> return intr.responseValue(machine.tmpAddress())
+            SYS_COMPUTER_ENERGY -> {
+                return intr.responseValue((machine.node() as Connector).globalBuffer())
+            }
+            SYS_COMPUTER_MAX_ENERGY -> {
+                return intr.responseValue((machine.node() as Connector).globalBufferSize())
+            }
+            SYS_COMPUTER_GET_ARCHITECTURES -> {
+                val architectures = ArrayList<Class<out Architecture>>()
+                for (item in machine.host().internalComponents()) {
+                    val driver = Driver.driverFor(item)
+                    when (driver) {
+                        is MutableProcessor -> architectures.addAll(driver.allArchitectures())
+                        is Processor -> architectures.add(driver.architecture(item))
+                    }
+                }
+
+                val names = ArrayList<String>()
+                for (architecture in architectures) {
+                    val name = MachineAPI.getArchitectureName(architecture)
+                    names.add(name)
+                }
+
+                return intr.responseValue(names)
+            }
+            SYS_COMPUTER_GET_ARCHITECTURE -> {
+                val architectures = ArrayList<Class<out Architecture>>()
+                for (item in machine.host().internalComponents()) {
+                    val driver = Driver.driverFor(item)
+                    when (driver) {
+                        is Processor -> architectures.add(driver.architecture(item))
+                    }
+                }
+
+                val architecture = architectures.firstOrNull()
+                        ?: return intr.responseNone()
+
+                val name = MachineAPI.getArchitectureName(architecture)
+                return intr.responseValue(name)
+            }
+            SYS_COMPUTER_SET_ARCHITECTURE -> {
+                val archName = intr.readString()
+                var itemStack: ItemStack? = null
+                var processor: MutableProcessor? = null
+                for (item in machine.host().internalComponents()) {
+                    val driver = Driver.driverFor(item)
+                    when (driver) {
+                        is MutableProcessor -> {
+                            itemStack = item
+                            processor = driver
+                        }
+                    }
+                }
+
+                if (processor == null)
+                    return intr.responseError(Exception("missing processor"))
+
+                val archClass = processor.allArchitectures().find {
+                    MachineAPI.getArchitectureName(it) == archName
+                } ?: return intr.responseError(Exception("unknown architecture"))
+
+                if (archClass != processor.architecture(itemStack!!)) {
+                    processor.setArchitecture(itemStack, archClass)
+                    return intr.responseValue(true);
+                } else {
+                    return intr.responseValue(false);
+                }
+            }
             else -> throw UnknownInterrupt()
         }
     }
@@ -315,6 +406,7 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
             SYS_TIMER_TICKS_MS -> System.currentTimeMillis().toInt()
             SYS_TIMER_TICKS_US -> System.nanoTime().toInt()
             SYS_TIMER_TICKS_CPU -> intr.cpu.totalInsnCount.toInt()
+            SYS_TIMER_REAL_TIME -> intr.responseValue(System.currentTimeMillis() / 1000)
             SYS_TIMER_WORLD_TIME -> intr.responseValue(machine.worldTime())
             SYS_TIMER_UP_TIME -> intr.responseValue(machine.upTime())
             SYS_TIMER_CPU_TIME -> intr.responseValue(machine.cpuTime())

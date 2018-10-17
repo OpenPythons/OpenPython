@@ -1,4 +1,4 @@
-from ucomponent import invoke, methods, doc, components as _components
+from ucomponent import invoke, get_methods, get_doc, get_list
 
 __all__ = ['Component', 'get_component', 'find_components', 'components']
 
@@ -15,7 +15,7 @@ class ComponentMethod:
 
     @property
     def __doc__(self):
-        return doc(self.component.address, self.name)
+        return get_doc(self.component.address, self.name)
 
     def __repr__(self):
         doc = self.__doc__
@@ -36,13 +36,13 @@ class Component:
         return ComponentMethod(self, name)
 
     def __dir__(self):
-        return dir(object()) + ["address", "type"] + list(methods(self.address))
+        return dir(object()) + ["address", "type"] + list(get_methods(self.address))
 
     def __repr__(self):
         return "Component<{0}:{1}>".format(self.type, self.address)
 
 
-components = _components  # TODO: ?
+components = get_list  # TODO: ?
 
 
 def set_primary(compoent):
@@ -54,7 +54,7 @@ def get_component(component_type):
     if component:
         return component
 
-    for address in _components(component_type):
+    for address in get_list(component_type):
         component = Component(address, component_type)
         set_primary(component)
         return component
@@ -67,7 +67,7 @@ get = get_component
 
 
 def find_components(component_type):
-    return [Component(address, component_type) for address in _components(component_type)]
+    return [Component(address, component_type) for address in get_list(component_type)]
 
 
 # alias
