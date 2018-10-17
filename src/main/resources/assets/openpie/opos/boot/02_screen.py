@@ -1,6 +1,6 @@
 import machine
 
-from components import get_component, find_components
+from component import get_component, find_components
 from monitor import Monitor, _set_monitor
 
 gpu = get_component("gpu")
