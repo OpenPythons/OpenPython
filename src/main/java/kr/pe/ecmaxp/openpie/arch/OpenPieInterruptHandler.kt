@@ -152,8 +152,6 @@ class OpenPieInterruptHandler(val vm: OpenPieVirtualMachine) {
                     }
                 }
             }
-            SYS_COMPONENT_COUNT -> intr.responseValue(machine.componentCount())
-            SYS_COMPONENT_MAX -> intr.responseValue(machine.maxComponents())
             SYS_COMPONENT_METHODS -> {
                 val req = intr.readObject() as Array<*>
                 val node = machine.node().network().node(req[0] as String)
