@@ -49,13 +49,6 @@ def ignore(name, callback):
     return True
 
 
-def timer(interval, callback, times):
-    # event.register(false, callback, interval, times)
-    handler = {
-        "key": key,
-    }
-
-
 def register(name):
     def wrapper(callback):
         listen(name, callback)

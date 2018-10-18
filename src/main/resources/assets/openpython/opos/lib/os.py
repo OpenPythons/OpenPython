@@ -1,6 +1,6 @@
 from uos import *
 
-import ocpath as path
+# import ocpath as path
 from ocpath import curdir, pardir, sep, extsep, altsep, pathsep, linesep, defpath, devnull
 
 __all__ = [
@@ -8,7 +8,7 @@ __all__ = [
     "chdir", "getcwd", "ilistdir", "listdir", "mkdir", "remove", "rmdir", "rename", "stat", "statvfs", "sync",
     "urandom", "dupterm", "mount", "umount",
     # ocpath
-    "path",
+    # "path",
     # ocpath.*
     "curdir", "pardir", "sep", "extsep", "altsep", "pathsep", "linesep", "defpath", "devnull",
     # os

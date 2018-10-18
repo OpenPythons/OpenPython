@@ -4,6 +4,7 @@ except ImportError:
     import sys
 
     sys.modules["usys"] = sys
+    # sys.modules["sys"] = sys
 
 
 def spawn(path):

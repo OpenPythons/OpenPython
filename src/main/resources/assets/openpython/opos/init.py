@@ -59,7 +59,7 @@ def init():
         execfile("/boot/" + filename, context)
 
     from shell import spawn
-    spawn("/bin/shell.py")
+    spawn("/bin/python.py")
 
 
 if __name__ == "__main__":
