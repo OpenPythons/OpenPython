@@ -1,3 +1,5 @@
+"""OpenPython Operating System"""
+
 import sys
 
 import machine

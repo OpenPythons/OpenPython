@@ -1,2 +1,1 @@
-error("This operating system cannot be run in Lua Architecture CPU.\n" ..
-      "Please use micropython Architecture CPU.")
+error("This Operating System requires a CPU running the OpenPython architecture.")
