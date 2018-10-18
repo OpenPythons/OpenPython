@@ -23,7 +23,7 @@ open class OpenPythonArchitecture(val machine: Machine) : Architecture {
         close()
 
         try {
-            val firmware = OpenPythonFirmware("debug") // TODO: OpenPythonFirmware mapping
+            val firmware = OpenPythonFirmware("v1.0.0") // TODO: OpenPythonFirmware mapping
             recomputeMemory(machine.host().internalComponents())
             vm = OpenPythonVirtualMachine(machine, totalMemory, firmware)
         } catch (e: Exception) {
