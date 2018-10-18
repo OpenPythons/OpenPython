@@ -1,4 +1,5 @@
-#!micropython
+--[==[
+"""OpenPython EEPROM"""
 
 
 def main():
@@ -58,3 +59,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# ]==] error "This EEPROM requires a CPU running the OpenPython architecture."
