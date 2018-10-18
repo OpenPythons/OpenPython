@@ -41,7 +41,7 @@ object OpenPython {
 
         Items.registerEEPROM(
                 "EEPROM (OpenPython BIOS)",
-                OpenPythonFirmware.DEBUG.loadEEPROM(),
+                OpenPythonFirmware.v1_0_0.loadEEPROM(),
                 byteArrayOf(),
                 false
         )

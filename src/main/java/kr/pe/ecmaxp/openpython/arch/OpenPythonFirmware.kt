@@ -6,12 +6,12 @@ import kr.pe.ecmaxp.thumbsf.CPU
 import java.net.URL
 import java.util.*
 
-class OpenPythonFirmware(val name: String = "debug") {
+class OpenPythonFirmware(val name: String) {
     val protocol = 1
     private val path: String = "/assets/${OpenPython.MODID}/firmwares/$name"
 
     companion object {
-        val DEBUG = OpenPythonFirmware()
+        val v1_0_0 = OpenPythonFirmware("v1.0.0")
     }
 
     init {

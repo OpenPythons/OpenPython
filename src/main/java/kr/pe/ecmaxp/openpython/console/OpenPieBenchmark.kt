@@ -17,7 +17,7 @@ object OpenPythonBenchmark {
     @JvmStatic
     fun main(args: Array<String>) {
         val cpu = CPU()
-        val firmware = OpenPythonFirmware.DEBUG
+        val firmware = OpenPythonFirmware.v1_0_0
         cpu.memory.apply {
             flash(FLASH.address, FLASH.size, firmware.loadFirmware())
             map(SRAM.address, SRAM.size, MemoryFlag.RW) // ram
