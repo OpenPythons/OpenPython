@@ -1,8 +1,8 @@
 package kr.pe.ecmaxp.openpython.arch.msgpack
 
 import kr.pe.ecmaxp.openpython.arch.OpenPythonVirtualMachine
-import org.msgpack.core.MessagePack
-import org.msgpack.value.ValueType
+import kr.pe.ecmaxp.openpython.repack.org.msgpack.core.MessagePack
+import kr.pe.ecmaxp.openpython.repack.org.msgpack.value.ValueType
 
 
 class MsgpackUnpacker(buffer: ByteArray, val vm: OpenPythonVirtualMachine? = null) {

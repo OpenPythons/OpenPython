@@ -49,7 +49,7 @@ repositories {
 shadowJar {
     exclude 'dummyThing'
 
-    relocate "org.msgpack", "kr.pe.ecmaxp.repack.org.msgpack"
+    // relocate "org.msgpack", "kr.pe.ecmaxp.repack.org.msgpack"
 }
 
 dependencies {
@@ -59,7 +59,7 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    compile "org.msgpack:msgpack-core:0.8.16"
+    // compile "org.msgpack:msgpack-core:0.8.16"
 }
 
 processResources {

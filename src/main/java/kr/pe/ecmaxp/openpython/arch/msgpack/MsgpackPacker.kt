@@ -3,7 +3,7 @@ package kr.pe.ecmaxp.openpython.arch.msgpack
 import kr.pe.ecmaxp.openpython.arch.OpenPythonVirtualMachine
 import li.cil.oc.api.machine.Signal
 import li.cil.oc.api.machine.Value
-import org.msgpack.core.MessagePack
+import kr.pe.ecmaxp.openpython.repack.org.msgpack.core.MessagePack
 
 
 class MsgpackPacker(val vm: OpenPythonVirtualMachine? = null) {
