@@ -9,17 +9,17 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+        // classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'com.github.johnrengelman.shadow'
+// apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'kotlin'
 
-version = "1.0.0"
-group = "kr.pe.ecmaxp.openpython"
-archivesBaseName = "OpenPython"
+version = "MC${minecraft_version}-OC${opencomputers_version}-${mod_version}"
+group = mod_group
+archivesBaseName = mod_name
 
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava {
@@ -28,11 +28,13 @@ compileJava {
 }
 
 minecraft {
-    version = "1.12.2-14.23.4.2747"
+    version = "${minecraft_version}-${forge_version}"
+
+    replace "@VERSION@", mod_version
+    replace "/*@MCVERSIONDEP@*/", "acceptedMinecraftVersions = \"[${minecraft_version},${minecraft_version}+)\""
+
     runDir = "run"
-    
-    mappings = "snapshot_20171003"
-    makeObfSourceJar = true
+    mappings = minecraft_mappings
 }
 
 repositories {
@@ -46,16 +48,16 @@ repositories {
     mavenCentral()
 }
 
+/*
 shadowJar {
     exclude 'dummyThing'
-
     // relocate "org.msgpack", "kr.pe.ecmaxp.repack.org.msgpack"
 }
+*/
 
 dependencies {
-    api "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
-
-    api "net.shadowfacts:Forgelin:1.7.3"
+    api "li.cil.oc:OpenComputers:MC$minecraft_version-$opencomputers_version.+:api"
+    api "net.shadowfacts:Forgelin:$forgelin_version"
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
@@ -78,12 +80,12 @@ processResources {
 
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = '1.8'
     }
 }
 
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = '1.8'
     }
 }
