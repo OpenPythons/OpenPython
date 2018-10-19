@@ -68,8 +68,18 @@ class OpenPythonVirtualMachine internal constructor(val machine: Machine, val me
         // firmware
         val firmwareTag = rootTag.getCompoundTag("firmware")
         val firmwareName = firmwareTag.getString("name")
-        if (firmware.name != firmwareName)
-            firmware = OpenPythonFirmware(firmwareName)
+        if (firmware.name != firmwareName) {
+            try {
+                firmware = OpenPythonFirmware(firmwareName)
+            } catch (e: Exception) {
+                if (firmwareName.startsWith("v1.0.")) {
+                    e.printStackTrace()
+                    firmware = OpenPythonFirmware.v1_0_1
+                } else {
+                    throw e;
+                }
+            }
+        }
 
 
         // cpu

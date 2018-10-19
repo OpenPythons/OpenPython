@@ -18,11 +18,12 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
         name = OpenPython.NAME,
         version = OpenPython.VERSION,
         dependencies = "required-after:forgelin;required-after:opencomputers;",
-        modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter")
+        modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter"
+        /*@MCVERSIONDEP@*/)
 object OpenPython {
     const val MODID = "openpython"
     const val NAME = "OpenPython"
-    const val VERSION = "1.0.0"
+    const val VERSION = "1.0.1"
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
@@ -41,7 +42,7 @@ object OpenPython {
 
         Items.registerEEPROM(
                 "EEPROM (OpenPython BIOS)",
-                OpenPythonFirmware.v1_0_0.loadEEPROM(),
+                OpenPythonFirmware.v1_0_1.loadEEPROM(),
                 byteArrayOf(),
                 false
         )

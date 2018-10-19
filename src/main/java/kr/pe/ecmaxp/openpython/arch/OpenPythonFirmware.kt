@@ -11,7 +11,7 @@ class OpenPythonFirmware(val name: String) {
     private val path: String = "/assets/${OpenPython.MODID}/firmwares/$name"
 
     companion object {
-        val v1_0_0 = OpenPythonFirmware("v1.0.0")
+        val v1_0_1 = OpenPythonFirmware("v1.0.1")
     }
 
     init {
