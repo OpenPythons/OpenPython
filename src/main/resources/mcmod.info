@@ -1,16 +1,15 @@
 [
-{
-  "modid": "OpenPython",
-  "name": "OpenPython",
-  "description": "Micropython for OpenComputer",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "https://github.com/EcmaXp/OpenPython",
-  "updateUrl": "",
-  "authorList": ["EcmaXp"],
-  "credits": "OpenComputers, micropython, unicorn, ...",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}
+    {
+        "modid": "OpenPython",
+        "name": "OpenPython",
+        "description": "Micropython for OpenComputer",
+        "version": "${version}",
+        "mcversion": "${mcversion}",
+        "url": "https://github.com/EcmaXp/OpenPython",
+        "updateUrl": "",
+        "authorList": ["EcmaXp"],
+        "credits": "OpenComputers, micropython, unicorn, ...",
+        "logoFile": "",
+        "screenshots": []
+    }
 ]
