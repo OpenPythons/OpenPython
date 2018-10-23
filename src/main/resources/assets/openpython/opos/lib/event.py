@@ -5,7 +5,6 @@ from computer import pop_signal
 __all__ = ["register", "unregister", "setup"]
 
 event = {}
-handlers = {}
 lastInterrupt = None
 
 registered = {}
@@ -23,7 +22,7 @@ def signal_handler(ticks):
 
     for handler in handlers:
         try:
-            handler(*args)
+            handler(name, *args)
         except BaseException as e:
             machine.debug("signal_handler exc => %s: %s" % (type(e).__name__, e))
 

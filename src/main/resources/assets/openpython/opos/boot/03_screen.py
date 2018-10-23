@@ -1,24 +1,25 @@
 import machine
 
-from component import get_component, find_components
+import component
 from monitor import Monitor, _set_monitor
 
-gpu = get_component("gpu")
+gpu = component.get_primary("gpu")
 
 screen = None
-for screen in find_components("screen"):
+for screen in component.list("screen"):
     if screen.getKeyboards():
+        component.set_primary("screen", screen.address)
         break
 
 if gpu and screen:
-    monitor = Monitor(gpu.address, gpu.type)
-    monitor.bind(screen.address)
-    w, h = monitor.maxResolution()
+    monitor = Monitor(gpu)
+    gpu.bind(screen.address)
+    w, h = gpu.maxResolution()
     monitor.w, monitor.h = w, h
-    monitor.setResolution(w, h)
-    monitor.setBackground(0x000000)
-    monitor.setForeground(0xFFFFFF)
-    monitor.fill(1, 1, w, h, " ")
+    gpu.setResolution(w, h)
+    gpu.setBackground(0x000000)
+    gpu.setForeground(0xFFFFFF)
+    gpu.fill(1, 1, w, h, " ")
 
 
     @machine.hook_stdout

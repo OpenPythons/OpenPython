@@ -15,7 +15,7 @@ def input_handler():
 
 
 @event.register("key_down")
-def handle_key_down(_1, char, *_):
+def handle_key_down(_0, _1, char, *_):
     buf.append(char)
 
 
