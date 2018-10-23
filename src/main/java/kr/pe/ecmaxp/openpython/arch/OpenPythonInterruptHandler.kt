@@ -463,31 +463,41 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
                     }
                 }
                 SYS_VFS_READ -> {
-                    val ret = fh("read", intr.r1)(machine)
-                    when {
-                        ret.error != null -> {
-                            ret.error.printStackTrace()
-                            return 1
-                        }
-                        ret.args != null -> {
-                            if (ret.args.size != 1) {
+                    var size = Math.min(intr.r1, 4096)
+                    var pos = 0
+                    val buffer = ByteArray(size)
+
+                    while (pos < size) {
+                        val ret = fh("read", size - pos)(machine)
+                        when {
+                            ret.error != null -> {
+                                ret.error.printStackTrace()
                                 return MP_EPERM
                             }
-
-                            val arg = ret.args[0]
-                            return when (arg) {
-                                is ByteArray -> {
-                                    intr.memory.writeBuffer(intr.r2, arg)
-                                    intr.memory.writeInt(intr.r3, arg.size)
-                                    0
+                            ret.args != null -> {
+                                if (ret.args.size != 1) {
+                                    return MP_EPERM
                                 }
-                                null -> // EOF
-                                    0
-                                else -> MP_EPERM
+
+                                val arg = ret.args[0]
+                                when (arg) {
+                                    is ByteArray -> {
+                                        if (arg.size == 0) {
+                                            size = pos
+                                        } else {
+                                            System.arraycopy(arg, 0, buffer, pos, Math.min(arg.size, size - pos))
+                                            pos += arg.size
+                                        }
+                                    }
+                                    null -> size = pos
+                                }
                             }
                         }
-                        else -> return MP_EPERM
                     }
+
+                    intr.memory.writeBuffer(intr.r2, buffer)
+                    intr.memory.writeInt(intr.r3, pos)
+                    return MP_OK
                 }
                 SYS_VFS_WRITE -> {
                     val buf = intr.readBuffer(intr.r1, intr.r2)
