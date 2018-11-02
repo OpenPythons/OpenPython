@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpython.arch
+package kr.pe.ecmaxp.openpython.arch.versions.v1
 
 import kr.pe.ecmaxp.openpython.arch.state.FileHandle
 import kr.pe.ecmaxp.openpython.arch.state.ValueContainerMap
@@ -7,7 +7,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import java.util.*
 
-class OpenPythonVirtualMachineState : Persistable {
+class OpenPythonVirtualMachineStateV1 : Persistable {
     var fdCount = 3
     var fdMap: HashMap<Int, FileHandle> = HashMap()
     var valueMap: ValueContainerMap = ValueContainerMap()

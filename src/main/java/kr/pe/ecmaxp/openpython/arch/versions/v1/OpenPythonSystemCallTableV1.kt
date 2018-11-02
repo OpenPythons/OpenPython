@@ -1,4 +1,4 @@
-package kr.pe.ecmaxp.openpython.arch.consts
+package kr.pe.ecmaxp.openpython.arch.versions.v1
 
 const val SYS_DEBUG = 0x010000
 

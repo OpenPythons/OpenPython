@@ -1,8 +1,10 @@
-package kr.pe.ecmaxp.openpython.arch
+package kr.pe.ecmaxp.openpython.arch.versions.v1
 
+import kr.pe.ecmaxp.openpython.OpenPython
+import kr.pe.ecmaxp.openpython.arch.types.interrupt.InterruptHandler
 import kr.pe.ecmaxp.openpython.arch.consts.*
 import kr.pe.ecmaxp.openpython.arch.state.FileHandle
-import kr.pe.ecmaxp.openpython.arch.types.Interrupt
+import kr.pe.ecmaxp.openpython.arch.types.interrupt.Interrupt
 import kr.pe.ecmaxp.openpython.arch.types.call.*
 import kr.pe.ecmaxp.thumbsf.consts.R7
 import kr.pe.ecmaxp.thumbsf.signal.ControlPauseSignal
@@ -18,8 +20,13 @@ import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
 import li.cil.oc.api.Machine as MachineAPI
 
-class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
-    operator fun invoke(intr: Interrupt, synchronized: Boolean) {
+class OpenPythonInterruptHandlerV1(val vm: OpenPythonVirtualMachineV1) : InterruptHandler {
+    val machine: Machine get() = vm.machine
+    val state: OpenPythonVirtualMachineStateV1 get() = vm.state
+
+    override operator fun invoke(interrupt: Interrupt, synchronized: Boolean) {
+        val intr = interrupt as OpenPythonInterruptV1
+
         try {
             val code: Int = when (intr.imm and (0xFFFF shl 16)) {
                 SYS_CONTROL -> handleControl(intr, synchronized)
@@ -37,7 +44,7 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
             intr.cpu.regs[0] = code
         } catch (e: UnknownInterrupt) {
             e.printStackTrace()
-            throw ControlStopSignal(ExecutionResult.Error("Unknown Interrupt?"))
+            throw ControlStopSignal(ExecutionResult.Error("Unknown OpenPythonInterruptV1"))
         } catch (e: LimitReachedException) {
             throw ControlPauseSignal(ExecutionResult.SynchronizedCall())
         }
@@ -49,10 +56,7 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
 
     inner class UnknownInterrupt : Exception()
 
-    val machine: Machine get() = vm.machine
-    val state: OpenPythonVirtualMachineState get() = vm.state
-
-    private fun handleControl(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+    private fun handleControl(intr: OpenPythonInterruptV1, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         return when (intr.imm) {
             SYS_CONTROL_SHUTDOWN -> throw ControlStopSignal(ExecutionResult.Shutdown(false))
             SYS_CONTROL_REBOOT -> throw ControlStopSignal(ExecutionResult.Shutdown(true))
@@ -81,15 +85,18 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
         }
     }
 
-    private fun handleDebug(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+    private fun handleDebug(intr: OpenPythonInterruptV1, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         val buf = intr.readBuffer()
         val str = String(buf, StandardCharsets.UTF_8)
 
-        print(str)
+        @Suppress("ConstantConditionIf")
+        if (OpenPython.DEBUG)
+            print(str)
+
         return 0
     }
 
-    private fun handleSignal(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+    private fun handleSignal(intr: OpenPythonInterruptV1, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         return when (intr.imm) {
             SYS_SIGNAL_POP -> {
                 val signal: Signal? = machine.popSignal()
@@ -111,14 +118,14 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
         }
     }
 
-    private fun handleComponents(intr: Interrupt, synchronized: Boolean): Int {
+    private fun handleComponents(intr: OpenPythonInterruptV1, synchronized: Boolean): Int {
         return when (intr.imm) {
             SYS_COMPONENT_INVOKE -> {
                 val obj = intr.readObject()
                 val call = ComponentInvoke.fromArray(obj as Array<*>)
                         ?: return intr.responseError(Exception("Invalid invoke"))
 
-                if (!synchronized) {
+                if (!synchronized) { // in thread pooll
                     val node = machine.node().network().node(call.component) as? Component
                             ?: return intr.responseError(Exception("Invalid Component"))
 
@@ -211,7 +218,7 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
         }
     }
 
-    private fun handleValue(intr: Interrupt, synchronized: Boolean): Int {
+    private fun handleValue(intr: OpenPythonInterruptV1, synchronized: Boolean): Int {
         return when (intr.imm) {
             SYS_VALUE_INVOKE -> {
                 val obj = intr.readObject()
@@ -293,7 +300,7 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
         }
     }
 
-    private fun handleComputer(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+    private fun handleComputer(intr: OpenPythonInterruptV1, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         when (intr.imm) {
             SYS_COMPUTER_LAST_ERROR -> return intr.responseValue(machine.lastError())
             SYS_COMPUTER_BEEP_1 -> {
@@ -393,7 +400,7 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
         }
     }
 
-    private fun handleInfo(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+    private fun handleInfo(intr: OpenPythonInterruptV1, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         return when (intr.imm) {
             SYS_INFO_VERSION -> 0x01000000 // 1.0.0.0
             SYS_INFO_RAM_SIZE -> vm.memorySize
@@ -401,7 +408,7 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
         }
     }
 
-    private fun handleTimer(intr: Interrupt, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
+    private fun handleTimer(intr: OpenPythonInterruptV1, @Suppress("UNUSED_PARAMETER") synchronized: Boolean): Int {
         return when (intr.imm) {
             SYS_TIMER_TICKS_MS -> System.currentTimeMillis().toInt()
             SYS_TIMER_TICKS_US -> System.nanoTime().toInt()
@@ -414,7 +421,7 @@ class OpenPythonInterruptHandler(val vm: OpenPythonVirtualMachine) {
         }
     }
 
-    private fun handleVirtualFileSystem(intr: Interrupt, synchronized: Boolean): Int {
+    private fun handleVirtualFileSystem(intr: OpenPythonInterruptV1, synchronized: Boolean): Int {
         if (!synchronized)
             throw ControlPauseSignal(ExecutionResult.SynchronizedCall())
 

@@ -1,10 +1,10 @@
 package kr.pe.ecmaxp.openpython.console
 
-import kr.pe.ecmaxp.openpython.arch.OpenPythonFirmware
-import kr.pe.ecmaxp.openpython.arch.OpenPythonMemoryRegion.*
+import kr.pe.ecmaxp.openpython.arch.versions.v1.OpenPythonMemoryRegionV1.*
 import kr.pe.ecmaxp.openpython.arch.consts.KB
-import kr.pe.ecmaxp.openpython.arch.consts.SYS_DEBUG
-import kr.pe.ecmaxp.openpython.arch.consts.SYS_INFO_RAM_SIZE
+import kr.pe.ecmaxp.openpython.arch.versions.v1.SYS_DEBUG
+import kr.pe.ecmaxp.openpython.arch.versions.v1.SYS_INFO_RAM_SIZE
+import kr.pe.ecmaxp.openpython.arch.versions.v1.OpenPythonArchitectureV1
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.MemoryFlag
 import kr.pe.ecmaxp.thumbsf.consts.PC
@@ -17,7 +17,7 @@ object OpenPythonBenchmark {
     @JvmStatic
     fun main(args: Array<String>) {
         val cpu = CPU()
-        val firmware = OpenPythonFirmware.v1_0_1
+        val firmware = OpenPythonArchitectureV1.LATEST_FIRMWARE
         cpu.memory.apply {
             flash(FLASH.address, FLASH.size, firmware.loadFirmware())
             map(SRAM.address, SRAM.size, MemoryFlag.RW) // ram

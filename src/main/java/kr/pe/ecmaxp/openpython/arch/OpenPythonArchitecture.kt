@@ -1,5 +1,7 @@
 package kr.pe.ecmaxp.openpython.arch
 
+import kr.pe.ecmaxp.openpython.OpenPythonArchitectureLogic
+import kr.pe.ecmaxp.openpython.OpenPythonVirtualMachine
 import kr.pe.ecmaxp.openpython.arch.consts.KB
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.item.Memory
@@ -10,7 +12,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 
 
-open class OpenPythonArchitecture(val machine: Machine) : Architecture {
+open class OpenPythonArchitecture(val machine: Machine, val logic: OpenPythonArchitectureLogic) : Architecture {
     var totalMemory = 0
     var vm: OpenPythonVirtualMachine? = null
     var lastSynchronizedResult: ExecutionResult? = null
@@ -23,9 +25,8 @@ open class OpenPythonArchitecture(val machine: Machine) : Architecture {
         close()
 
         try {
-            val firmware = OpenPythonFirmware.v1_0_1
             recomputeMemory(machine.host().internalComponents())
-            vm = OpenPythonVirtualMachine(machine, totalMemory, firmware)
+            vm = logic.spawn(machine, totalMemory)
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -1,8 +1,7 @@
 package kr.pe.ecmaxp.openpython
 
 import kr.pe.ecmaxp.openpython.arch.OpenComputersLikeSaveHandler
-import kr.pe.ecmaxp.openpython.arch.OpenPythonFirmware
-import kr.pe.ecmaxp.openpython.arch.versions.OpenPythonArchitecture_v1_0
+import kr.pe.ecmaxp.openpython.arch.versions.v1.OpenPythonArchitectureV1
 import li.cil.oc.api.FileSystem
 import li.cil.oc.api.Items
 import li.cil.oc.api.Machine
@@ -23,12 +22,13 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 object OpenPython {
     const val MODID = "openpython"
     const val NAME = "OpenPython"
-    const val VERSION = "1.0.1"
+    const val VERSION = "1.0.2"
+    val DEBUG = false
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
         MinecraftForge.EVENT_BUS.register(OpenComputersLikeSaveHandler)
-        Machine.add(OpenPythonArchitecture_v1_0::class.java)
+        Machine.add(OpenPythonArchitectureV1::class.java)
     }
 
     @Mod.EventHandler
@@ -42,7 +42,7 @@ object OpenPython {
 
         Items.registerEEPROM(
                 "EEPROM (OpenPython BIOS)",
-                OpenPythonFirmware.v1_0_1.loadEEPROM(),
+                OpenPythonArchitectureV1.LATEST_FIRMWARE.loadEEPROM(),
                 byteArrayOf(),
                 false
         )

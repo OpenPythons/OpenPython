@@ -1,6 +1,6 @@
 package kr.pe.ecmaxp.openpython.arch.msgpack
 
-import kr.pe.ecmaxp.openpython.arch.OpenPythonVirtualMachine
+import kr.pe.ecmaxp.openpython.OpenPythonVirtualMachine
 import li.cil.oc.api.machine.Signal
 import li.cil.oc.api.machine.Value
 import kr.pe.ecmaxp.openpython.repack.org.msgpack.core.MessagePack
@@ -70,11 +70,7 @@ class MsgpackPacker(val vm: OpenPythonVirtualMachine? = null) {
                     packString(o.toString())
                 }
                 is Value -> {
-                    val packer = MsgpackPacker(vm)
-                    packer.pack(vm!!.state.valueMap.register(o).id)
-                    val buffer = packer.toByteArray()
-                    packExtensionTypeHeader(1, buffer.size)
-                    writePayload(buffer)
+                    vm!!.packValue(this, o)
                 }
                 else -> {
                     throw Exception("mismatch type ${o.javaClass} => $o")

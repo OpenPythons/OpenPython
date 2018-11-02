@@ -1,14 +1,14 @@
-package kr.pe.ecmaxp.openpython.arch.types
+package kr.pe.ecmaxp.openpython.arch.versions.v1
 
-import kr.pe.ecmaxp.openpython.arch.OpenPythonMemoryRegion
-import kr.pe.ecmaxp.openpython.arch.OpenPythonVirtualMachine
+import kr.pe.ecmaxp.openpython.OpenPythonVirtualMachine
 import kr.pe.ecmaxp.openpython.arch.msgpack.Msgpack
 import kr.pe.ecmaxp.openpython.arch.types.call.InvokeResult
+import kr.pe.ecmaxp.openpython.arch.types.interrupt.Interrupt
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.Memory
 import kr.pe.ecmaxp.thumbsf.consts.*
 
-class Interrupt(val cpu: CPU, imm: Int, val vm: OpenPythonVirtualMachine? = null) {
+class OpenPythonInterruptV1(val cpu: CPU, imm: Int, val vm: OpenPythonVirtualMachine? = null) : Interrupt {
     val imm: Int
     val r0: Int
     val r1: Int
@@ -28,19 +28,18 @@ class Interrupt(val cpu: CPU, imm: Int, val vm: OpenPythonVirtualMachine? = null
 
     val memory: Memory get() = cpu.memory
 
-    fun readBuffer(address: Int, size: Int): ByteArray = memory.readBuffer(address, size)
-    fun readBuffer(): ByteArray = readBuffer(r0, r1)
+    override fun readBuffer(): ByteArray = readBuffer(r0, r1)
+    override fun readBuffer(address: Int, size: Int): ByteArray = memory.readBuffer(address, size)
 
-    fun readString(address: Int, maxSize: Int): String = memory.readString(address, maxSize)
-    fun readString(): String? = readString(r0, r1)
+    override fun readString(): String? = readString(r0, r1)
+    override fun readString(address: Int, maxSize: Int): String = memory.readString(address, maxSize)
 
-    fun readObject(): Any? = Msgpack(vm).loads(readBuffer())
+    override fun readObject(): Any? = Msgpack(vm).loads(readBuffer())
 
+    override fun responseNone(): Int = 0
 
-    fun responseNone(): Int = 0
-
-    fun responseError(value: Throwable): Int {
-        val bufAddress = OpenPythonMemoryRegion.SYSCALL.address
+    override fun responseError(value: Throwable): Int {
+        val bufAddress = OpenPythonMemoryRegionV1.SYSCALL.address
         val buffer = Msgpack(vm).dumps(value)
         memory.writeInt(bufAddress, 0) // + 0 | 1 = OK (msgpack)
         memory.writeInt(bufAddress + 4, bufAddress + 12) // + 4
@@ -49,11 +48,11 @@ class Interrupt(val cpu: CPU, imm: Int, val vm: OpenPythonVirtualMachine? = null
         return bufAddress
     }
 
-    fun responseValue(value: Any?): Int {
+    override fun responseValue(value: Any?): Int {
         if (value == null)
             return responseNone()
 
-        val bufAddress = OpenPythonMemoryRegion.SYSCALL.address
+        val bufAddress = OpenPythonMemoryRegionV1.SYSCALL.address
         val buffer = Msgpack(vm).dumps(value)
         memory.writeInt(bufAddress, 1) // + 0 = OK (msgpack)
         memory.writeInt(bufAddress + 4, bufAddress + 12) // + 4
@@ -62,8 +61,8 @@ class Interrupt(val cpu: CPU, imm: Int, val vm: OpenPythonVirtualMachine? = null
         return bufAddress
     }
 
-    fun responseBuffer(buffer: ByteArray): Int {
-        val bufAddress = OpenPythonMemoryRegion.SYSCALL.address
+    override fun responseBuffer(buffer: ByteArray): Int {
+        val bufAddress = OpenPythonMemoryRegionV1.SYSCALL.address
         memory.writeInt(bufAddress, bufAddress + 8) // + 0 | 0 = ERROR
         memory.writeInt(bufAddress + 4, buffer.size) // + 4
         memory.writeBuffer(bufAddress + 8, buffer) // + 8
@@ -71,7 +70,7 @@ class Interrupt(val cpu: CPU, imm: Int, val vm: OpenPythonVirtualMachine? = null
         return bufAddress
     }
 
-    fun responseResult(ret: InvokeResult): Int {
+    override fun responseResult(ret: InvokeResult): Int {
         return if (ret.error == null) responseValue(ret.args) else responseError(ret.error)
     }
 }

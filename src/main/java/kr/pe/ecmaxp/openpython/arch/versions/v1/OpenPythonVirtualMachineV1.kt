@@ -1,7 +1,14 @@
-package kr.pe.ecmaxp.openpython.arch
+package kr.pe.ecmaxp.openpython.arch.versions.v1
 
-import kr.pe.ecmaxp.openpython.arch.OpenPythonMemoryRegion.*
-import kr.pe.ecmaxp.openpython.arch.types.Interrupt
+import kr.pe.ecmaxp.openpython.OpenPythonVirtualMachine
+import kr.pe.ecmaxp.openpython.arch.OpenComputersLikeSaveHandler
+import kr.pe.ecmaxp.openpython.arch.msgpack.MsgpackPacker
+import kr.pe.ecmaxp.openpython.arch.msgpack.MsgpackUnpacker
+import kr.pe.ecmaxp.openpython.arch.types.interrupt.Interrupt
+import kr.pe.ecmaxp.openpython.arch.types.interrupt.InterruptHandler
+import kr.pe.ecmaxp.openpython.arch.versions.v1.OpenPythonMemoryRegionV1.*
+import kr.pe.ecmaxp.openpython.repack.org.msgpack.core.MessagePacker
+import kr.pe.ecmaxp.openpython.repack.org.msgpack.core.MessageUnpacker
 import kr.pe.ecmaxp.thumbsf.CPU
 import kr.pe.ecmaxp.thumbsf.consts.I0
 import kr.pe.ecmaxp.thumbsf.consts.PC
@@ -9,6 +16,7 @@ import kr.pe.ecmaxp.thumbsf.exc.InvalidMemoryException
 import kr.pe.ecmaxp.thumbsf.signal.ControlSignal
 import li.cil.oc.api.machine.ExecutionResult
 import li.cil.oc.api.machine.Machine
+import li.cil.oc.api.machine.Value
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import java.io.ByteArrayOutputStream
@@ -16,10 +24,33 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
 
-class OpenPythonVirtualMachine internal constructor(val machine: Machine, val memorySize: Int, var firmware: OpenPythonFirmware) {
+class OpenPythonVirtualMachineV1 internal constructor(val machine: Machine, override val memorySize: Int) : OpenPythonVirtualMachine {
+    override fun packValue(packer: MessagePacker, value: Value) {
+        val newPacker = MsgpackPacker(this)
+        newPacker.pack(state.valueMap.register(value).id)
+        val buffer = newPacker.toByteArray()
+        packer.packExtensionTypeHeader(1, buffer.size)
+        packer.writePayload(buffer)
+    }
+
+    override fun unpackExtension(unpacker: MessageUnpacker): Any? {
+        val ext = unpacker.unpackExtensionTypeHeader()
+        val payload = unpacker.readPayload(ext.length)
+
+        return when (ext.type.toInt() and 0xFF) {
+            1 -> {
+                val newUnpacker = MsgpackUnpacker(payload, this)
+                val pointer = newUnpacker.unpack() as Int
+                state.valueMap[pointer]
+            }
+            else -> TODO()
+        }
+    }
+
+    var firmware = OpenPythonArchitectureV1.LATEST_FIRMWARE
     val cpu: CPU = CPU()
-    var state: OpenPythonVirtualMachineState = OpenPythonVirtualMachineState()
-    var interruptHandler: OpenPythonInterruptHandler = OpenPythonInterruptHandler(this)
+    var state: OpenPythonVirtualMachineStateV1 = OpenPythonVirtualMachineStateV1()
+    var interruptHandler: InterruptHandler = OpenPythonInterruptHandlerV1(this)
 
     init {
         val memory = cpu.memory.apply {
@@ -32,14 +63,14 @@ class OpenPythonVirtualMachine internal constructor(val machine: Machine, val me
         cpu.regs[PC] = memory.readInt(FLASH.address + 4) and I0.inv()
     }
 
-    fun close() {
+    override fun close() {
         // TODO: free memory
     }
 
-    fun step(synchronized: Boolean): ExecutionResult {
+    override fun step(synchronized: Boolean): ExecutionResult {
         return try {
             cpu.run(if (synchronized) 1 else 10000000) {
-                val interrupt = Interrupt(cpu, it, this)
+                val interrupt = OpenPythonInterruptV1(cpu, it, this)
                 interruptHandler(interrupt, synchronized)
             }
 
@@ -58,27 +89,19 @@ class OpenPythonVirtualMachine internal constructor(val machine: Machine, val me
         }
     }
 
-    fun load(tag: NBTTagCompound) {
-        val rootTag = OpenComputersLikeSaveHandler.loadNbt(machine.host(), tag, machine.node().address()) ?: run {
-            if (machine.isRunning) machine.crash("Missing data")
-            return
-        }
+    override fun load(tag: NBTTagCompound) {
+        val rootTag = OpenComputersLikeSaveHandler.loadNbt(machine.host(), tag, machine.node().address())
+                ?: run {
+                    if (machine.isRunning) machine.crash("Missing data")
+                    return
+                }
 
 
-        // firmware
-        val firmwareTag = rootTag.getCompoundTag("firmware")
+        // LATEST_FIRMWARE
+        val firmwareTag = rootTag.getCompoundTag("LATEST_FIRMWARE")
         val firmwareName = firmwareTag.getString("name")
         if (firmware.name != firmwareName) {
-            try {
-                firmware = OpenPythonFirmware(firmwareName)
-            } catch (e: Exception) {
-                if (firmwareName.startsWith("v1.0.")) {
-                    e.printStackTrace()
-                    firmware = OpenPythonFirmware.v1_0_1
-                } else {
-                    throw e;
-                }
-            }
+            firmware = OpenPythonArchitectureV1.LATEST_FIRMWARE
         }
 
 
@@ -110,13 +133,11 @@ class OpenPythonVirtualMachine internal constructor(val machine: Machine, val me
         state.load(stateTag)
     }
 
-    fun save(tag: NBTTagCompound) {
-
-        // firmware
+    override fun save(tag: NBTTagCompound) {
+        // LATEST_FIRMWARE
         val firmwareTag = NBTTagCompound()
         firmwareTag.setString("name", firmware.name)
         firmwareTag.setInteger("protocol", firmware.protocol)
-
 
         // cpu
         val cpuTag = NBTTagCompound()
@@ -148,7 +169,7 @@ class OpenPythonVirtualMachine internal constructor(val machine: Machine, val me
 
         val rootTag = NBTTagCompound()
         // rootTag.setInteger("memorySize", memorySize) // TODO: no idea
-        rootTag.setTag("firmware", firmwareTag)
+        rootTag.setTag("LATEST_FIRMWARE", firmwareTag)
         rootTag.setTag("cpu", cpuTag)
         rootTag.setTag("state", stateTag)
 

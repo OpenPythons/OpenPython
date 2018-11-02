@@ -10,10 +10,6 @@ class OpenPythonFirmware(val name: String) {
     val protocol = 1
     private val path: String = "/assets/${OpenPython.MODID}/firmwares/$name"
 
-    companion object {
-        val v1_0_1 = OpenPythonFirmware("v1.0.1")
-    }
-
     init {
         if (name.indexOf('/') >= 0)
             throw Exception("Invalid Filename")

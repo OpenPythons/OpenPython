@@ -1,11 +1,11 @@
-package kr.pe.ecmaxp.openpython.arch
+package kr.pe.ecmaxp.openpython.arch.versions.v1
 
 import kr.pe.ecmaxp.openpython.arch.consts.KB
 import kr.pe.ecmaxp.thumbsf.MemoryFlag
 import kr.pe.ecmaxp.thumbsf.MemoryFlag.RW
 import kr.pe.ecmaxp.thumbsf.MemoryFlag.RX
 
-enum class OpenPythonMemoryRegion(val address: Int, val size: Int, val flag: MemoryFlag) {
+enum class OpenPythonMemoryRegionV1(val address: Int, val size: Int, val flag: MemoryFlag) {
     FLASH(0x08000000, 256 * KB, RX),
     SRAM(0x20000000, 64 * KB, RW),
     RAM(0x60000000, 256 * KB, RW), // dynamic size

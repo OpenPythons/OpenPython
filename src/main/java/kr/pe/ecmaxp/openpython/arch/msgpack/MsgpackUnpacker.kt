@@ -1,6 +1,6 @@
 package kr.pe.ecmaxp.openpython.arch.msgpack
 
-import kr.pe.ecmaxp.openpython.arch.OpenPythonVirtualMachine
+import kr.pe.ecmaxp.openpython.OpenPythonVirtualMachine
 import kr.pe.ecmaxp.openpython.repack.org.msgpack.core.MessagePack
 import kr.pe.ecmaxp.openpython.repack.org.msgpack.value.ValueType
 
@@ -41,16 +41,7 @@ class MsgpackUnpacker(buffer: ByteArray, val vm: OpenPythonVirtualMachine? = nul
                     map
                 }
                 ValueType.EXTENSION -> {
-                    val ext = unpackExtensionTypeHeader()
-                    val payload = readPayload(ext.length)
-                    when (ext.type.toInt() and 0xFF) {
-                        1 -> {
-                            val unpacker = MsgpackUnpacker(payload, vm)
-                            val pointer = unpacker.unpack() as Int
-                            vm!!.state.valueMap[pointer]
-                        }
-                        else -> TODO()
-                    }
+                    vm!!.unpackExtension(this)
                 }
                 else -> throw Exception()
             }

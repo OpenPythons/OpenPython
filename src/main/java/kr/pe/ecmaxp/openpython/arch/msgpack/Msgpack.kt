@@ -1,6 +1,6 @@
 package kr.pe.ecmaxp.openpython.arch.msgpack
 
-import kr.pe.ecmaxp.openpython.arch.OpenPythonVirtualMachine
+import kr.pe.ecmaxp.openpython.OpenPythonVirtualMachine
 
 class Msgpack(val vm: OpenPythonVirtualMachine? = null) {
     fun loads(buffer: ByteArray): Any? {
