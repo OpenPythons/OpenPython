@@ -51,6 +51,9 @@ def print_handler(string):
 def init():
     uos.mount(FileSystem(__path__), '/')
     sys.path.append('/lib')
+    sys.path.append('/lib/internal')
+    sys.path.append('/lib/openos')
+    sys.path.append('/usr/lib')
     sys.path.append('/lib/micropython')
 
     for filename in sorted(uos.listdir("/boot")):
@@ -58,8 +61,8 @@ def init():
         # noinspection PyUnresolvedReferences
         execfile("/boot/" + filename, context)
 
-    from shell import spawn
-    spawn("/bin/python.py")
+    # from shell import spawn
+    # spawn("/bin/python.py")
 
 
 if __name__ == "__main__":

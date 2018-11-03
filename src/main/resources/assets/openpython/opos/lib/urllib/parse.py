@@ -28,7 +28,6 @@ test_urlparse.py provides a good indicator of parsing behavior.
 """
 
 import re
-import sys
 import collections
 
 __all__ = ["urlparse", "urlunparse", "urljoin", "urldefrag",
@@ -890,7 +889,7 @@ def splitpasswd(user):
     global _passwdprog
     if _passwdprog is None:
         import re
-        _passwdprog = re.compile('^([^:]*):(.*)$',re.S)
+        _passwdprog = re.compile('^([^:]*):(.*)$', re.S)
 
     match = _passwdprog.match(user)
     if match: return match.group(1, 2)

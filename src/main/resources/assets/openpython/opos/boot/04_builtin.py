@@ -1,5 +1,25 @@
 import builtins
+
+import event
+import machine
 import sys
+
+last_input = []
+buf = []
+
+
+def check_key_down(name, *_):
+    return name == "key_down"
+
+
+@machine.hook_stdin
+def input_handler():
+    while True:
+        signal = event.pull_filtered(1, check_key_down)
+        if signal is not None:
+            _name, _address, char, code, _user = signal
+            if char:
+                return int(char)
 
 
 # noinspection PyShadowingBuiltins
