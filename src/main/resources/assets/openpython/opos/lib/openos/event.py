@@ -244,6 +244,7 @@ def on_error(e):
 
 def setup():
     global keyboard
+
     def pull_signal(seconds):
         ticks = sys.maxsize if seconds == INF else int(seconds * 20)
         return signal_handler(ticks)

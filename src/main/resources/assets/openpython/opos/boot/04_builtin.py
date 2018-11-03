@@ -43,7 +43,7 @@ def input(prompt=None):
         elif ch == '\b':
             if buf:
                 buf.pop()
-                write(ch + "---")
+                write(ch)
             continue
         else:
             write(ch)

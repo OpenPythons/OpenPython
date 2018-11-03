@@ -81,8 +81,6 @@ class SidedContextMethod:
             return self.func(DOWN, *args)
 
 
-
-
 class RobotResult:
     def __init__(self, result):
         self.result = result
