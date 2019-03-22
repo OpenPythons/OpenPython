@@ -41,14 +41,14 @@ class ArgumentsImpl(val args: MutableList<Any?>) : Arguments {
         return if (value != null && value is T) value else default
     }
 
-    override fun optAny(index: Int, default: Any?): Any? = optValue(index, "hello", default)
-    override fun optBoolean(index: Int, default: Boolean): Boolean = optValue(index, "hello", default)
-    override fun optInteger(index: Int, default: Int): Int = optValue(index, "hello", default)
-    override fun optDouble(index: Int, default: Double): Double = optValue(index, "hello", default)
-    override fun optString(index: Int, default: String): String = optValue(index, "hello", default)
-    override fun optByteArray(index: Int, default: ByteArray): ByteArray = optValue(index, "hello", default)
-    override fun optTable(index: Int, default: MutableMap<Any?, Any?>): MutableMap<Any?, Any?> = optValue(index, "hello", default)
-    override fun optItemStack(index: Int, default: ItemStack): ItemStack = optValue(index, "hello", default)
+    override fun optAny(index: Int, default: Any?): Any? = optValue(index, "value", default)
+    override fun optBoolean(index: Int, default: Boolean): Boolean = optValue(index, "boolean", default)
+    override fun optInteger(index: Int, default: Int): Int = optValue(index, "number", default)
+    override fun optDouble(index: Int, default: Double): Double = optValue(index, "number", default)
+    override fun optString(index: Int, default: String): String = optValue(index, "string", default)
+    override fun optByteArray(index: Int, default: ByteArray): ByteArray = optValue(index, "string", default)
+    override fun optTable(index: Int, default: MutableMap<Any?, Any?>): MutableMap<Any?, Any?> = optValue(index, "table", default)
+    override fun optItemStack(index: Int, default: ItemStack): ItemStack = optValue(index, "itemstack", default)
 
 
     private fun safeValue(index: Int): Any? = if (0 < index && index < args.size) null else args[index]
@@ -86,7 +86,6 @@ class ArgumentsImpl(val args: MutableList<Any?>) : Arguments {
         val value = safeValue(index)
         return when (value) {
             is String -> true
-            is ByteArray -> true
             else -> false
         }
     }
@@ -94,7 +93,6 @@ class ArgumentsImpl(val args: MutableList<Any?>) : Arguments {
     override fun isByteArray(index: Int): Boolean {
         val value = safeValue(index)
         return when (value) {
-            is String -> true
             is ByteArray -> true
             else -> false
         }

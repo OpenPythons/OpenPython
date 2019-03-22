@@ -2,6 +2,7 @@ package kr.pe.ecmaxp.openpython.arch.versions.v1
 
 import kr.pe.ecmaxp.openpython.OpenPythonVirtualMachine
 import kr.pe.ecmaxp.openpython.arch.OpenComputersLikeSaveHandler
+import kr.pe.ecmaxp.openpython.arch.OpenPythonFirmware
 import kr.pe.ecmaxp.openpython.arch.msgpack.MsgpackPacker
 import kr.pe.ecmaxp.openpython.arch.msgpack.MsgpackUnpacker
 import kr.pe.ecmaxp.openpython.arch.types.interrupt.Interrupt
@@ -24,7 +25,7 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
 
-class OpenPythonVirtualMachineV1 internal constructor(val machine: Machine, override val memorySize: Int) : OpenPythonVirtualMachine {
+class OpenPythonVirtualMachineV1 internal constructor(val machine: Machine, override val memorySize: Int, val firmware: OpenPythonFirmware) : OpenPythonVirtualMachine {
     override fun packValue(packer: MessagePacker, value: Value) {
         val newPacker = MsgpackPacker(this)
         newPacker.pack(state.valueMap.register(value).id)
@@ -47,7 +48,6 @@ class OpenPythonVirtualMachineV1 internal constructor(val machine: Machine, over
         }
     }
 
-    var firmware = OpenPythonArchitectureV1.LATEST_FIRMWARE
     val cpu: CPU = CPU()
     var state: OpenPythonVirtualMachineStateV1 = OpenPythonVirtualMachineStateV1()
     var interruptHandler: InterruptHandler = OpenPythonInterruptHandlerV1(this)
@@ -101,7 +101,7 @@ class OpenPythonVirtualMachineV1 internal constructor(val machine: Machine, over
         val firmwareTag = rootTag.getCompoundTag("LATEST_FIRMWARE")
         val firmwareName = firmwareTag.getString("name")
         if (firmware.name != firmwareName) {
-            firmware = OpenPythonArchitectureV1.LATEST_FIRMWARE
+            machine.crash("Invalid firmware")
         }
 
 

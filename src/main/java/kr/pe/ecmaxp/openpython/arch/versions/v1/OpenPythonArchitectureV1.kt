@@ -10,14 +10,27 @@ import li.cil.oc.api.machine.Machine
 
 @Suppress("unused", "ClassName")
 @Architecture.Name("OpenPython v1.0")
-class OpenPythonArchitectureV1(machine: Machine) : OpenPythonArchitecture(machine, this) {
+class OpenPythonArchitectureV1_0(machine: Machine) : OpenPythonArchitecture(machine, this) {
     companion object : OpenPythonArchitectureLogic {
         val FIRMWARE_v1_0_1: OpenPythonFirmware = OpenPythonFirmware("v1.0.1")
-        val FIRMWARE_v1_0_2: OpenPythonFirmware = OpenPythonFirmware("v1.0.2")
-        override val LATEST_FIRMWARE: OpenPythonFirmware = FIRMWARE_v1_0_2
+        override val LATEST_FIRMWARE: OpenPythonFirmware = FIRMWARE_v1_0_1
 
         override fun spawn(machine: Machine, memorySize: Int): OpenPythonVirtualMachine {
-            return OpenPythonVirtualMachineV1(machine, memorySize)
+            return OpenPythonVirtualMachineV1(machine, memorySize, LATEST_FIRMWARE)
+        }
+    }
+}
+
+
+@Suppress("unused", "ClassName")
+@Architecture.Name("OpenPython v1.1")
+class OpenPythonArchitectureV1_1(machine: Machine) : OpenPythonArchitecture(machine, this) {
+    companion object : OpenPythonArchitectureLogic {
+        val FIRMWARE_v1_1_0: OpenPythonFirmware = OpenPythonFirmware("v1.1.0")
+        override val LATEST_FIRMWARE: OpenPythonFirmware = FIRMWARE_v1_1_0
+
+        override fun spawn(machine: Machine, memorySize: Int): OpenPythonVirtualMachine {
+            return OpenPythonVirtualMachineV1(machine, memorySize, LATEST_FIRMWARE)
         }
     }
 }
