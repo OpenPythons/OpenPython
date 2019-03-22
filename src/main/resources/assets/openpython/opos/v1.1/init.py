@@ -61,8 +61,8 @@ def init():
         # noinspection PyUnresolvedReferences
         execfile("/boot/" + filename, context)
 
-    # from shell import spawn
-    # spawn("/bin/python.py")
+    from shell import spawn
+    spawn("/bin/shell.py")
 
 
 if __name__ == "__main__":

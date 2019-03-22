@@ -49,6 +49,9 @@ class Component:
     def __init__(self, address):
         self.address = address
 
+    def __bool__(self):
+        return self.type is not None
+
     @property
     def type(self):
         return get_type(self.address)
@@ -64,7 +67,10 @@ class Component:
         return dir(object()) + ["address", "type", "slot"] + methods(self.address)
 
     def __repr__(self):
-        return "Component<{0}:{1}>".format(self.type, self.address)
+        if self:
+            return "Component<{0}:{1}>".format(self.type, self.address)
+        else:
+            return "Component<INVALID:{0}>".format(self.address)
 
 
 def doc(address: str, method: str):

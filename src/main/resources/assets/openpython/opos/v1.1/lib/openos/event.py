@@ -7,8 +7,7 @@ import sys
 import computer
 import machine
 import process
-
-from computer import pop_signal
+from computer import pull_signal
 
 __all__ = ["Handlers", "on", "listen", "pull", "pull_filtered", "pull_multiple", "cancel", "ignore"]
 
@@ -28,7 +27,7 @@ class Handler:
         self.callback = callback
         self.times = times
         self.interval = interval  # timer
-        self.timeout = INF if interval is None else computer.uptime() + interval  # timer
+        self.timeout = None if interval is None else computer.uptime() + interval  # timer
 
 
 class Handlers:
@@ -69,7 +68,7 @@ class Handlers:
 handlers = Handlers()
 
 
-def register(key, callback, interval=INF, times=INF, opt_handlers: Handlers = None):
+def register(key, callback, interval=None, times=None, opt_handlers: Handlers = None):
     opt_handlers = opt_handlers if opt_handlers is not None else handlers
     handler = Handler(key, callback, interval, times)
     return opt_handlers.register(handler)
@@ -117,7 +116,7 @@ def signal_handler(ticks):
         push("interrupted", current_time)
 
     removes = set()
-    signal = pop_signal(ticks)
+    signal = pull_signal(ticks)
 
     def process_handler(etype, signal):
         for handler in handlers.get_handlers(etype):  # type: Handler
@@ -149,14 +148,14 @@ def signal_handler(ticks):
         return
 
     removes = set()
-    name, args = signal
+    name, *args = signal
     process_handler(ALWAYS, signal)
     process_handler(name, signal)
 
     for handler in removes:
         handlers.unregister(handler)
 
-    return (name,) + args
+    return signal
 
 
 def on(name):
@@ -221,7 +220,8 @@ def pull_filtered(first, second=None):
     while computer.uptime() < deadline:
         closest = deadline
         for handler in handlers.iter_all_handlers():
-            closest = min(closest, handler.timeout)
+            if handler.timeout is not None:
+                closest = min(closest, handler.timeout)
 
         signal = computer.pull_signal(closest - computer.uptime())
         if signal is None:

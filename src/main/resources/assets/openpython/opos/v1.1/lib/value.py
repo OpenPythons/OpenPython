@@ -42,7 +42,7 @@ class Value:
                                 "dispose", "_uvalue"] + list(methods(self._uvalue))
 
     def __getattr__(self, name):
-        return ValueMethod(self, name) if name != "close" else ValueCloseMethod(self, "close")
+        return ValueMethod(self, name)
 
     def __str__(self):
         return doc(self._uvalue) if self else repr(self)
@@ -55,6 +55,10 @@ class Value:
 
     def __del__(self):
         self._uvalue.dispose()
+
+    @property
+    def close(self):
+        return ValueCloseMethod(self, "close")
 
     def dispose(self):
         self._uvalue.dispose()

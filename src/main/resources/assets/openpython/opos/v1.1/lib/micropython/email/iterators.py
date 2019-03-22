@@ -26,7 +26,7 @@ def walk(self):
     yield self
     if self.is_multipart():
         for subpart in self.get_payload():
-            for subsubpart in subpart.walk():
+            for subsubpart in subpart.visit():
                 yield subsubpart
 
 
@@ -37,7 +37,7 @@ def body_line_iterator(msg, decode=False):
 
     Optional decode (default False) is passed through to .get_payload().
     """
-    for subpart in msg.walk():
+    for subpart in msg.visit():
         payload = subpart.get_payload(decode=decode)
         if isinstance(payload, str):
             for line in StringIO(payload):
@@ -51,7 +51,7 @@ def typed_subpart_iterator(msg, maintype='text', subtype=None):
     "text".  Optional `subtype' is the MIME subtype to match against; if
     omitted, only the main type is matched.
     """
-    for subpart in msg.walk():
+    for subpart in msg.visit():
         if subpart.get_content_maintype() == maintype:
             if subtype is None or subpart.get_content_subtype() == subtype:
                 yield subpart

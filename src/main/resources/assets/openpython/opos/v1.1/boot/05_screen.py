@@ -32,3 +32,12 @@ if gpu and screen:
 
 
     _set_monitor(monitor)
+
+    import tty
+
+    tty.bind(gpu)
+
+
+    @machine.hook_stdout
+    def print_handler(buf):
+        tty.stream.write(buf)
