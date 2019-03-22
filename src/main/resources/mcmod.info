@@ -1,6 +1,6 @@
 [
     {
-        "modid": "OpenPython",
+        "modid": "openpython",
         "name": "OpenPython",
         "description": "Micropython for OpenComputer",
         "version": "${version}",
